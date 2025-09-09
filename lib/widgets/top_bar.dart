@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picpee_mobile/core/theme/app_colors.dart';
 
 class TopBar extends StatefulWidget {
   const TopBar({super.key});
@@ -21,16 +22,16 @@ class _TopBarState extends State<TopBar> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(Icons.menu, color: Colors.white, size: 30.sp),
+            Icon(Icons.menu, color: AppColors.textGreen, size: 30.sp),
             Text(
               'Picpee',
               style: TextStyle(
-                color: Colors.white,
+                color: AppColors.textGreen,
                 fontSize: 24.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Icon(Icons.account_circle, color: Colors.white, size: 30.sp),
+            Icon(Icons.account_circle, color: AppColors.textGreen, size: 30.sp),
           ],
         ),
       ),

@@ -6,14 +6,16 @@ class AppColors {
   static const Color white = Colors.white;
   static const Color black = Colors.black;
   static const Color transparent = Colors.transparent;
-
+  static const Color buttonGreen = Color(0xFF4AF73E);
   // Backgrounds
   static const Color backgroundDark = Color(0xFF0F1115); // nền đen/xám đậm
   static const Color backgroundLight = Color(0xFFF5F5F7); // cho section sáng
   static const Color cardDark = Color(0xFF1C1F24); // thẻ / sidebar
 
   // Text
+
   static const Color textPrimary = Colors.white;
+  static const Color textGreen = Color(0xFF022C28);
   static const Color textSecondary = Color(0xFFB0B3B8); // chữ xám phụ
   static const Color textHighlight = Color(
     0xFF00FF66,

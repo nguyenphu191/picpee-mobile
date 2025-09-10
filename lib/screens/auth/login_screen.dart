@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/widgets/top_bar.dart';
+import 'package:picpee_mobile/screens/auth/forgot_screen.dart';
+import 'package:picpee_mobile/screens/auth/register_screen.dart';
+import 'package:picpee_mobile/screens/service/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       'Welcome back!',
                       style: TextStyle(
                         color: const Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 28.sp,
+                        fontSize: 28.r,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -65,8 +67,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: const TextStyle(color: Color(0xFF011AFF)),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                // Xử lý khi click, ví dụ chuyển sang màn hình đăng ký
-                                Navigator.pushNamed(context, '/register');
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RegisterScreen(),
+                                  ),
+                                );
                               },
                           ),
                         ],
@@ -94,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Continue with Google',
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 16.sp,
+                            fontSize: 16.h,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -133,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   TextField(
                     controller: emailController,
                     style: const TextStyle(color: Colors.black),
@@ -146,46 +152,53 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
 
                   // Password Field
-                  const Align(
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Password",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
-                        fontSize: 16,
+                        fontSize: 16.h,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   TextField(
                     obscureText: true,
                     controller: passwordController,
-                    style: const TextStyle(color: Colors.black),
+                    style: TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       hintText: "Input your password",
-                      hintStyle: const TextStyle(color: Colors.grey),
+                      hintStyle: TextStyle(color: Colors.grey),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(0),
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10.h),
 
                   // Forgot Password
                   Align(
                     alignment: Alignment.centerRight,
                     child: GestureDetector(
-                      onTap: () {},
-                      child: const Text(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
                         "Forgot your password?",
                         style: TextStyle(
                           color: Color(0xFF011AFF),
-                          fontSize: 16,
+                          fontSize: 16.h,
                         ),
                       ),
                     ),
@@ -201,13 +214,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         shape: RoundedRectangleBorder(),
                       ),
                       onPressed: () {
-                        // Handle login action
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeScreen(),
+                          ),
+                        );
                       },
                       child: Text(
                         'Login',
                         style: TextStyle(
                           color: AppColors.black,
-                          fontSize: 18.sp,
+                          fontSize: 16.h,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

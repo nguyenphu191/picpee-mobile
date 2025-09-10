@@ -4,9 +4,9 @@ class AppImages {
   //background
   static const String background1 = '${basePath}background1.png';
   static const String background2 = '${basePath}background2.png';
-  static const String blance = '${basePath}Blance.png';
+  static const String blance = '${basePath}Balance.png';
   //logo
-  static const String logo1 = '${basePath}Logo1.png';
+  static const String logo1 = '${basePath}Logo.png';
   static const String logo2 = '${basePath}Logo2.png';
   //icon service
   static const String SingleExportIcon = '${basePath}se_icon.png';
@@ -36,6 +36,10 @@ class AppImages {
   static const String BackgroundReplaceIcon = '${basePath}br_icon.png';
   static const String CutsOutIcon = '${basePath}co_icon.png';
   static const String ChangeColorIcon = '${basePath}cc_icon.png';
+  //Drawer & Header Icons
+  static const String DrawerProfile = '${basePath}drawer-profile.png';
+  static const String DrawerOrder = '${basePath}drawer-order.png';
+  static const String DrawerSupport = '${basePath}drawer-support.png';
   //Other Icons
   static const String ProjectIcon = '${basePath}project.png';
   static const String ProfileIcon = '${basePath}user-square.png';

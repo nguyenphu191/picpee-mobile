@@ -16,7 +16,13 @@ class _TopBarState extends State<TopBar> {
     return Container(
       height: 80.h,
       width: size.width,
-      color: Colors.transparent,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.black, AppColors.textGreen],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Row(

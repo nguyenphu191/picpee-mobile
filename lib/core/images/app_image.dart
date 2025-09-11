@@ -48,6 +48,7 @@ class AppImages {
   static const String FolderIcon = '${basePath}folder-favorite.png';
   static const String DiscountIcon = '${basePath}discount-circle.png';
   static const String GGIcon = '${basePath}ggicon.png';
+  static const String ArrowIcon = '${basePath}arrow.png';
 
   //other images
   static const String Designer = '${basePath}designer.png';

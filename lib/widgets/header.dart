@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
+import 'package:picpee_mobile/core/theme/app_colors.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -11,8 +12,14 @@ class Header extends StatelessWidget {
       height: 68.h,
       padding: EdgeInsets.symmetric(horizontal: 18.h, vertical: 8.h),
       decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.black, AppColors.textGreen],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+
         borderRadius: BorderRadius.circular(35.r),
-        border: Border.all(color: Colors.white24),
+        border: Border.all(color: Colors.white12),
       ),
 
       child: Row(

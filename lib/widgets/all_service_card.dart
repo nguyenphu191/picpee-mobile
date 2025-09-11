@@ -86,7 +86,7 @@ class AllServicesCard extends StatelessWidget {
               child: Text(
                 "All Services",
                 style: TextStyle(
-                  fontSize: 20.h,
+                  fontSize: 24.h,
                   fontWeight: FontWeight.w600,
                   color: Colors.black87,
                 ),

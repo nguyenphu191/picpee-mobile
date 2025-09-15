@@ -1,0 +1,152 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picpee_mobile/core/images/app_image.dart';
+import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/widgets/one_service_card.dart';
+
+class TopServiceCard extends StatefulWidget {
+  const TopServiceCard({
+    super.key,
+    this.onSeeAllTap,
+    this.onServiceTap,
+    required this.title,
+    this.isDuck = false,
+  });
+  final VoidCallback? onSeeAllTap;
+  final Function(ServiceData)? onServiceTap;
+  final String title;
+  final bool isDuck;
+
+  @override
+  State<TopServiceCard> createState() => _TopServiceCardState();
+}
+
+class _TopServiceCardState extends State<TopServiceCard> {
+  static final List<ServiceData> _hardcodedServices = [
+    ServiceData(
+      title: "Top Designers In\nBlended Brackets\n(HDR)",
+      imageUrl:
+          "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      editorName: "The Best Editor",
+      editorAvatar:
+          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+      rating: 5.0,
+      reviewCount: 31,
+      turnaroundTime: "12 hours",
+      startingPrice: "\$0.75",
+      isAutoAccepting: true,
+    ),
+    ServiceData(
+      title: "Professional Photo\nRetouching\n(Premium)",
+      imageUrl:
+          "https://images.unsplash.com/photo-1600298881974-6be191ceeda1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      editorName: "Creative Master",
+      editorAvatar:
+          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+      rating: 4.9,
+      reviewCount: 127,
+      turnaroundTime: "24 hours",
+      startingPrice: "\$2.50",
+      isAutoAccepting: false,
+    ),
+    ServiceData(
+      title: "AI-Enhanced\nPortrait Editing\n(Express)",
+      imageUrl:
+          "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
+      editorName: "Digital Wizard",
+      editorAvatar:
+          "https://images.unsplash.com/photo-1494790108755-2616b612b605?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+      rating: 4.8,
+      reviewCount: 89,
+      turnaroundTime: "6 hours",
+      startingPrice: "\$1.25",
+      isAutoAccepting: true,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 520.h,
+      decoration: BoxDecoration(
+        color: widget.isDuck ? Color.fromARGB(255, 2, 36, 13) : Colors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  height: 80.h,
+                  width: 240.w,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Top Designers In ${widget.title}",
+                    style: TextStyle(
+                      fontSize: 22.h,
+                      fontWeight: FontWeight.bold,
+                      color: !widget.isDuck ? Colors.black : Colors.white,
+                    ),
+                    maxLines: 2,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: widget.onSeeAllTap,
+                  child: Container(
+                    height: 42.h,
+                    width: 90.w,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.buttonGreen,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      'See All',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.h,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 12.h),
+
+          Container(
+            height: 370.h,
+            margin: EdgeInsets.symmetric(horizontal: 16.h),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _hardcodedServices.length,
+              itemBuilder: (context, index) {
+                final service = _hardcodedServices[index];
+                return Container(
+                  height: 370.h,
+                  width: 320.w,
+                  margin: EdgeInsets.only(
+                    right: index < _hardcodedServices.length - 1 ? 4.h : 0,
+                  ),
+                  child: OneServiceCard(service: service, onTap: () {}),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

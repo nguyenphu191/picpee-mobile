@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/widgets/blog_demo_card.dart';
 import 'package:picpee_mobile/widgets/all_service_card.dart';
 import 'package:picpee_mobile/widgets/designer_top_card.dart';
+import 'package:picpee_mobile/widgets/featured_card.dart';
+import 'package:picpee_mobile/widgets/top_service_card.dart';
 
 class HomeBody extends StatefulWidget {
   const HomeBody({super.key});
@@ -155,6 +158,17 @@ class _HomeBodyState extends State<HomeBody> {
             ),
             SizedBox(height: 10.h),
             DesignerTopCardCard(),
+            FeaturedCard(),
+            SizedBox(height: 20.h),
+            TopServiceCard(title: "Blanded Brackets (HDR)"),
+            SizedBox(height: 10.h),
+            TopServiceCard(title: "Virtual Staging"),
+            SizedBox(height: 10.h),
+            TopServiceCard(title: "Room Cleaning", isDuck: true),
+            SizedBox(height: 10.h),
+            TopServiceCard(title: "Day To Duck"),
+            SizedBox(height: 10.h),
+            BlogDemoCard(),
           ],
         ),
       ),

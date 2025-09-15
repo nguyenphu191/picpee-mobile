@@ -5,7 +5,7 @@ import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/auth/forgot_screen.dart';
 import 'package:picpee_mobile/screens/auth/register_screen.dart';
-import 'package:picpee_mobile/screens/service/home_screen.dart';
+import 'package:picpee_mobile/screens/home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

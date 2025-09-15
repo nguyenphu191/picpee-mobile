@@ -49,6 +49,11 @@ class AppImages {
   static const String DiscountIcon = '${basePath}discount-circle.png';
   static const String GGIcon = '${basePath}ggicon.png';
   static const String ArrowIcon = '${basePath}arrow.png';
+  static const String InsIcon = '${basePath}Instagram.png';
+  static const String FbIcon = '${basePath}Facebook.png';
+  static const String TwtIcon = '${basePath}Twitter.png';
+  static const String GitIcon = '${basePath}Github.png';
+  static const String MessIcon = '${basePath}message_icon.png';
 
   //other images
   static const String Designer = '${basePath}designer.png';

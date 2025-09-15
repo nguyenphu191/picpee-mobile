@@ -17,6 +17,7 @@ class AppColors {
   static const Color textPrimary = Colors.white;
   static const Color textGreen = Color(0xFF022C28);
   static const Color textSecondary = Color(0xFFB0B3B8); // chữ xám phụ
+  static const Color linkBlue = Color(0xFF011AFF); // link và nút bấm
   static const Color textHighlight = Color(
     0xFF00FF66,
   ); // highlight xanh lá neon
@@ -25,7 +26,8 @@ class AppColors {
   static const Color brandGreen = Color(0xFF00FF66); // xanh neon
   static const Color brandPurple = Color(0xFF9C6ADE); // tím pastel
   static const Color brandRed = Color(0xFFFF4C4C); // đỏ cảnh báo
-
+  static const Color brandDuckGreen = Color.fromARGB(255, 2, 36, 13);
+  static const Color brandDuck = Color.fromARGB(255, 0, 12, 4);
   // Status
   static const Color success = Color(0xFF00C853); // xanh lá đậm hơn
   static const Color warning = Color(0xFFFFB300); // vàng cảnh báo

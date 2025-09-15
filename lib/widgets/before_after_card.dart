@@ -3,7 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 
 class BeforeAfterCard extends StatefulWidget {
-  const BeforeAfterCard({super.key});
+  final double? width;
+  final double? height;
+
+  const BeforeAfterCard({super.key, this.width, this.height});
+
   @override
   State<BeforeAfterCard> createState() => _BeforeAfterCardState();
 }
@@ -51,8 +55,10 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double containerWidth = constraints.maxWidth;
-        final double height = 300.h;
+        // Sử dụng width từ parameter hoặc mặc định từ constraints
+        final double containerWidth = widget.width ?? constraints.maxWidth;
+        // Sử dụng height từ parameter hoặc mặc định 300.h
+        final double height = widget.height ?? 300.h;
         final double imageWidth = containerWidth;
 
         return Column(
@@ -114,7 +120,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black54,
-                          fontSize: 14.h,
+                          fontSize: 12.h,
                         ),
                       ),
                     ),
@@ -124,8 +130,8 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.h,
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
@@ -143,7 +149,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black54,
-                          fontSize: 14.h,
+                          fontSize: 12.h,
                         ),
                       ),
                     ),

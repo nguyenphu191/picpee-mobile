@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/home/home_screen.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -26,7 +27,15 @@ class Header extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           /// Logo
-          Image.asset(AppImages.logo1, height: 40.sp),
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            },
+            child: Image.asset(AppImages.logo1, height: 40.sp),
+          ),
           SizedBox(width: 8.w),
 
           /// Icon bên phải

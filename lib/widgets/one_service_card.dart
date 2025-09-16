@@ -91,10 +91,9 @@ class OneServiceCard extends StatelessWidget {
                           child: Row(
                             children: [
                               Container(
-                                height: 50.h,
-                                width: 50.h,
+                                height: 45.h,
+                                width: 45.h,
                                 decoration: BoxDecoration(
-                                  color: AppColors.buttonGreen,
                                   border: Border.all(
                                     color: Colors.white,
                                     width: 1.5,
@@ -124,7 +123,7 @@ class OneServiceCard extends StatelessWidget {
                                 ),
                               ),
 
-                              SizedBox(width: 12.h),
+                              SizedBox(width: 12.w),
 
                               Expanded(
                                 child: Column(
@@ -171,37 +170,41 @@ class OneServiceCard extends StatelessWidget {
                                       ],
                                     ),
 
-                                    SizedBox(height: 4.h),
+                                    SizedBox(height: 4.w),
 
-                                    // Rating and auto-accepting
                                     Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 16.h,
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
+                                              size: 16.h,
+                                            ),
+                                            Text(
+                                              '${service.rating}',
+                                              style: TextStyle(
+                                                color: Colors.amber,
+                                                fontSize: 14.h,
+                                              ),
+                                            ),
+                                            Text(
+                                              ' (${service.reviewCount})',
+                                              style: TextStyle(
+                                                color: !this.isDuck
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 14.h,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: 4.h),
-                                        Text(
-                                          '${service.rating}',
-                                          style: TextStyle(
-                                            color: Colors.amber,
-                                            fontSize: 14.h,
-                                          ),
-                                        ),
-                                        Text(
-                                          ' (${service.reviewCount})',
-                                          style: TextStyle(
-                                            color: !this.isDuck
-                                                ? Colors.white
-                                                : Colors.black,
-                                            fontSize: 14.h,
-                                          ),
-                                        ),
+
                                         if (service
                                             .designer!
                                             .isAutoAccepting) ...[
-                                          SizedBox(width: 32.h),
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 6,
@@ -232,7 +235,7 @@ class OneServiceCard extends StatelessWidget {
                                                     color: !this.isDuck
                                                         ? Colors.white
                                                         : Colors.black,
-                                                    fontSize: 14.h,
+                                                    fontSize: 12.h,
                                                   ),
                                                 ),
                                               ],

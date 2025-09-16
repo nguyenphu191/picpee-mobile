@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/blog_model.dart';
+import 'package:picpee_mobile/screens/blog/blog_detail_screen.dart';
 import 'package:picpee_mobile/screens/blog/blogs_screen.dart';
 
 class BlogDemoCard extends StatefulWidget {
@@ -124,63 +125,73 @@ class _BlogDemoCardState extends State<BlogDemoCard> {
   ];
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 500.h,
-      width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.all(16.h),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            child: Text(
-              "Picpee Blogs",
-              style: TextStyle(
-                fontSize: 24.h,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-              textAlign: TextAlign.center,
-            ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlogDetailScreen(blogId: "1"),
           ),
-          SizedBox(height: 20.h),
-          Container(
-            height: 300.h,
-            width: double.infinity,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
-            child: PageView.builder(
-              itemCount: blogs.length,
-              controller: PageController(viewportFraction: 0.9),
-              itemBuilder: (context, index) {
-                final item = blogs[index];
-                return _buildBlogItem(item, index);
-              },
-            ),
-          ),
-          SizedBox(height: 32.h),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BlogsScreen()),
-              );
-            },
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.h),
-              decoration: BoxDecoration(
-                color: AppColors.buttonGreen,
-                borderRadius: BorderRadius.circular(6),
-              ),
+        );
+      },
+      child: Container(
+        height: 500.h,
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.all(16.h),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
               child: Text(
-                'See More Blogs',
+                "Picpee Blogs",
                 style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16.h,
+                  fontSize: 24.h,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 20.h),
+            Container(
+              height: 300.h,
+              width: double.infinity,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+              child: PageView.builder(
+                itemCount: blogs.length,
+                controller: PageController(viewportFraction: 0.9),
+                itemBuilder: (context, index) {
+                  final item = blogs[index];
+                  return _buildBlogItem(item, index);
+                },
+              ),
+            ),
+            SizedBox(height: 32.h),
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => BlogsScreen()),
+                );
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.h),
+                decoration: BoxDecoration(
+                  color: AppColors.buttonGreen,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'See More Blogs',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16.h,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -246,13 +257,17 @@ class _BlogDemoCardState extends State<BlogDemoCard> {
                 ),
                 SizedBox(height: 6.h),
                 Container(
-                  width: 290.w,
+                  width: 280.w,
                   height: 52.h,
                   child: Text(
                     item.title,
                     style: TextStyle(
                       fontSize: 20.h,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontFamily: 'Roboto',
+                      letterSpacing: 0.5,
+                      height: 1.2,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -262,11 +277,15 @@ class _BlogDemoCardState extends State<BlogDemoCard> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.calendar_month, size: 20.h, color: Colors.white),
+                    Icon(
+                      Icons.calendar_month,
+                      size: 20.h,
+                      color: Colors.grey[300],
+                    ),
                     SizedBox(width: 10.w),
                     Text(
                       item.publishDate.toIso8601String(),
-                      style: const TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 14.h, color: Colors.grey[300]),
                     ),
                   ],
                 ),

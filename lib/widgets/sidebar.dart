@@ -4,57 +4,39 @@ import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 
-class CustomEndDrawer extends StatelessWidget {
-  const CustomEndDrawer({super.key});
+class SideBar extends StatelessWidget {
+  const SideBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Drawer(
-      width: size.width * 0.8,
+      width: size.width * 0.75,
       child: SafeArea(
         child: Container(
-          // margin: EdgeInsets.only(top: 16.h, bottom: 16.h),
-          color: Colors.white,
+          color: Colors.black87,
           child: ListView(
             padding: EdgeInsets.all(16.w),
             children: [
-              /// User info
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 28.r,
-                    backgroundImage: AssetImage(
-                      AppImages.background1,
-                    ), // ảnh user
-                  ),
-                  SizedBox(width: 12.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "J.M.Designs",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.h,
-                          color: Colors.black,
-                        ),
-                      ),
-                      Text(
-                        "t9561510@gmail.com",
-                        style: TextStyle(color: Colors.grey, fontSize: 13.h),
-                      ),
-                    ],
-                  ),
-                ],
+              Container(
+                alignment: Alignment.centerLeft,
+                child: Image.asset(AppImages.logo1, height: 52.h),
               ),
-              Divider(height: 24.h),
+              SizedBox(height: 24.h),
 
               ListTile(
-                leading: Image.asset(AppImages.DrawerProfile, height: 24.h),
+                leading: Image.asset(
+                  AppImages.ProjectIcon,
+                  height: 24.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
-                  "Profile",
-                  style: TextStyle(color: Colors.black, fontSize: 16.h),
+                  "Projects",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.h,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () {
                   Navigator.push(
@@ -64,18 +46,50 @@ class CustomEndDrawer extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: Image.asset(AppImages.DrawerOrder, height: 24.h),
+                leading: Image.asset(
+                  AppImages.ProfileIcon,
+                  height: 24.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
-                  "Orders",
-                  style: TextStyle(color: Colors.black, fontSize: 16.h),
+                  "Account",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.h,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () {},
               ),
               ListTile(
-                leading: Image.asset(AppImages.DrawerSupport, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DiscountIcon,
+                  height: 24.h,
+                  fit: BoxFit.cover,
+                ),
+                title: Text(
+                  "Discount",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.h,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: Image.asset(
+                  AppImages.SupportIcon,
+                  height: 24.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Support Center",
-                  style: TextStyle(color: Colors.black, fontSize: 16.h),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16.h,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 onTap: () {},
               ),

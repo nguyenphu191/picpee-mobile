@@ -698,6 +698,226 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
     );
   }
 
+  Widget _buildServiceItem(ServiceModel item) {
+    return Container(
+      height: 380.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Stack(
+        children: [
+          // Service Header
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 75.h,
+              padding: EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Image.asset(
+                    AppImages.SingleExportIcon,
+                    width: 40.h,
+                    height: 40.h,
+                  ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: TextStyle(
+                            fontSize: 20.h,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            // Handle "What's included?" tap
+                          },
+                          child: Text(
+                            item.subtitle,
+                            style: TextStyle(
+                              fontSize: 12.h,
+                              color: AppColors.linkBlue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        "\$${item.startingPrice.toString()}",
+                        style: TextStyle(
+                          fontSize: 16.h,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.linkBlue,
+                        ),
+                      ),
+                      Text(
+                        'per photo',
+                        style: TextStyle(
+                          fontSize: 12.h,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Before/After
+          Positioned(
+            top: 75.h,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 250.h,
+              color: Colors.white,
+              width: double.maxFinite,
+              child: BeforeAfterCard(height: 200.h, width: 310.w),
+            ),
+          ),
+          // Service Details
+          Positioned(
+            top: 260.h,
+            left: 0,
+            right: 0,
+            child: ClipPath(
+              clipper: TopNotchClipper(),
+              child: Container(
+                padding: EdgeInsets.all(16),
+                height: 120.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  border: Border(top: BorderSide(color: Colors.black54)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Capacity',
+                              style: TextStyle(
+                                fontSize: 12.h,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            Text(
+                              '${item.capacity} per day',
+                              style: TextStyle(
+                                fontSize: 14.h,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  'Turnaround time',
+                                  style: TextStyle(
+                                    fontSize: 12.h,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                SizedBox(width: 4.w),
+                                InkWell(
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return Dialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.all(16.h),
+                                            child: Text(
+                                              "Turnaround time is determined by the vendor. Turnaround time starts from the time the vendor accepts the order until the delivery. Modifications do not affect the turnaround time.",
+                                              style: TextStyle(
+                                                fontSize: 13.h,
+                                                color: Colors.black87,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Icon(
+                                    Icons.info_outline,
+                                    size: 14.h,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Text(
+                              item.turnaroundTime,
+                              style: TextStyle(
+                                fontSize: 14.h,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16.h),
+                    Container(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Start Order',
+                          style: TextStyle(
+                            fontSize: 16.h,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildReviewsSection() {
     final displayedReviews = filteredAndSortedReviews
         .take(displayedReviewsCount)
@@ -971,199 +1191,5 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
       'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
-  }
-
-  Widget _buildServiceItem(ServiceModel item) {
-    return Container(
-      height: 380.h,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Stack(
-        children: [
-          // Service Header
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 75.h,
-              padding: EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Image.asset(
-                    AppImages.SingleExportIcon,
-                    width: 40.h,
-                    height: 40.h,
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          style: TextStyle(
-                            fontSize: 20.h,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        InkWell(
-                          onTap: () {
-                            // Handle "What's included?" tap
-                          },
-                          child: Text(
-                            item.subtitle,
-                            style: TextStyle(
-                              fontSize: 12.h,
-                              color: AppColors.linkBlue,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        item.startingPrice.toString(),
-                        style: TextStyle(
-                          fontSize: 18.h,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.linkBlue,
-                        ),
-                      ),
-                      Text(
-                        'per photo',
-                        style: TextStyle(
-                          fontSize: 12.h,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Before/After Images
-          Positioned(
-            top: 75.h,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 250.h,
-              color: Colors.white,
-              width: double.maxFinite,
-              child: BeforeAfterCard(height: 200.h, width: 310.w),
-            ),
-          ),
-          // Service Details
-          Positioned(
-            top: 260.h,
-            left: 0,
-            right: 0,
-            child: ClipPath(
-              clipper: TopNotchClipper(),
-              child: Container(
-                padding: EdgeInsets.all(16),
-                height: 120.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(8)),
-                  border: Border(top: BorderSide(color: Colors.black54)),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Capacity',
-                              style: TextStyle(
-                                fontSize: 12.h,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Text(
-                              '${item.capacity} per...',
-                              style: TextStyle(
-                                fontSize: 14.h,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Turnaround time',
-                                  style: TextStyle(
-                                    fontSize: 12.h,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                SizedBox(width: 4.w),
-                                Icon(
-                                  Icons.info_outline,
-                                  size: 14.h,
-                                  color: Colors.grey[600],
-                                ),
-                              ],
-                            ),
-                            Text(
-                              item.turnaroundTime,
-                              style: TextStyle(
-                                fontSize: 14.h,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 16.h),
-                    Container(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: Text(
-                          'Start Order',
-                          style: TextStyle(
-                            fontSize: 16.h,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

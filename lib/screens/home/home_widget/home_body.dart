@@ -103,6 +103,7 @@ class _HomeBodyState extends State<HomeBody> {
                                       borderRadius: BorderRadius.circular(12.r),
                                       border: Border.all(
                                         color: Colors.grey.shade700,
+                                        width: 1.5,
                                       ),
                                     ),
                                     child: TextField(

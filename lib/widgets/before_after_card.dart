@@ -69,7 +69,6 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
               height: height,
               child: Stack(
                 children: [
-                  // PageView - disable swipe gestures
                   Positioned(
                     left: 0,
                     right: 0,
@@ -155,7 +154,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                     ),
                   ),
 
-                  // Left arrow - inside image area
+                  // Left arrow
                   Positioned(
                     left: 0.h,
                     top: 0,
@@ -164,12 +163,10 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                       child: GestureDetector(
                         onTap: _prev,
                         child: Container(
-                          width: 44.h,
-                          height: 44.h,
                           decoration: BoxDecoration(shape: BoxShape.circle),
                           child: Icon(
                             Icons.chevron_left,
-                            size: 36.h,
+                            size: 32.h,
                             color: Colors.white,
                           ),
                         ),
@@ -177,7 +174,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                     ),
                   ),
 
-                  // Right arrow - inside image area
+                  // Right arrow
                   Positioned(
                     right: 0,
                     top: 0,
@@ -186,12 +183,10 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                       child: GestureDetector(
                         onTap: _next,
                         child: Container(
-                          width: 44.h,
-                          height: 44.h,
                           decoration: BoxDecoration(shape: BoxShape.circle),
                           child: Icon(
                             Icons.chevron_right,
-                            size: 36.h,
+                            size: 32.h,
                             color: Colors.white,
                           ),
                         ),
@@ -271,7 +266,7 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
               ),
             ),
 
-            // Foreground image (Before) - clipped
+            // Foreground image (Before)
             Positioned(
               left: 0,
               top: 0,
@@ -301,11 +296,11 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
 
             // Handle
             Positioned(
-              left: (widget.width * _sliderPosition) - 22.h,
+              left: (widget.width * _sliderPosition) - 18.h,
               top: (widget.height / 2) - 18.h,
               child: Container(
-                width: 40.h,
-                height: 40.h,
+                width: 32.h,
+                height: 32.h,
                 padding: EdgeInsets.only(left: 4),
                 decoration: BoxDecoration(shape: BoxShape.circle),
                 child: Image.asset(AppImages.ArrowIcon),

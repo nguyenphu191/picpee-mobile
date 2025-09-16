@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/blog_model.dart';
+import 'package:picpee_mobile/screens/blog/blog_detail_screen.dart';
 import 'package:picpee_mobile/widgets/customer_drawer.dart';
+import 'package:picpee_mobile/widgets/footer.dart';
 import 'package:picpee_mobile/widgets/header.dart';
 
 class BlogsScreen extends StatefulWidget {
@@ -168,7 +171,7 @@ class _BlogsScreenState extends State<BlogsScreen> {
                         'Picpee Blogs',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 30.h,
+                          fontSize: 28.h,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -176,7 +179,8 @@ class _BlogsScreenState extends State<BlogsScreen> {
                   ),
 
                   // Content
-                  Padding(
+                  Container(
+                    color: Color(0xffFE8ECEF),
                     padding: EdgeInsets.symmetric(
                       horizontal: 20.w,
                       vertical: 36.h,
@@ -213,16 +217,16 @@ class _BlogsScreenState extends State<BlogsScreen> {
                           },
                         ),
 
-                        // Load More Button
+                        // Load More
                         if (hasMoreBlogs) ...[
                           SizedBox(height: 32.h),
                           Center(
                             child: Container(
-                              width: 140.w,
+                              width: 120.w,
                               child: ElevatedButton(
                                 onPressed: loadMoreBlogs,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xff4CAF50),
+                                  backgroundColor: AppColors.buttonGreen,
                                   foregroundColor: Colors.white,
                                   padding: EdgeInsets.symmetric(vertical: 16.h),
                                   shape: RoundedRectangleBorder(
@@ -235,6 +239,7 @@ class _BlogsScreenState extends State<BlogsScreen> {
                                   style: TextStyle(
                                     fontSize: 16.h,
                                     fontWeight: FontWeight.w600,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ),
@@ -242,10 +247,11 @@ class _BlogsScreenState extends State<BlogsScreen> {
                           ),
                         ],
 
-                        SizedBox(height: 40.h),
+                        SizedBox(height: 26.h),
                       ],
                     ),
                   ),
+                  Footer(),
                 ],
               ),
             ),
@@ -257,21 +263,175 @@ class _BlogsScreenState extends State<BlogsScreen> {
   }
 
   Widget _buildFeaturedBlog(BlogModel blog) {
-    return Container(
-      height: 390.h,
-      width: double.infinity,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 250.h,
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlogDetailScreen(blogId: "1"),
+          ),
+        );
+      },
+      child: Container(
+        height: 390.h,
+        width: double.infinity,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16)),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 250.h,
+                width: double.infinity,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  child: Image.network(
+                    blog.imageUrl,
+                    width: double.infinity,
+                    height: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 210.h,
+              left: 0,
+              right: 30.w,
+              child: Container(
+                height: 180.h,
+                padding: EdgeInsets.all(16.h),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(16)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: Offset(0, 4),
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Color(0xff7C3AED),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        blog.category,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14.h,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                      ),
+                    ),
+                    SizedBox(height: 12.h),
+                    Text(
+                      blog.title,
+                      style: TextStyle(
+                        fontSize: 20.h,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        height: 1.3,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 12.h),
+                    Row(
+                      children: [
+                        Container(
+                          width: 36.h,
+                          height: 36.h,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xff4CAF50),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'A',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        Text(
+                          blog.author,
+                          style: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 14.h,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Spacer(),
+                        Text(
+                          _formatDate(blog.publishDate),
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14.h,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBlogCard(BlogModel blog) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlogDetailScreen(blogId: "1"),
+          ),
+        );
+      },
+      child: Container(
+        height: 390.h,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 220.h,
               width: double.infinity,
               child: ClipRRect(
-                borderRadius: BorderRadius.all(Radius.circular(16)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 child: Image.network(
                   blog.imageUrl,
                   width: double.infinity,
@@ -280,27 +440,10 @@ class _BlogsScreenState extends State<BlogsScreen> {
                 ),
               ),
             ),
-          ),
 
-          Positioned(
-            top: 210.h,
-            left: 0,
-            right: 30.w,
-            child: Container(
-              height: 180.h,
+            Container(
+              height: 170.h,
               padding: EdgeInsets.all(16.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -310,13 +453,13 @@ class _BlogsScreenState extends State<BlogsScreen> {
                       vertical: 4.h,
                     ),
                     decoration: BoxDecoration(
-                      color: Color(0xff7C3AED),
+                      color: Color(0xff7C3AED).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       blog.category,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: Color(0xff7C3AED),
                         fontSize: 14.h,
                         fontWeight: FontWeight.w500,
                       ),
@@ -324,6 +467,7 @@ class _BlogsScreenState extends State<BlogsScreen> {
                     ),
                   ),
                   SizedBox(height: 12.h),
+
                   Text(
                     blog.title,
                     style: TextStyle(
@@ -336,11 +480,12 @@ class _BlogsScreenState extends State<BlogsScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 12.h),
+
                   Row(
                     children: [
                       Container(
-                        width: 36.h,
-                        height: 36.h,
+                        width: 32.h,
+                        height: 32.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Color(0xff4CAF50),
@@ -350,19 +495,19 @@ class _BlogsScreenState extends State<BlogsScreen> {
                             'A',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16.h,
+                              fontSize: 14.h,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 12.w),
+                      SizedBox(width: 10.w),
                       Text(
                         blog.author,
                         style: TextStyle(
                           color: Colors.black87,
                           fontSize: 14.h,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       Spacer(),
@@ -378,133 +523,10 @@ class _BlogsScreenState extends State<BlogsScreen> {
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-  }
-
-  Widget _buildBlogCard(BlogModel blog) {
-    return Container(
-      height: 390.h,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 220.h,
-            width: double.infinity,
-            child: ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-              child: Image.network(
-                blog.imageUrl,
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-
-          Container(
-            height: 170.h,
-            padding: EdgeInsets.all(16.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: Color(0xff7C3AED).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    blog.category,
-                    style: TextStyle(
-                      color: Color(0xff7C3AED),
-                      fontSize: 14.h,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    maxLines: 2,
-                  ),
-                ),
-                SizedBox(height: 12.h),
-
-                Text(
-                  blog.title,
-                  style: TextStyle(
-                    fontSize: 20.h,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    height: 1.3,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                SizedBox(height: 12.h),
-
-                Row(
-                  children: [
-                    Container(
-                      width: 32.h,
-                      height: 32.h,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xff4CAF50),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'A',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.h,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Text(
-                      blog.author,
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontSize: 14.h,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Spacer(),
-                    Text(
-                      _formatDate(blog.publishDate),
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14.h),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _getOverlayTitle(String title) {
-    // Customize overlay titles for different blog posts
-    if (title.contains('Calgary')) {
-      return 'Real Estate Photography in Calgary';
-    } else if (title.contains('Brampton')) {
-      return 'Real Estate Photography in Brampton, ON';
-    }
-    return 'Real Estate Photography';
   }
 
   String _formatDate(DateTime date) {

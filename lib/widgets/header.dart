@@ -26,7 +26,6 @@ class Header extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          /// Logo
           InkWell(
             onTap: () {
               Navigator.push(
@@ -37,8 +36,6 @@ class Header extends StatelessWidget {
             child: Image.asset(AppImages.logo1, height: 40.sp),
           ),
           SizedBox(width: 8.w),
-
-          /// Icon bên phải
           Row(
             children: [
               InkWell(
@@ -50,8 +47,6 @@ class Header extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 5.w),
-
-              /// Notification + chấm đỏ
               Stack(
                 children: [
                   Container(
@@ -81,7 +76,6 @@ class Header extends StatelessWidget {
                 ],
               ),
               SizedBox(width: 5.w),
-
               InkWell(
                 onTap: () {},
                 child: Icon(
@@ -91,7 +85,6 @@ class Header extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 8.w),
-
               InkWell(
                 onTap: () {
                   Scaffold.of(context).openEndDrawer();

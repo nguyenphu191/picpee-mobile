@@ -31,7 +31,11 @@ class _AllServicesBodyState extends State<AllServicesBody> {
               color: AppColors.brandDuck,
               child: Text(
                 widget.title,
-                style: TextStyle(fontSize: 28.h, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 28.h,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

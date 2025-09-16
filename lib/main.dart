@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
             scaffoldBackgroundColor: Colors.transparent,
-            textTheme: Typography.whiteMountainView,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            fontFamily: 'BeVietnamPro',
           ),
           home: SplashScreen(),
         );

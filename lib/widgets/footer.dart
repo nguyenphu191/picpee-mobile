@@ -27,7 +27,11 @@ class Footer extends StatelessWidget {
               Container(
                 child: Text(
                   "We're Growing Up Your Business with Stunning Real Estate Photography!",
-                  style: TextStyle(fontSize: 20.h, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 20.h,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
               SizedBox(height: 10.h),
@@ -201,7 +205,7 @@ class Footer extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.h,
                         color: Colors.black,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -212,7 +216,7 @@ class Footer extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.h,
                         color: Colors.black,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
@@ -223,7 +227,7 @@ class Footer extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14.h,
                         color: Colors.black,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),

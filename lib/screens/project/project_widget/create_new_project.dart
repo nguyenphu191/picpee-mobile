@@ -3,10 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
+import 'package:picpee_mobile/models/top_notch_clipper.dart';
 
 class CreateNewProject extends StatefulWidget {
-  CreateNewProject({super.key, this.onProjectsUpdated});
-  void Function(List<Project>)? onProjectsUpdated;
+  const CreateNewProject({super.key, this.onProjectsUpdated});
+  final void Function(List<Project>)? onProjectsUpdated;
   @override
   State<CreateNewProject> createState() => _CreateNewProjectState();
 }
@@ -42,7 +43,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
               left: 0,
               right: 0,
               child: Container(
-                height: 68.h,
+                height: 80.h,
                 width: double.infinity,
                 margin: EdgeInsets.symmetric(horizontal: 10.w),
                 decoration: BoxDecoration(
@@ -63,31 +64,31 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                   children: [
                     Positioned(
                       left: 16.w,
-                      bottom: 16.h,
+                      top: 20.h,
                       child: Text(
                         'New Project',
                         style: TextStyle(
-                          fontSize: 18.h,
+                          fontSize: 14.h,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: AppColors.buttonGreen,
                         ),
                       ),
                     ),
                     Positioned(
-                      top: 12.h,
-                      right: 12.w,
+                      top: 20.h,
+                      right: 16.w,
                       child: GestureDetector(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
-                          width: 32.w,
-                          height: 32.h,
+                          width: 24.h,
+                          height: 24.h,
                           decoration: BoxDecoration(
-                            color: Colors.black54,
+                            color: Colors.white,
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.close,
-                            color: Colors.white,
+                            color: Colors.black,
                             size: 20.h,
                           ),
                         ),
@@ -98,79 +99,85 @@ class _CreateNewProjectState extends State<CreateNewProject> {
               ),
             ),
             Positioned(
-              top: 75.h,
+              top: 60.h,
               left: 0,
               right: 0,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 24.h),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(16)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Project name',
-                      style: TextStyle(
-                        fontSize: 14.h,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 12.h),
-                    TextField(
-                      controller: _projectNameController,
-                      decoration: InputDecoration(
-                        hintText: 'Input your project name',
-                        hintStyle: TextStyle(
-                          color: Colors.grey,
+              child: ClipPath(
+                clipper: TopNotchClipper(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 20.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Project name',
+                        style: TextStyle(
                           fontSize: 14.h,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(color: AppColors.buttonGreen),
-                        ),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
                         ),
                       ),
-                    ),
-                    SizedBox(height: 20.h),
-                    InkWell(
-                      onTap: () {
-                        if (_projectNameController.text.trim().isNotEmpty) {
-                          _addNewProject(_projectNameController.text.trim());
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 16.w,
-                          vertical: 12.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.buttonGreen,
-                          borderRadius: BorderRadius.all(Radius.circular(6)),
-                        ),
-                        child: Text(
-                          'Save',
-                          style: TextStyle(
-                            fontSize: 16.h,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
+                      SizedBox(height: 12.h),
+                      TextField(
+                        controller: _projectNameController,
+                        decoration: InputDecoration(
+                          hintText: 'Input your project name',
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 14.h,
                           ),
-                          textAlign: TextAlign.center,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                            borderSide: BorderSide(color: Colors.grey),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 8.h,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16.h),
+                      InkWell(
+                        onTap: () {
+                          if (_projectNameController.text.trim().isNotEmpty) {
+                            _addNewProject(_projectNameController.text.trim());
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 8.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.buttonGreen,
+                            borderRadius: BorderRadius.all(Radius.circular(6)),
+                          ),
+                          child: Text(
+                            'Save',
+                            style: TextStyle(
+                              fontSize: 16.h,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

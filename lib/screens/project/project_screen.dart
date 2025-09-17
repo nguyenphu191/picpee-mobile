@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/screens/project/project_widget/create_new_project.dart';
+import 'package:picpee_mobile/screens/project/project_widget/project_list_card.dart';
+import 'package:picpee_mobile/screens/project/project_widget/trash_card.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
 
@@ -26,10 +29,14 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
 
   bool isShowingTrash = false;
 
+  final TextEditingController _searchController = TextEditingController();
+  DateTime? startDate;
+  DateTime? endDate;
+
   void _showNewProjectDialog() {
     showDialog(
       context: context,
-      barrierColor: Colors.black54, // Background mờ đen
+      barrierColor: Colors.black54,
       barrierDismissible: true,
       builder: (BuildContext context) {
         return CreateNewProject(
@@ -43,39 +50,77 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
   }
 
-  void _deleteProject(Project project) {
-    setState(() {
-      project.isDeleted = true;
-    });
-  }
-
-  void _restoreProject(Project project) {
-    setState(() {
-      project.isDeleted = false;
-    });
-  }
-
-  void _permanentlyDeleteProject(Project project) {
-    setState(() {
-      projects.remove(project);
-    });
-  }
-
   List<Project> get activeProjects =>
       projects.where((p) => !p.isDeleted).toList();
   List<Project> get deletedProjects =>
       projects.where((p) => p.isDeleted).toList();
 
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}';
+  List<Project> _getFilteredProjects(List<Project> projects) {
+    return projects.where((project) {
+      final nameMatches = project.name.toLowerCase().contains(
+        _searchController.text.toLowerCase(),
+      );
+
+      bool dateMatches = true;
+      if (startDate != null && endDate != null) {
+        dateMatches =
+            project.lastOrdered.isAfter(startDate!) &&
+            project.lastOrdered.isBefore(endDate!.add(Duration(days: 1)));
+      }
+
+      return nameMatches && dateMatches;
+    }).toList();
+  }
+
+  String _formatDate(DateTime? date, bool isStartDate) {
+    if (date == null) {
+      return isStartDate ? 'Start date' : 'End date';
+    }
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  void _showDatePicker(bool isStartDate) {
+    DatePicker.showDatePicker(
+      context,
+      showTitleActions: true,
+      minTime: DateTime(2020),
+      maxTime: DateTime(2025, 12, 31), // Sửa thành 31/12/2025
+      onConfirm: (date) {
+        setState(() {
+          if (isStartDate) {
+            startDate = date;
+            if (endDate == null || endDate!.isBefore(startDate!)) {
+              endDate = date;
+            }
+          } else {
+            endDate = date;
+            if (startDate == null || startDate!.isAfter(endDate!)) {
+              startDate = date;
+            }
+          }
+        });
+      },
+      currentTime: isStartDate
+          ? startDate ?? DateTime.now()
+          : endDate ?? DateTime.now(),
+      locale: LocaleType.en,
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final filteredActiveProjects = _getFilteredProjects(activeProjects);
+    final filteredDeletedProjects = _getFilteredProjects(deletedProjects);
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       drawer: const SideBar(selectedIndex: 0),
-
       body: Stack(
         children: [
           Positioned(
@@ -91,8 +136,10 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                     child: Column(
                       children: [
                         TextField(
+                          controller: _searchController,
+                          onChanged: (value) => setState(() {}),
                           decoration: InputDecoration(
-                            hintText: 'Search',
+                            hintText: 'Search project name',
                             hintStyle: TextStyle(
                               color: Colors.grey[500],
                               fontSize: 14.h,
@@ -103,6 +150,20 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                               color: Colors.grey[500],
                               size: 20.h,
                             ),
+                            suffixIcon: _searchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(
+                                      Icons.clear,
+                                      color: Colors.grey[500],
+                                      size: 20.h,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _searchController.clear();
+                                      });
+                                    },
+                                  )
+                                : null,
                             filled: true,
                             fillColor: Colors.grey[100],
                             border: OutlineInputBorder(
@@ -122,35 +183,135 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                         Row(
                           children: [
                             Expanded(
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 8.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: Colors.grey[500]!,
-                                    width: 1.5,
+                              child: GestureDetector(
+                                onTap: () => _showDatePicker(true),
+                                child: Container(
+                                  height: 40.h, // Thêm chiều cao cố định
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12.w,
+                                    vertical: 8.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: startDate != null
+                                          ? Colors.blue
+                                          : Colors.grey[500]!,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .spaceBetween, // Căn đều các phần tử
+                                    children: [
+                                      Expanded(
+                                        // Wrap Text trong Expanded
+                                        child: Text(
+                                          _formatDate(startDate, true),
+                                          style: TextStyle(
+                                            color: startDate != null
+                                                ? Colors.blue
+                                                : Colors.grey[500],
+                                            fontSize: 14.h,
+                                          ),
+                                          overflow: TextOverflow
+                                              .ellipsis, // Xử lý text dài
+                                        ),
+                                      ),
+                                      Row(
+                                        mainAxisSize: MainAxisSize
+                                            .min, // Giữ các icon sát nhau
+                                        children: [
+                                          if (startDate != null)
+                                            IconButton(
+                                              constraints:
+                                                  BoxConstraints(), // Bỏ padding mặc định
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 4.w,
+                                              ),
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.grey[600],
+                                                size: 18.h,
+                                              ),
+                                              onPressed: () => setState(
+                                                () => startDate = null,
+                                              ),
+                                            ),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: Colors.grey[600],
+                                            size: 18.h,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Last ordered date',
-                                      style: TextStyle(
-                                        color: Colors.grey[500],
-                                        fontSize: 14.h,
-                                        fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => _showDatePicker(false),
+                                child: Container(
+                                  height: 40.h,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12.w,
+                                    vertical: 8.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: endDate != null
+                                          ? Colors.blue
+                                          : Colors.grey[500]!,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _formatDate(endDate, false),
+                                          style: TextStyle(
+                                            color: endDate != null
+                                                ? Colors.blue
+                                                : Colors.grey[500],
+                                            fontSize: 14.h,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                    ),
-                                    const Spacer(),
-                                    Icon(
-                                      Icons.calendar_today,
-                                      color: Colors.grey[600],
-                                      size: 18.h,
-                                    ),
-                                  ],
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (endDate != null)
+                                            IconButton(
+                                              constraints: BoxConstraints(),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 4.w,
+                                              ),
+                                              icon: Icon(
+                                                Icons.clear,
+                                                color: Colors.grey[600],
+                                                size: 18.h,
+                                              ),
+                                              onPressed: () => setState(
+                                                () => endDate = null,
+                                              ),
+                                            ),
+                                          Icon(
+                                            Icons.calendar_today,
+                                            color: Colors.grey[600],
+                                            size: 18.h,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -236,11 +397,19 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       ],
                     ),
                   ),
-                  // Content
                   Expanded(
                     child: isShowingTrash
-                        ? _buildTrashView()
-                        : _buildProjectsList(),
+                        ? TrashCard(
+                            deletedProjects: filteredDeletedProjects,
+                            onRestore: (project) {
+                              setState(() {
+                                activeProjects.add(project);
+                              });
+                            },
+                          )
+                        : ProjectListCard(
+                            activeProjects: filteredActiveProjects,
+                          ),
                   ),
                 ],
               ),
@@ -255,295 +424,5 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
         ],
       ),
     );
-  }
-
-  Widget _buildProjectsList() {
-    if (activeProjects.isEmpty) {
-      return const Center(
-        child: Text(
-          'No projects yet',
-          style: TextStyle(color: Colors.grey, fontSize: 16),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: activeProjects.length,
-      itemBuilder: (context, index) {
-        final project = activeProjects[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: project.iconColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.play_arrow,
-                  color: project.iconColor,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      project.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Last ordered: ${_formatDate(project.lastOrdered)}',
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      project.description,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuButton(
-                icon: const Icon(Icons.more_horiz, color: Colors.grey),
-                itemBuilder: (context) => [
-                  PopupMenuItem(
-                    onTap: () => _deleteProject(project),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.delete, color: Colors.red, size: 20),
-                        SizedBox(width: 8),
-                        Text('Delete'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTrashView() {
-    return Column(
-      children: [
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      isShowingTrash = false;
-                    });
-                  },
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.arrow_back, color: Colors.black54, size: 18),
-                      SizedBox(width: 8),
-                      Text(
-                        'Go back',
-                        style: TextStyle(
-                          color: Colors.black54,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF4CAF50), Color(0xFF45a049)],
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: _showNewProjectDialog,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text(
-                    'Add New Project',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: deletedProjects.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.delete_outline, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'The trash is empty.',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: deletedProjects.length,
-                  itemBuilder: (context, index) {
-                    final project = deletedProjects[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: project.iconColor.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.play_arrow,
-                              color: project.iconColor,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  project.name,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Last ordered: ${_formatDate(project.lastOrdered)}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  project.description,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          PopupMenuButton(
-                            icon: const Icon(
-                              Icons.more_horiz,
-                              color: Colors.grey,
-                            ),
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                onTap: () => _restoreProject(project),
-                                child: const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.restore,
-                                      color: Colors.blue,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text('Restore'),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                onTap: () => _permanentlyDeleteProject(project),
-                                child: const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.delete_forever,
-                                      color: Colors.red,
-                                      size: 20,
-                                    ),
-                                    SizedBox(width: 8),
-                                    Text('Delete Forever'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

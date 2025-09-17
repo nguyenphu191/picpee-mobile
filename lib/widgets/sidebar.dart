@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/discount/discount_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_screen.dart';
 
@@ -134,7 +135,14 @@ class SideBar extends StatelessWidget {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DiscountScreen(),
+                          ),
+                        );
+                      },
                       child: Container(
                         height: 55.h,
                         width: double.infinity,
@@ -185,6 +193,48 @@ class SideBar extends StatelessWidget {
                           vertical: 8.h,
                         ),
                         decoration: this.selectedIndex == 3
+                            ? BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.grey[700]!,
+                                    Colors.grey[900]!,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8.r),
+                              )
+                            : null,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.MessageIcon,
+                              height: 24.h,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(width: 12.w),
+                            Text(
+                              "Chat",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: Container(
+                        height: 55.h,
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+                        decoration: this.selectedIndex == 4
                             ? BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,

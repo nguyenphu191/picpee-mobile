@@ -51,7 +51,11 @@ class CustomEndDrawer extends StatelessWidget {
               Divider(height: 24.h),
 
               ListTile(
-                leading: Image.asset(AppImages.DrawerProfile, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DrawerProfile,
+                  height: 20.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Profile",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
@@ -64,7 +68,11 @@ class CustomEndDrawer extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: Image.asset(AppImages.DrawerOrder, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DrawerOrder,
+                  height: 20.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Orders",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
@@ -72,7 +80,11 @@ class CustomEndDrawer extends StatelessWidget {
                 onTap: () {},
               ),
               ListTile(
-                leading: Image.asset(AppImages.DrawerSupport, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DrawerSupport,
+                  height: 20.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Support Center",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
@@ -110,13 +122,18 @@ class CustomEndDrawer extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 12.h),
-                    SizedBox(
+                    Container(
                       width: double.infinity,
+                      height: 48.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonGreen,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                         onPressed: () {},

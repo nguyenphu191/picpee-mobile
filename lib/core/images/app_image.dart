@@ -4,6 +4,7 @@ class AppImages {
   //background
   static const String background1 = '${basePath}background1.png';
   static const String background2 = '${basePath}background2.png';
+  static const String background3 = '${basePath}background3.png';
   static const String blance = '${basePath}Balance.png';
   //logo
   static const String logo1 = '${basePath}Logo.png';

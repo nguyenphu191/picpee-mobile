@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/widgets/customer_drawer.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
 
@@ -66,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xffFE8ECEF),
-      drawer: const SideBar(),
+      drawer: const SideBar(selectedIndex: 1),
       body: Stack(
         children: [
           Positioned(

@@ -31,7 +31,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               Text(
                 widget.title,
                 style: TextStyle(
-                  fontSize: 16.h,
+                  fontSize: 14.h,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),

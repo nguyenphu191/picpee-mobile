@@ -55,6 +55,8 @@ class AppImages {
   static const String TwtIcon = '${basePath}Twitter.png';
   static const String GitIcon = '${basePath}Github.png';
   static const String MessIcon = '${basePath}message_icon.png';
+  static const String OpenFileIcon = '${basePath}openfile.png';
+  static const String SendIcon = '${basePath}send-2.png';
 
   //other images
   static const String Designer = '${basePath}designer.png';

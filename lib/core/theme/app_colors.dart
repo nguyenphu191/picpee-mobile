@@ -9,7 +9,7 @@ class AppColors {
   static const Color buttonGreen = Color(0xFF4AF73E);
   // Backgrounds
   static const Color backgroundDark = Color(0xFF0F1115); // nền đen/xám đậm
-  static const Color backgroundLight = Color(0xFFF5F5F7); // cho section sáng
+  static const Color backgroundLight = Color(0xffFE8ECEF); // cho section sáng
   static const Color cardDark = Color(0xFF1C1F24); // thẻ / sidebar
 
   // Text

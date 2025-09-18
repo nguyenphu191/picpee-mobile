@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/chat/chat_screen.dart';
 import 'package:picpee_mobile/screens/discount/discount_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_screen.dart';
+import 'package:picpee_mobile/screens/support/support_screen.dart';
 
 class SideBar extends StatelessWidget {
   const SideBar({super.key, this.selectedIndex = 0});
@@ -184,7 +186,12 @@ class SideBar extends StatelessWidget {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ChatScreen()),
+                        );
+                      },
                       child: Container(
                         height: 55.h,
                         width: double.infinity,
@@ -226,7 +233,14 @@ class SideBar extends StatelessWidget {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SupportScreen(),
+                          ),
+                        );
+                      },
                       child: Container(
                         height: 55.h,
                         width: double.infinity,

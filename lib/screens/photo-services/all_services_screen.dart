@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picpee_mobile/screens/photo_services/service_widget/all_services_body.dart';
+import 'package:picpee_mobile/screens/photo-services/service_widget/all_services_body.dart';
 import 'package:picpee_mobile/widgets/customer_drawer.dart';
 import 'package:picpee_mobile/widgets/header.dart';
 

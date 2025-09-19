@@ -6,7 +6,7 @@ import 'package:picpee_mobile/screens/home/home_widget/blog_demo_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/all_service_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/designer_top_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/featured_card.dart';
-import 'package:picpee_mobile/screens/photo_services/all_services_screen.dart';
+import 'package:picpee_mobile/screens/photo-services/all_services_screen.dart';
 import 'package:picpee_mobile/widgets/footer.dart';
 import 'package:picpee_mobile/widgets/top_service_card.dart';
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/screens/photo_services/service_widget/services_list.dart';
+import 'package:picpee_mobile/screens/photo-services/service_widget/services_list.dart';
 import 'package:picpee_mobile/widgets/footer.dart';
 import 'package:picpee_mobile/widgets/top_service_card.dart';
 

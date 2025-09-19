@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/models/service_model.dart';
-import 'package:picpee_mobile/screens/photo_services/vendor_service_screen.dart';
+import 'package:picpee_mobile/screens/photo-services/vendor_service_screen.dart';
 import 'package:picpee_mobile/widgets/one_service_card.dart';
 
 class ServiceListPage extends StatefulWidget {

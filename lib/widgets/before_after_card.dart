@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 
 class BeforeAfterCard extends StatefulWidget {
@@ -210,15 +213,19 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
 }
 
 class CustomBeforeAfterSlider extends StatefulWidget {
-  final String beforeImage;
-  final String afterImage;
+  final String? beforeImage;
+  final String? afterImage;
+  final XFile? beforeImageFile;
+  final XFile? afterImageFile;
   final double width;
   final double height;
 
   const CustomBeforeAfterSlider({
     super.key,
-    required this.beforeImage,
-    required this.afterImage,
+    this.beforeImage,
+    this.afterImage,
+    this.beforeImageFile,
+    this.afterImageFile,
     required this.width,
     required this.height,
   });
@@ -239,7 +246,8 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       width: widget.width,
       height: widget.height,
       child: GestureDetector(
@@ -258,12 +266,19 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
               top: 0,
               width: widget.width,
               height: widget.height,
-              child: Image.network(
-                widget.afterImage,
-                width: widget.width,
-                height: widget.height,
-                fit: BoxFit.cover,
-              ),
+              child: widget.afterImage != null
+                  ? Image.network(
+                      widget.afterImage!,
+                      width: widget.width,
+                      height: widget.height,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.file(
+                      File(widget.afterImageFile!.path),
+                      width: widget.width,
+                      height: widget.height,
+                      fit: BoxFit.cover,
+                    ),
             ),
 
             // Foreground image (Before)
@@ -273,13 +288,23 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
               width: widget.width * _sliderPosition,
               height: widget.height,
               child: ClipRect(
-                child: Image.network(
-                  widget.beforeImage,
-                  width: widget.width,
-                  height: widget.height,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.centerLeft,
-                ),
+                child: widget.beforeImage != null
+                    ? Image.network(
+                        widget.beforeImage!,
+                        width: widget.width,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.centerLeft,
+                      )
+                    : widget.beforeImageFile != null
+                    ? Image.file(
+                        File(widget.beforeImageFile!.path),
+                        width: widget.width,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.centerLeft,
+                      )
+                    : Container(),
               ),
             ),
 

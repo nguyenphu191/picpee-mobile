@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             bottom: 0,
             child: Container(
               margin: EdgeInsets.only(
-                top: 80.h,
+                top: 95.h,
                 left: 16.h,
                 right: 16.h,
                 bottom: 16.h,
@@ -201,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                   SizedBox(height: 16.h),
                   Container(
-                    height: MediaQuery.of(context).size.height * 0.7,
+                    height: MediaQuery.of(context).size.height - 295.h,
                     color: Colors.white,
                     child: TabBarView(
                       controller: _tabController,

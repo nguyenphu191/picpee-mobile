@@ -57,6 +57,9 @@ class AppImages {
   static const String MessIcon = '${basePath}message_icon.png';
   static const String OpenFileIcon = '${basePath}openfile.png';
   static const String SendIcon = '${basePath}send-2.png';
+  static const String ServiceIcon = '${basePath}service-icon.png';
+  static const String VerifiedIcon = '${basePath}verify.png';
+  static const String TimerIcon = '${basePath}timer.png';
 
   //other images
   static const String Designer = '${basePath}designer.png';

@@ -27,7 +27,8 @@ class _SupportScreenState extends State<SupportScreen> {
       comments: [
         Comment(
           id: 'c001',
-          content: 'We are investigating this issue. Please provide more details about the error message.',
+          content:
+              'We are investigating this issue. Please provide more details about the error message.',
           createdAt: DateTime.now().subtract(Duration(hours: 2)),
           authorName: 'Support Team',
         ),
@@ -43,7 +44,8 @@ class _SupportScreenState extends State<SupportScreen> {
       comments: [
         Comment(
           id: 'c002',
-          content: 'Your account has been verified and the login issue should be resolved.',
+          content:
+              'Your account has been verified and the login issue should be resolved.',
           createdAt: DateTime.now().subtract(Duration(hours: 1)),
           authorName: 'Support Team',
         ),
@@ -92,10 +94,12 @@ class _SupportScreenState extends State<SupportScreen> {
           createdAt: DateTime.now(),
           authorName: 'You',
         );
-        
-        final updatedComments = List<Comment>.from(tickets[ticketIndex].comments);
+
+        final updatedComments = List<Comment>.from(
+          tickets[ticketIndex].comments,
+        );
         updatedComments.add(newComment);
-        
+
         tickets[ticketIndex] = tickets[ticketIndex].copyWith(
           comments: updatedComments,
         );
@@ -111,7 +115,7 @@ class _SupportScreenState extends State<SupportScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: 70.h,
+            top: 80.h,
             left: 0,
             right: 0,
             bottom: 0,

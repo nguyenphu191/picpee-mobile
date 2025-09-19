@@ -6,6 +6,7 @@ import 'package:picpee_mobile/screens/chat/chat_screen.dart';
 import 'package:picpee_mobile/screens/discount/discount_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_screen.dart';
+import 'package:picpee_mobile/screens/services-vendor/service_screen.dart';
 import 'package:picpee_mobile/screens/support/support_screen.dart';
 
 class SideBar extends StatelessWidget {
@@ -126,6 +127,55 @@ class SideBar extends StatelessWidget {
                             SizedBox(width: 12.w),
                             Text(
                               "Account",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ServiceScreen(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 55.h,
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+                        decoration: this.selectedIndex == 5
+                            ? BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.grey[700]!,
+                                    Colors.grey[900]!,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8.r),
+                              )
+                            : null,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.ServiceIcon,
+                              height: 24.h,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(width: 12.w),
+                            Text(
+                              "Services",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16.h,
@@ -289,7 +339,7 @@ class SideBar extends StatelessWidget {
                 right: 0,
                 left: 0,
                 child: Container(
-                  height: 200.h,
+                  height: 210.h,
                   width: double.infinity,
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,

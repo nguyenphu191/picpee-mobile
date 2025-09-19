@@ -124,7 +124,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: 70.h,
+            top: 80.h,
             left: 0,
             right: 0,
             bottom: 0,

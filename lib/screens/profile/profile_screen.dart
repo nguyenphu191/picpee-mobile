@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
+import 'profile_widget/avatar_section_widget.dart';
+import 'profile_widget/custom_text_field.dart';
+import 'profile_widget/password_field_widget.dart';
+import 'profile_widget/custom_dropdown_field.dart';
+import 'profile_widget/phone_number_field_widget.dart';
+import 'profile_widget/image_picker_options_dialog.dart';
+import 'profile_widget/delete_account_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   ProfileScreen({Key? key}) : super(key: key);
@@ -14,6 +23,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final ImagePicker _picker = ImagePicker();
+
+  // Avatar image
+  File? _avatarImage;
+  String _avatarInitial = 'L'; // Default initial
 
   // Form controllers
   final _firstNameController = TextEditingController(text: 'Lucas');
@@ -43,6 +57,17 @@ class _ProfileScreenState extends State<ProfileScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
+    // Listen to first name changes to update avatar initial
+    _firstNameController.addListener(_updateAvatarInitial);
+  }
+
+  void _updateAvatarInitial() {
+    setState(() {
+      _avatarInitial = _firstNameController.text.isNotEmpty
+          ? _firstNameController.text[0].toUpperCase()
+          : 'L';
+    });
   }
 
   @override
@@ -59,6 +84,75 @@ class _ProfileScreenState extends State<ProfileScreen>
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  // Show image picker options
+  void _showImagePickerOptions() {
+    ImagePickerOptionsDialog.show(
+      context: context,
+      currentAvatarImage: _avatarImage,
+      onImageSourceSelected: _pickImage,
+      onRemovePhoto: _removeAvatar,
+    );
+  }
+
+  // Pick image from camera or gallery
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _avatarImage = File(image.path);
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile picture updated successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to select image. Please try again.'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+    }
+  }
+
+  // Remove avatar
+  void _removeAvatar() {
+    setState(() {
+      _avatarImage = null;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Profile picture removed'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
   }
 
   @override
@@ -169,7 +263,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       alignment: Alignment.centerLeft,
                       child: InkWell(
                         onTap: () {
-                          // Handle delete account action
+                          _showDeleteAccountDialog();
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(
@@ -225,79 +319,10 @@ class _ProfileScreenState extends State<ProfileScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Avatar Section
-          Text(
-            'Avatar',
-            style: TextStyle(
-              fontSize: 14.h,
-              fontWeight: FontWeight.w600,
-              color: Colors.black,
-            ),
-          ),
-          SizedBox(height: 16),
-
-          Row(
-            children: [
-              Container(
-                height: 60.h,
-                width: 60.h,
-                decoration: BoxDecoration(
-                  color: Colors.lightGreen,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-
-                child: Center(
-                  child: Text(
-                    'L',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.h,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 16.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 5.h,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey[300]!,
-                          width: 1.5,
-                        ),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: Text(
-                          'Upload new image',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 12.h,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    'At least 800x800 px recommended.\nJPG or PNG and GIF is allowed',
-                    style: TextStyle(fontSize: 11.h, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ],
+          AvatarSectionWidget(
+            avatarImage: _avatarImage,
+            avatarInitial: _avatarInitial,
+            onImagePickerTap: _showImagePickerOptions,
           ),
 
           SizedBox(height: 32.h),
@@ -312,96 +337,66 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SizedBox(height: 16.h),
 
-          _buildTextField('First name', _firstNameController),
-          SizedBox(height: 16.h),
-          _buildTextField('Last name', _lastNameController),
-          SizedBox(height: 16.h),
-          _buildTextField('Business name', _businessNameController),
-          SizedBox(height: 16.h),
-          _buildTextField(
-            'Which best describes your company?',
-            _companyDescriptionController,
+          CustomTextField(
+            label: 'First name',
+            controller: _firstNameController,
           ),
           SizedBox(height: 16.h),
-          _buildTextField('What\'s your team size?', _teamSizeController),
+          CustomTextField(
+            label: 'Last name', 
+            controller: _lastNameController,
+          ),
           SizedBox(height: 16.h),
-          _buildTextField('Primary business email', _emailController),
+          CustomTextField(
+            label: 'Business name',
+            controller: _businessNameController,
+          ),
+          SizedBox(height: 16.h),
+          CustomTextField(
+            label: 'Which best describes your company?',
+            controller: _companyDescriptionController,
+          ),
+          SizedBox(height: 16.h),
+          CustomTextField(
+            label: 'What\'s your team size?',
+            controller: _teamSizeController,
+          ),
+          SizedBox(height: 16.h),
+          CustomTextField(
+            label: 'Primary business email',
+            controller: _emailController,
+          ),
           SizedBox(height: 16.h),
 
-          Text(
-            'Phone number',
-            style: TextStyle(fontSize: 14.h, color: Colors.black),
-          ),
-          SizedBox(height: 5.h),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey, width: 1.5),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.h, vertical: 8.h),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 20.w,
-                        height: 14.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                        child: Image.asset(
-                          'assets/images/us_flag.png',
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: Colors.blue,
-                                child: Center(
-                                  child: Text(
-                                    'US',
-                                    style: TextStyle(
-                                      fontSize: 8,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.keyboard_arrow_down, size: 16.h),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: TextField(
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      hintText: '+1 547539853',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8.h),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          PhoneNumberFieldWidget(controller: _phoneController),
           SizedBox(height: 16),
 
-          _buildDropdownField('Country', _selectedCountry, [
-            'American',
-            'Canadian',
-            'British',
-          ]),
+          CustomDropdownField(
+            label: 'Country',
+            value: _selectedCountry,
+            items: ['American', 'Canadian', 'British'],
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedCountry = newValue!;
+              });
+            },
+          ),
           SizedBox(height: 16.h),
 
-          _buildDropdownField('Timezone', _selectedTimezone, [
-            'America/Adak',
-            'America/New_York',
-            'America/Chicago',
-          ]),
+          CustomDropdownField(
+            label: 'Timezone',
+            value: _selectedTimezone,
+            items: [
+              'America/Adak',
+              'America/New_York', 
+              'America/Chicago',
+            ],
+            onChanged: (String? newValue) {
+              setState(() {
+                _selectedTimezone = newValue!;
+              });
+            },
+          ),
           SizedBox(height: 32.h),
 
           Row(
@@ -487,12 +482,11 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           SizedBox(height: 8.h),
-          _buildPasswordField(
-            'Password',
-            _oldPasswordController,
-            _isOldPasswordVisible,
-            () =>
-                setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
+          PasswordFieldWidget(
+            hint: 'Password',
+            controller: _oldPasswordController,
+            isVisible: _isOldPasswordVisible,
+            toggleVisibility: () => setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
           ),
           SizedBox(height: 16.h),
 
@@ -505,12 +499,11 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           SizedBox(height: 8),
-          _buildPasswordField(
-            'New Password',
-            _newPasswordController,
-            _isNewPasswordVisible,
-            () =>
-                setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
+          PasswordFieldWidget(
+            hint: 'New Password',
+            controller: _newPasswordController,
+            isVisible: _isNewPasswordVisible,
+            toggleVisibility: () => setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
           ),
           SizedBox(height: 4),
           Text(
@@ -529,13 +522,11 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           SizedBox(height: 8.h),
-          _buildPasswordField(
-            'Confirm New Password',
-            _confirmPasswordController,
-            _isConfirmPasswordVisible,
-            () => setState(
-              () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
-            ),
+          PasswordFieldWidget(
+            hint: 'Confirm New Password',
+            controller: _confirmPasswordController,
+            isVisible: _isConfirmPasswordVisible,
+            toggleVisibility: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
           ),
           SizedBox(height: 4.h),
           Text(
@@ -605,117 +596,21 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14.h,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: 5.h),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey, width: 1.5),
-          ),
-          child: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 8.h,
-                vertical: 8.h,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildPasswordField(
-    String hint,
-    TextEditingController controller,
-    bool isVisible,
-    VoidCallback toggleVisibility,
-  ) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: TextField(
-        controller: controller,
-        obscureText: !isVisible,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-          prefixIcon: Icon(
-            Icons.lock_outline,
-            color: Colors.grey[400],
-            size: 20,
-          ),
-          suffixIcon: IconButton(
-            onPressed: toggleVisibility,
-            icon: Icon(
-              isVisible
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
-              color: Colors.grey[400],
-              size: 20,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildDropdownField(String label, String value, List<String> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14.h, color: Colors.black),
-        ),
-        SizedBox(height: 5.h),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 8.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey, width: 1.5),
+  // Show delete account confirmation dialog
+  void _showDeleteAccountDialog() {
+    DeleteAccountDialog.show(
+      context: context,
+      onConfirmDelete: () {
+        // Handle delete account logic here
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Account deletion requested'),
+            backgroundColor: Colors.red,
           ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: value,
-              isExpanded: true,
-              icon: Icon(Icons.keyboard_arrow_down),
-              items: items.map((String item) {
-                return DropdownMenuItem<String>(value: item, child: Text(item));
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  if (label == 'Country') {
-                    _selectedCountry = newValue!;
-                  } else {
-                    _selectedTimezone = newValue!;
-                  }
-                });
-              },
-            ),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

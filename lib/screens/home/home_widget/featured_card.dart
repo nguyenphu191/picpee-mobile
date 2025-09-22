@@ -302,26 +302,26 @@ class _FeaturedCardState extends State<FeaturedCard> {
 
                   SizedBox(height: 12.h),
 
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.h),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Container(
-                        width: 180.w,
-                        height: 48.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.white,
-                        ),
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            'View More Projects',
-                            style: TextStyle(
-                              fontSize: 16.h,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      height: 48.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.h,
+                        vertical: 8.h,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                      ),
+                      child: TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          'View More Projects',
+                          style: TextStyle(
+                            fontSize: 16.h,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
                       ),

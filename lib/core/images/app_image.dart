@@ -4,6 +4,7 @@ class AppImages {
   //background
   static const String background1 = '${basePath}background1.png';
   static const String background2 = '${basePath}background2.png';
+  static const String background3 = '${basePath}background3.png';
   static const String blance = '${basePath}Balance.png';
   //logo
   static const String logo1 = '${basePath}Logo.png';
@@ -49,6 +50,16 @@ class AppImages {
   static const String DiscountIcon = '${basePath}discount-circle.png';
   static const String GGIcon = '${basePath}ggicon.png';
   static const String ArrowIcon = '${basePath}arrow.png';
+  static const String InsIcon = '${basePath}Instagram.png';
+  static const String FbIcon = '${basePath}Facebook.png';
+  static const String TwtIcon = '${basePath}Twitter.png';
+  static const String GitIcon = '${basePath}Github.png';
+  static const String MessIcon = '${basePath}message_icon.png';
+  static const String OpenFileIcon = '${basePath}openfile.png';
+  static const String SendIcon = '${basePath}send-2.png';
+  static const String ServiceIcon = '${basePath}service-icon.png';
+  static const String VerifiedIcon = '${basePath}verify.png';
+  static const String TimerIcon = '${basePath}timer.png';
 
   //other images
   static const String Designer = '${basePath}designer.png';

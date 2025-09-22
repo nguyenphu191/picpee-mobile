@@ -1,9 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 
 class BeforeAfterCard extends StatefulWidget {
-  const BeforeAfterCard({super.key});
+  final double? width;
+  final double? height;
+
+  const BeforeAfterCard({super.key, this.width, this.height});
+
   @override
   State<BeforeAfterCard> createState() => _BeforeAfterCardState();
 }
@@ -51,8 +58,10 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double containerWidth = constraints.maxWidth;
-        final double height = 300.h;
+        // Sử dụng width từ parameter hoặc mặc định từ constraints
+        final double containerWidth = widget.width ?? constraints.maxWidth;
+        // Sử dụng height từ parameter hoặc mặc định 300.h
+        final double height = widget.height ?? 300.h;
         final double imageWidth = containerWidth;
 
         return Column(
@@ -63,7 +72,6 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
               height: height,
               child: Stack(
                 children: [
-                  // PageView - disable swipe gestures
                   Positioned(
                     left: 0,
                     right: 0,
@@ -114,7 +122,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black54,
-                          fontSize: 14.h,
+                          fontSize: 12.h,
                         ),
                       ),
                     ),
@@ -124,8 +132,8 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.h,
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
@@ -143,13 +151,13 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black54,
-                          fontSize: 14.h,
+                          fontSize: 12.h,
                         ),
                       ),
                     ),
                   ),
 
-                  // Left arrow - inside image area
+                  // Left arrow
                   Positioned(
                     left: 0.h,
                     top: 0,
@@ -158,12 +166,10 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                       child: GestureDetector(
                         onTap: _prev,
                         child: Container(
-                          width: 44.h,
-                          height: 44.h,
                           decoration: BoxDecoration(shape: BoxShape.circle),
                           child: Icon(
                             Icons.chevron_left,
-                            size: 36.h,
+                            size: 32.h,
                             color: Colors.white,
                           ),
                         ),
@@ -171,7 +177,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                     ),
                   ),
 
-                  // Right arrow - inside image area
+                  // Right arrow
                   Positioned(
                     right: 0,
                     top: 0,
@@ -180,12 +186,10 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                       child: GestureDetector(
                         onTap: _next,
                         child: Container(
-                          width: 44.h,
-                          height: 44.h,
                           decoration: BoxDecoration(shape: BoxShape.circle),
                           child: Icon(
                             Icons.chevron_right,
-                            size: 36.h,
+                            size: 32.h,
                             color: Colors.white,
                           ),
                         ),
@@ -209,15 +213,19 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
 }
 
 class CustomBeforeAfterSlider extends StatefulWidget {
-  final String beforeImage;
-  final String afterImage;
+  final String? beforeImage;
+  final String? afterImage;
+  final XFile? beforeImageFile;
+  final XFile? afterImageFile;
   final double width;
   final double height;
 
   const CustomBeforeAfterSlider({
     super.key,
-    required this.beforeImage,
-    required this.afterImage,
+    this.beforeImage,
+    this.afterImage,
+    this.beforeImageFile,
+    this.afterImageFile,
     required this.width,
     required this.height,
   });
@@ -238,7 +246,8 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
       width: widget.width,
       height: widget.height,
       child: GestureDetector(
@@ -257,28 +266,45 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
               top: 0,
               width: widget.width,
               height: widget.height,
-              child: Image.network(
-                widget.afterImage,
-                width: widget.width,
-                height: widget.height,
-                fit: BoxFit.cover,
-              ),
+              child: widget.afterImage != null
+                  ? Image.network(
+                      widget.afterImage!,
+                      width: widget.width,
+                      height: widget.height,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.file(
+                      File(widget.afterImageFile!.path),
+                      width: widget.width,
+                      height: widget.height,
+                      fit: BoxFit.cover,
+                    ),
             ),
 
-            // Foreground image (Before) - clipped
+            // Foreground image (Before)
             Positioned(
               left: 0,
               top: 0,
               width: widget.width * _sliderPosition,
               height: widget.height,
               child: ClipRect(
-                child: Image.network(
-                  widget.beforeImage,
-                  width: widget.width,
-                  height: widget.height,
-                  fit: BoxFit.cover,
-                  alignment: Alignment.centerLeft,
-                ),
+                child: widget.beforeImage != null
+                    ? Image.network(
+                        widget.beforeImage!,
+                        width: widget.width,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.centerLeft,
+                      )
+                    : widget.beforeImageFile != null
+                    ? Image.file(
+                        File(widget.beforeImageFile!.path),
+                        width: widget.width,
+                        height: widget.height,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.centerLeft,
+                      )
+                    : Container(),
               ),
             ),
 
@@ -295,11 +321,11 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
 
             // Handle
             Positioned(
-              left: (widget.width * _sliderPosition) - 22.h,
+              left: (widget.width * _sliderPosition) - 18.h,
               top: (widget.height / 2) - 18.h,
               child: Container(
-                width: 40.h,
-                height: 40.h,
+                width: 32.h,
+                height: 32.h,
                 padding: EdgeInsets.only(left: 4),
                 decoration: BoxDecoration(shape: BoxShape.circle),
                 child: Image.asset(AppImages.ArrowIcon),

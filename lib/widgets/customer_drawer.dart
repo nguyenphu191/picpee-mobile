@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 
 class CustomEndDrawer extends StatelessWidget {
   const CustomEndDrawer({super.key});
@@ -49,17 +50,29 @@ class CustomEndDrawer extends StatelessWidget {
               ),
               Divider(height: 24.h),
 
-              /// Menu items
               ListTile(
-                leading: Image.asset(AppImages.DrawerProfile, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DrawerProfile,
+                  height: 20.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Profile",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfileScreen()),
+                  );
+                },
               ),
               ListTile(
-                leading: Image.asset(AppImages.DrawerOrder, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DrawerOrder,
+                  height: 20.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Orders",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
@@ -67,7 +80,11 @@ class CustomEndDrawer extends StatelessWidget {
                 onTap: () {},
               ),
               ListTile(
-                leading: Image.asset(AppImages.DrawerSupport, height: 24.h),
+                leading: Image.asset(
+                  AppImages.DrawerSupport,
+                  height: 20.h,
+                  fit: BoxFit.cover,
+                ),
                 title: Text(
                   "Support Center",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
@@ -75,7 +92,6 @@ class CustomEndDrawer extends StatelessWidget {
                 onTap: () {},
               ),
 
-              /// Wallet card
               Container(
                 margin: EdgeInsets.symmetric(vertical: 16.h),
                 padding: EdgeInsets.all(16.w),
@@ -106,13 +122,18 @@ class CustomEndDrawer extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 12.h),
-                    SizedBox(
+                    Container(
                       width: double.infinity,
+                      height: 48.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonGreen,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                         onPressed: () {},

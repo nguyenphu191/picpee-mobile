@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/widgets/before_after_card.dart';
-import 'dart:math';
 
 class FeaturedCard extends StatefulWidget {
   const FeaturedCard({Key? key}) : super(key: key);

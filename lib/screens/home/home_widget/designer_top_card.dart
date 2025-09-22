@@ -284,19 +284,19 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
                         color: Color.fromARGB(255, 167, 167, 167),
-                        width: 0.5,
+                        width: 1.5,
                       ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Image.asset(AppImages.SingleExportIcon, height: 16.h),
+                        Image.asset(AppImages.SingleExportIcon, height: 18.h),
                         SizedBox(width: 5),
                         Text(
                           "Single Exposure",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 12,
+                            fontSize: 12.h,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

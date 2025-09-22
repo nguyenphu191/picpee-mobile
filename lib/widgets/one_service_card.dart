@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/models/service_model.dart';
+import 'package:picpee_mobile/models/top_notch_clipper.dart';
 
 class OneServiceCard extends StatelessWidget {
-  final ServiceData service;
+  final ServiceModel service;
   final VoidCallback? onTap;
+  final bool isDuck;
 
-  const OneServiceCard({super.key, required this.service, this.onTap});
+  const OneServiceCard({
+    super.key,
+    required this.service,
+    this.onTap,
+    this.isDuck = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +26,9 @@ class OneServiceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(6),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: !this.isDuck
+                  ? Colors.black.withOpacity(0.1)
+                  : Colors.white.withOpacity(0.1),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -32,7 +42,7 @@ class OneServiceCard extends StatelessWidget {
                 height: 240.h,
                 width: double.infinity,
                 child: Image.network(
-                  service.imageUrl,
+                  service.afterImageUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
@@ -54,33 +64,39 @@ class OneServiceCard extends StatelessWidget {
                   clipper: TopNotchClipper(),
                   child: Container(
                     height: 160.h,
+                    padding: EdgeInsets.only(
+                      top: 20.h,
+                      left: 16.h,
+                      right: 16.h,
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: !this.isDuck ? Colors.black : Colors.white,
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(6),
                         topRight: Radius.circular(6),
                       ),
                       border: Border(
-                        top: BorderSide(color: Colors.white, width: 1.h),
+                        top: BorderSide(
+                          color: !this.isDuck ? Colors.white : Colors.black,
+                          width: 1.h,
+                        ),
                       ),
                     ),
-                    padding: EdgeInsets.fromLTRB(16, 28.h, 16, 16),
                     child: Column(
                       children: [
                         Container(
-                          height: 58.h,
+                          height: 65.h,
                           width: double.infinity,
                           padding: EdgeInsets.symmetric(vertical: 3.h),
                           child: Row(
                             children: [
                               Container(
-                                height: 50.h,
-                                width: 50.h,
+                                height: 45.h,
+                                width: 45.h,
                                 decoration: BoxDecoration(
-                                  color: AppColors.buttonGreen,
                                   border: Border.all(
                                     color: Colors.white,
-                                    width: 1,
+                                    width: 1.5,
                                   ),
                                   borderRadius: BorderRadius.all(
                                     Radius.circular(50),
@@ -89,21 +105,25 @@ class OneServiceCard extends StatelessWidget {
                                 child: CircleAvatar(
                                   radius: 18,
                                   backgroundImage: NetworkImage(
-                                    service.editorAvatar,
+                                    service.designer != null
+                                        ? service.designer!.avatarUrl
+                                        : '',
                                   ),
                                   onBackgroundImageError:
                                       (exception, stackTrace) {},
-                                  child: service.editorAvatar.isEmpty
-                                      ? const Icon(
+                                  child: service.designer!.avatarUrl.isEmpty
+                                      ? Icon(
                                           Icons.person,
-                                          color: Colors.white,
+                                          color: !this.isDuck
+                                              ? Colors.white
+                                              : Colors.black,
                                           size: 18,
                                         )
                                       : null,
                                 ),
                               ),
 
-                              SizedBox(width: 12.h),
+                              SizedBox(width: 12.w),
 
                               Expanded(
                                 child: Column(
@@ -113,9 +133,13 @@ class OneServiceCard extends StatelessWidget {
                                       children: [
                                         Flexible(
                                           child: Text(
-                                            service.editorName,
+                                            service.designer != null
+                                                ? service.designer!.name
+                                                : 'Unknown Designer',
                                             style: TextStyle(
-                                              color: Colors.white,
+                                              color: !this.isDuck
+                                                  ? Colors.white
+                                                  : Colors.black,
                                               fontWeight: FontWeight.w600,
                                               fontSize: 16.h,
                                             ),
@@ -146,26 +170,41 @@ class OneServiceCard extends StatelessWidget {
                                       ],
                                     ),
 
-                                    SizedBox(height: 4.h),
+                                    SizedBox(height: 4.w),
 
-                                    // Rating and auto-accepting
                                     Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 16.h,
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
+                                              size: 16.h,
+                                            ),
+                                            Text(
+                                              '${service.rating}',
+                                              style: TextStyle(
+                                                color: Colors.amber,
+                                                fontSize: 14.h,
+                                              ),
+                                            ),
+                                            Text(
+                                              ' (${service.reviewCount})',
+                                              style: TextStyle(
+                                                color: !this.isDuck
+                                                    ? Colors.white
+                                                    : Colors.black,
+                                                fontSize: 14.h,
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                        SizedBox(width: 4.h),
-                                        Text(
-                                          '${service.rating} (${service.reviewCount})',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14.h,
-                                          ),
-                                        ),
-                                        if (service.isAutoAccepting) ...[
-                                          SizedBox(width: 32.h),
+
+                                        if (service
+                                            .designer!
+                                            .isAutoAccepting) ...[
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 6,
@@ -176,7 +215,7 @@ class OneServiceCard extends StatelessWidget {
                                                   BorderRadius.circular(10),
                                               border: Border.all(
                                                 color: AppColors.brandGreen,
-                                                width: 1,
+                                                width: 1.5,
                                               ),
                                             ),
                                             child: Row(
@@ -184,15 +223,19 @@ class OneServiceCard extends StatelessWidget {
                                               children: [
                                                 Icon(
                                                   Icons.check,
-                                                  color: Colors.white,
-                                                  size: 10,
+                                                  color: !this.isDuck
+                                                      ? AppColors.buttonGreen
+                                                      : AppColors.textGreen,
+                                                  size: 14.h,
                                                 ),
                                                 SizedBox(width: 3.h),
                                                 Text(
                                                   'Auto-accepting',
                                                   style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14.h,
+                                                    color: !this.isDuck
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                    fontSize: 12.h,
                                                   ),
                                                 ),
                                               ],
@@ -220,7 +263,9 @@ class OneServiceCard extends StatelessWidget {
                                   Text(
                                     'Turnaround time',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: !this.isDuck
+                                          ? Colors.white
+                                          : Colors.black,
                                       fontSize: 14.h,
                                     ),
                                   ),
@@ -228,7 +273,9 @@ class OneServiceCard extends StatelessWidget {
                                   Text(
                                     service.turnaroundTime,
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: !this.isDuck
+                                          ? Colors.white
+                                          : Colors.black,
                                       fontSize: 16.h,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -239,7 +286,7 @@ class OneServiceCard extends StatelessWidget {
                             Container(
                               height: 30.h,
                               width: 1,
-                              color: Colors.white,
+                              color: !this.isDuck ? Colors.white : Colors.black,
                             ),
 
                             Container(
@@ -249,15 +296,19 @@ class OneServiceCard extends StatelessWidget {
                                   Text(
                                     'Starting at',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: !this.isDuck
+                                          ? Colors.white
+                                          : Colors.black,
                                       fontSize: 14.h,
                                     ),
                                   ),
                                   SizedBox(height: 2.h),
                                   Text(
-                                    service.startingPrice,
+                                    service.startingPrice.toString(),
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: !this.isDuck
+                                          ? Colors.white
+                                          : Colors.black,
                                       fontSize: 16.h,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -278,56 +329,4 @@ class OneServiceCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class ServiceData {
-  final String title;
-  final String imageUrl;
-  final String editorName;
-  final String editorAvatar;
-  final double rating;
-  final int reviewCount;
-  final String turnaroundTime;
-  final String startingPrice;
-  final bool isAutoAccepting;
-
-  ServiceData({
-    required this.title,
-    required this.imageUrl,
-    required this.editorName,
-    required this.editorAvatar,
-    required this.rating,
-    required this.reviewCount,
-    required this.turnaroundTime,
-    required this.startingPrice,
-    this.isAutoAccepting = false,
-  });
-}
-
-// TopNotchClipper để tạo hiệu ứng lõm giữa
-class TopNotchClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final Path path = Path();
-
-    double notchWidth = 120.w; // Notch width
-    double notchDepth = 8.w; // Notch depth
-
-    // Start from top-left corner
-    path.lineTo((size.width - notchWidth) / 2, 0);
-    // Create trapezoid notch
-    path.lineTo(size.width / 2 - notchWidth / 3, notchDepth);
-    path.lineTo(size.width / 2 + notchWidth / 3, notchDepth);
-    path.lineTo((size.width + notchWidth) / 2, 0);
-    // Continue with the rest of the edges
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/screens/home/home_widget/blog_demo_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/all_service_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/designer_top_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/featured_card.dart';
@@ -216,7 +215,6 @@ class _HomeBodyState extends State<HomeBody> {
               },
             ),
             SizedBox(height: 10.h),
-            // BlogDemoCard(),
             Footer(),
           ],
         ),

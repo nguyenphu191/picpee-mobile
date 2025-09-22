@@ -2,10 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class CustomEndDrawer extends StatelessWidget {
+class CustomEndDrawer extends StatefulWidget {
   const CustomEndDrawer({super.key});
+
+  @override
+  State<CustomEndDrawer> createState() => _CustomEndDrawerState();
+}
+
+class _CustomEndDrawerState extends State<CustomEndDrawer> {
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      print('Error launching URL: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +109,9 @@ class CustomEndDrawer extends StatelessWidget {
                   "Support Center",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
                 ),
-                onTap: () {},
+                onTap: () {
+                  _launchURL('https://picpee.com/contact');
+                },
               ),
 
               Container(
@@ -168,7 +190,12 @@ class CustomEndDrawer extends StatelessWidget {
                   "Sign Out",
                   style: TextStyle(color: Colors.red, fontSize: 16.h),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
+                  );
+                },
               ),
 
               /// Bottom links
@@ -178,15 +205,21 @@ class CustomEndDrawer extends StatelessWidget {
               ),
               ListTile(
                 title: Text("Blogs", style: TextStyle(fontSize: 16.h)),
-                onTap: () {},
+                onTap: () {
+                  _launchURL('https://picpee.com/blogs');
+                },
               ),
               ListTile(
                 title: Text("How it work", style: TextStyle(fontSize: 16.h)),
-                onTap: () {},
+                onTap: () {
+                  _launchURL('https://picpee.com/how-it-works');
+                },
               ),
               ListTile(
                 title: Text("Contact", style: TextStyle(fontSize: 16.h)),
-                onTap: () {},
+                onTap: () {
+                  _launchURL('https://picpee.com/contact');
+                },
               ),
             ],
           ),

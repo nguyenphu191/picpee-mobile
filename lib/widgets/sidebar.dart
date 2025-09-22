@@ -4,6 +4,7 @@ import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/chat/chat_screen.dart';
 import 'package:picpee_mobile/screens/discount/discount_screen.dart';
+import 'package:picpee_mobile/screens/home/home_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_screen.dart';
 import 'package:picpee_mobile/screens/services-vendor/service_screen.dart';
@@ -31,10 +32,22 @@ class SideBar extends StatelessWidget {
                   children: [
                     Container(
                       alignment: Alignment.centerLeft,
-                      child: Image.asset(
-                        AppImages.logo1,
-                        height: 56.h,
-                        fit: BoxFit.cover,
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return HomeScreen();
+                              },
+                            ),
+                          );
+                        },
+                        child: Image.asset(
+                          AppImages.logo1,
+                          height: 56.h,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                     SizedBox(height: 24.h),

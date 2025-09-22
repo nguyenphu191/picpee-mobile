@@ -151,7 +151,7 @@ class _HomeBodyState extends State<HomeBody> {
                     ),
                   ),
                   Positioned(
-                    top: 350.h,
+                    top: 360.h,
                     left: 0,
                     right: 0,
                     child: AllServicesCard(),
@@ -216,7 +216,7 @@ class _HomeBodyState extends State<HomeBody> {
               },
             ),
             SizedBox(height: 10.h),
-            BlogDemoCard(),
+            // BlogDemoCard(),
             Footer(),
           ],
         ),

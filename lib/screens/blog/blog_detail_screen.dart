@@ -43,6 +43,7 @@ class BlogDetailScreen extends StatelessWidget {
                     horizontal: 20.w,
                     vertical: 36.h,
                   ),
+                  color: Colors.white,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

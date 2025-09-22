@@ -2,9 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Footer extends StatelessWidget {
   const Footer({super.key});
+
+  Future<void> _launchURL(String url, BuildContext context) async {
+    try {
+      final Uri uri = Uri.parse(url);
+
+      // Kiểm tra xem có thể launch URL không
+      bool canLaunch = await canLaunchUrl(uri);
+
+      if (canLaunch) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication, // Mở trong browser external
+        );
+      } else {
+        // Hiển thị thông báo lỗi nếu không thể mở
+        _showErrorSnackBar(context, 'Cannot open this link');
+      }
+    } catch (e) {
+      print('Error launching URL: $e');
+      _showErrorSnackBar(context, 'Failed to open link');
+    }
+  }
+
+  void _showErrorSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +73,8 @@ class Footer extends StatelessWidget {
               Row(
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://www.instagram.com/picpee', context),
                     child: Image.asset(
                       AppImages.InsIcon,
                       height: 42.sp,
@@ -48,7 +84,8 @@ class Footer extends StatelessWidget {
                   ),
                   SizedBox(width: 5.h),
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://www.facebook.com/picpee', context),
                     child: Image.asset(
                       AppImages.FbIcon,
                       height: 42.sp,
@@ -58,7 +95,8 @@ class Footer extends StatelessWidget {
                   ),
                   SizedBox(width: 5.h),
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://twitter.com/picpee', context),
                     child: Image.asset(
                       AppImages.TwtIcon,
                       height: 42.sp,
@@ -68,7 +106,8 @@ class Footer extends StatelessWidget {
                   ),
                   SizedBox(width: 5.h),
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://github.com/picpee', context),
                     child: Image.asset(
                       AppImages.GitIcon,
                       height: 42.sp,
@@ -90,7 +129,8 @@ class Footer extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         InkWell(
-                          onTap: () {},
+                          onTap: () =>
+                              _launchURL('https://picpee.com/about', context),
                           child: Text(
                             "About Us",
                             style: TextStyle(
@@ -101,7 +141,10 @@ class Footer extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () => _launchURL(
+                            'https://picpee.com/services',
+                            context,
+                          ),
                           child: Text(
                             "Services",
                             style: TextStyle(
@@ -112,7 +155,8 @@ class Footer extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () =>
+                              _launchURL('https://picpee.com/news', context),
                           child: Text(
                             "News",
                             style: TextStyle(
@@ -123,7 +167,8 @@ class Footer extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () =>
+                              _launchURL('https://picpee.com/careers', context),
                           child: Text(
                             "Careers",
                             style: TextStyle(
@@ -139,7 +184,12 @@ class Footer extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            _launchURL(
+                              'https://picpee.com/how-it-works',
+                              context,
+                            );
+                          },
                           child: Text(
                             "How it work",
                             style: TextStyle(
@@ -150,7 +200,8 @@ class Footer extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () =>
+                              _launchURL('https://picpee.com/help', context),
                           child: Text(
                             "Help Center",
                             style: TextStyle(
@@ -161,7 +212,8 @@ class Footer extends StatelessWidget {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () =>
+                              _launchURL('https://picpee.com/contact', context),
                           child: Text(
                             "Contact",
                             style: TextStyle(
@@ -199,7 +251,8 @@ class Footer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://picpee.com/terms', context),
                     child: Text(
                       "Terms of Service",
                       style: TextStyle(
@@ -210,7 +263,8 @@ class Footer extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://picpee.com/privacy', context),
                     child: Text(
                       "Privacy Policy",
                       style: TextStyle(
@@ -221,7 +275,8 @@ class Footer extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () =>
+                        _launchURL('https://picpee.com/cookies', context),
                     child: Text(
                       "Cookies",
                       style: TextStyle(

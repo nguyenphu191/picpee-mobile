@@ -7,10 +7,29 @@ import 'package:picpee_mobile/screens/discount/discount_screen.dart';
 import 'package:picpee_mobile/screens/home/home_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class SideBar extends StatelessWidget {
+class SideBar extends StatefulWidget {
   const SideBar({super.key, this.selectedIndex = 0});
   final int selectedIndex;
+
+  @override
+  State<SideBar> createState() => _SideBarState();
+}
+
+class _SideBarState extends State<SideBar> {
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      print('Error launching URL: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +85,7 @@ class SideBar extends StatelessWidget {
                           horizontal: 12.w,
                           vertical: 8.h,
                         ),
-                        decoration: this.selectedIndex == 0
+                        decoration: widget.selectedIndex == 0
                             ? BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,
@@ -115,7 +134,7 @@ class SideBar extends StatelessWidget {
                           horizontal: 12.w,
                           vertical: 8.h,
                         ),
-                        decoration: this.selectedIndex == 1
+                        decoration: widget.selectedIndex == 1
                             ? BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,
@@ -165,7 +184,7 @@ class SideBar extends StatelessWidget {
                           horizontal: 12.w,
                           vertical: 8.h,
                         ),
-                        decoration: this.selectedIndex == 2
+                        decoration: widget.selectedIndex == 2
                             ? BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,
@@ -212,7 +231,7 @@ class SideBar extends StatelessWidget {
                           horizontal: 12.w,
                           vertical: 8.h,
                         ),
-                        decoration: this.selectedIndex == 3
+                        decoration: widget.selectedIndex == 3
                             ? BoxDecoration(
                                 gradient: LinearGradient(
                                   begin: Alignment.centerLeft,
@@ -245,9 +264,54 @@ class SideBar extends StatelessWidget {
                         ),
                       ),
                     ),
+                    InkWell(
+                      onTap: () {
+                        _launchURL('https://picpee.com/contact');
+                      },
+                      child: Container(
+                        height: 55.h,
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+                        decoration: widget.selectedIndex == 4
+                            ? BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.grey[700]!,
+                                    Colors.grey[900]!,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8.r),
+                              )
+                            : null,
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              AppImages.SupportIcon,
+                              height: 24.h,
+                              fit: BoxFit.cover,
+                            ),
+                            SizedBox(width: 12.w),
+                            Text(
+                              "Support",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
+
               Positioned(
                 bottom: 0,
                 right: 0,

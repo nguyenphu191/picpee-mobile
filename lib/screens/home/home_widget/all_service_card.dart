@@ -93,9 +93,9 @@ class AllServicesCard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 12.h),
             Container(
-              height: 280.h,
+              height: 290.h,
               padding: EdgeInsets.all(8.h),
               child: PageView.builder(
                 controller: PageController(viewportFraction: 1),

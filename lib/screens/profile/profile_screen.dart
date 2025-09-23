@@ -200,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: AppColors.buttonGreen,
-                            width: 1.8,
+                            width: 1.5,
                           ),
                         ),
                         indicatorSize: TabBarIndicatorSize.tab,
@@ -272,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.red),
+                            border: Border.all(color: Colors.red, width: 1.5),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -295,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                   SizedBox(height: 16.h),
                   Container(
-                    height: MediaQuery.of(context).size.height - 295.h,
+                    height: MediaQuery.of(context).size.height - 285.h,
                     color: Colors.white,
                     child: TabBarView(
                       controller: _tabController,
@@ -342,10 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             controller: _firstNameController,
           ),
           SizedBox(height: 16.h),
-          CustomTextField(
-            label: 'Last name', 
-            controller: _lastNameController,
-          ),
+          CustomTextField(label: 'Last name', controller: _lastNameController),
           SizedBox(height: 16.h),
           CustomTextField(
             label: 'Business name',
@@ -386,11 +383,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           CustomDropdownField(
             label: 'Timezone',
             value: _selectedTimezone,
-            items: [
-              'America/Adak',
-              'America/New_York', 
-              'America/Chicago',
-            ],
+            items: ['America/Adak', 'America/New_York', 'America/Chicago'],
             onChanged: (String? newValue) {
               setState(() {
                 _selectedTimezone = newValue!;
@@ -486,7 +479,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             hint: 'Password',
             controller: _oldPasswordController,
             isVisible: _isOldPasswordVisible,
-            toggleVisibility: () => setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
+            toggleVisibility: () =>
+                setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
           ),
           SizedBox(height: 16.h),
 
@@ -503,7 +497,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             hint: 'New Password',
             controller: _newPasswordController,
             isVisible: _isNewPasswordVisible,
-            toggleVisibility: () => setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
+            toggleVisibility: () =>
+                setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
           ),
           SizedBox(height: 4),
           Text(
@@ -526,7 +521,9 @@ class _ProfileScreenState extends State<ProfileScreen>
             hint: 'Confirm New Password',
             controller: _confirmPasswordController,
             isVisible: _isConfirmPasswordVisible,
-            toggleVisibility: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+            toggleVisibility: () => setState(
+              () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+            ),
           ),
           SizedBox(height: 4.h),
           Text(
@@ -595,8 +592,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
-
-
 
   // Show delete account confirmation dialog
   void _showDeleteAccountDialog() {

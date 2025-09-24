@@ -1,3 +1,5 @@
+import 'package:picpee_mobile/core/images/app_image.dart';
+
 class OptionItem {
   final String option;
   final String description;
@@ -11,12 +13,14 @@ class OptionItem {
 class ServiceItem {
   final String title;
   final String category;
+  final String image;
   final String description;
   final List<OptionItem> options;
 
   ServiceItem({
     required this.title,
     required this.category,
+    this.image = '',
     required this.description,
     required this.options,
   });
@@ -27,6 +31,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Single Exposure',
     category: 'IMAGE ENHANCEMENT',
+    image: AppImages.SingleExportIcon,
     description:
         'Convert a single exposure or pre-blended exposure into a professional, realistic image. Adjust color, contrast, and lighting for a polished, flawless look.',
     options: [
@@ -43,6 +48,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Blended Brackets (HDR)',
     category: 'IMAGE ENHANCEMENT',
+    image: AppImages.HDRIcon,
     description:
         'Combine three or more exposures to create a vibrant, sharp image with enhanced depth and brightness. Often chosen by real estate photographers.',
     options: [
@@ -59,6 +65,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Flambient',
     category: 'IMAGE ENHANCEMENT',
+    image: AppImages.FlambientIcon,
     description:
         'Combine flash and natural light to create artistic, emotional photos. This technique creates striking images, perfect for luxury real estate listings.',
     options: [
@@ -75,6 +82,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: '360° Image Enhancement',
     category: 'IMAGE ENHANCEMENT',
+    image: AppImages.Image360EnhanceIcon,
     description:
         'Improve 360° photos by balancing exposure and enhancing clarity. Showcase details from every angle for a seamless experience.',
     options: [
@@ -93,6 +101,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Virtual Staging',
     category: 'VIRTUAL STAGING',
+    image: AppImages.VirtualStaggingIcon,
     description:
         'Using digital furniture, experts transform empty spaces into exquisitely decorated rooms. Each piece is styled to match the aesthetic of your home.',
 
@@ -101,6 +110,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Remodel',
     category: 'VIRTUAL STAGING',
+    image: AppImages.RemodelIcon,
     description:
         'Sellers will renovate their home from replacing floors, repainting walls, renovating the kitchen,... realistically, helping buyers visualize their future home.',
     options: [],
@@ -108,6 +118,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: '360° Image',
     category: 'VIRTUAL STAGING',
+    image: AppImages.Image360Icon,
     description:
         'A panoramic stage with realistic furniture and decor. Delivering a complete, immersive experience in the room.',
     options: [],
@@ -117,6 +128,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Day to Dusk',
     category: 'DAY TO DUSK',
+    image: AppImages.DayToDuckIcon,
     description:
         'Turn daytime photos into romantic sunsets by changing the sky, adding light, and adjusting shadows. This way, experts create a warm space that tells a compelling story.',
     options: [],
@@ -126,6 +138,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Day to Twilight',
     category: 'DAY TO TWILIGHT',
+    image: AppImages.DayToTwilightIcon,
     description:
         'Shoot your property at dusk with subtle edits for warm, inviting lighting. This enhances the architectural charm and makes it stand out in the market.',
     options: [
@@ -138,6 +151,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: '1-4 Items',
     category: 'OBJECT REMOVAL',
+    image: AppImages.CleanIcon,
     description:
         'Remove small, distracting objects from your photos. It could be a flip flop near the pool, a stray toothbrush in the sink, or a trash can in the driveway.',
     options: [],
@@ -145,6 +159,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Room Cleaning',
     category: 'OBJECT REMOVAL',
+    image: AppImages.CleanIcon,
     description:
         'Digitally clean rooms to highlight their best features, transforming cluttered rooms into clean environments. From there, we bring out the true potential and charm of any space.',
     options: [],
@@ -154,6 +169,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Changing Seasons',
     category: 'CHANGING SEASONS',
+    image: AppImages.ChangeSessionIcon,
     description:
         'Transform seasonal images to reflect the property at any time of year. Replace overcast skies and bare trees with clear blue skies and lush vegetation.',
     options: [],
@@ -163,6 +179,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Water In Pool',
     category: 'WATER IN POOL',
+    image: AppImages.WaterInPoolIcon,
     description:
         'Experienced providers skillfully remove dirt, debris and turbidity to restore a clear, attractive pool. A sparkling pool reflects the luxury and class of the property.',
     options: [],
@@ -172,6 +189,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Lawn Replacement',
     category: 'LAWN REPLACEMENT',
+    image: AppImages.LawnReplacementIcon,
     description:
         'The service provider will transform a dry, patchy lawn into a vibrant, green lawn. A fresh lawn makes a strong first impression and enhances the overall appearance of your listing.',
     options: [],
@@ -181,6 +199,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Rain to Shine',
     category: 'RAIN TO SHINE',
+    image: AppImages.RainToShineIcon,
     description:
         "Signs of bad weather like dark clouds, wet roads, or snow are cleverly handled to transform the scene into a beautiful sunny day. This way, you don't have to postpone the shoot or reshoot.",
     options: [],
@@ -190,6 +209,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Custom 2D',
     category: 'FLOOR PLANS',
+    image: AppImages.Custom2dIcon,
     description:
         'Turn sketches into professional, branded 2D floor plans with dimensions and colors. Highlight layout, flow, and functionality with clear visuals.',
     options: [
@@ -208,6 +228,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Custom 3D',
     category: 'FLOOR PLANS',
+    image: AppImages.Custom3dIcon,
     description:
         'Design realistic 3D floor plans to visualize spaces and lifestyles. Ideal for vacation and luxury listings. Sellers can also customize the interior to freshen up the look of the home.',
     options: [
@@ -227,6 +248,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Property Videos',
     category: 'PROPERTY VIDEOS SERVICES',
+    image: AppImages.PropertyIcon,
     description:
         'Turn raw footage into cinematic real estate videos, with smooth transitions, synchronized voiceover and music, delivering a professional and emotional audiovisual experience.',
     options: [
@@ -254,6 +276,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Walkthrough Video',
     category: 'PROPERTY VIDEOS SERVICES',
+    image: AppImages.WalkthroughIcon,
     description:
         'Guide viewers through your home with continuous, seamless footage. Add effects and voiceover for an immersive experience.',
     options: [
@@ -281,6 +304,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Reels',
     category: 'PROPERTY VIDEOS SERVICES',
+    image: AppImages.ReelsIcon,
     description:
         'Provider creates short (around 10-30 seconds), vertical videos with animations and music. Perfect for grabbing attention on social media.',
     options: [
@@ -308,6 +332,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Slideshows',
     category: 'PROPERTY VIDEOS SERVICES',
+    image: AppImages.SlideShowIcon,
     description:
         'Convert still photos into engaging videos with effects, graphics, voiceovers, and music. Leverage stock images for real estate marketing.',
     options: [
@@ -337,6 +362,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Individual',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.IndividualIcon,
     description:
         'Enhance your portraits with professional edits while retaining personality. Perfect for polished, unique portraits.',
     options: [],
@@ -344,6 +370,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Team',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.TeamIcon,
     description:
         'Combine up to 8 people into one cohesive group photo. Each person brings their own beauty while still creating harmony and balance.',
     options: [],
@@ -351,6 +378,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Add Person',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.AddPersonIcon,
     description:
         'Insert people individually into a group photo using the images provided. Seamless editing makes the final result look natural.',
     options: [],
@@ -358,6 +386,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Remove Person',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.RemovePersonIcon,
     description:
         'Remove unwanted people from your photo while keeping the composition neutral and professional.',
     options: [],
@@ -365,6 +394,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Background Replacement',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.BackgroundReplaceIcon,
     description:
         'Change the background to anything from an office to a park, customize the look to your needs.',
     options: [],
@@ -372,6 +402,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Cut Outs',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.CutsOutIcon,
     description:
         'Quickly remove the background from your photos for easy editing. Perfect for web, print, and custom designs.',
     options: [],
@@ -379,6 +410,7 @@ List<ServiceItem> servicesData = [
   ServiceItem(
     title: 'Change Color',
     category: 'HEADSHOTS SERVICES',
+    image: AppImages.ChangeColorIcon,
     description:
         'Adjust color, contrast, and lighting with just one click. Create mood and enhance the visual impact of any image.',
     options: [],

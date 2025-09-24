@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/home/home_screen.dart';
+import 'package:picpee_mobile/screens/notification/notification_screen.dart';
 
 class Header extends StatelessWidget {
   const Header({super.key});
@@ -53,7 +54,14 @@ class Header extends StatelessWidget {
                     height: 40.h,
                     width: 40.h,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationScreen(),
+                          ),
+                        );
+                      },
                       child: Icon(
                         Icons.notifications_none,
                         color: Colors.white,

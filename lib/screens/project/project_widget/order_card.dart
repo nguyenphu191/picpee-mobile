@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/order_model.dart';
-import 'package:picpee_mobile/screens/project/order_screen.dart';
+import 'package:picpee_mobile/screens/order/order_screen.dart';
 
 class OrderCard extends StatelessWidget {
   const OrderCard({super.key, required this.order});

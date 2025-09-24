@@ -8,7 +8,7 @@ class ServiceModel {
   final int reviewCount;
   final String turnaroundTime;
   final double startingPrice;
-  final Designer? designer;
+  final Designer designer;
   final int capacity;
   final String category;
 
@@ -21,7 +21,7 @@ class ServiceModel {
     required this.startingPrice,
     required this.beforeImageUrl,
     required this.afterImageUrl,
-    this.designer,
+    required this.designer,
     this.capacity = 0,
     this.category = "All",
     this.subtitle = "",

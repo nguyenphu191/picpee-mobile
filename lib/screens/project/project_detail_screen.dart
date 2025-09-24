@@ -4,8 +4,10 @@ import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/models/order_model.dart';
 import 'package:picpee_mobile/core/utils/mock_order_data.dart';
+import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
 import 'package:picpee_mobile/screens/project/project_widget/order_card.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
+import 'package:picpee_mobile/widgets/sidebar.dart';
 
 class ProjectDetailScreen extends StatefulWidget {
   const ProjectDetailScreen({Key? key, required this.project})
@@ -54,6 +56,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: const SideBar(selectedIndex: 0),
       body: Stack(
         children: [
           Positioned(
@@ -63,75 +66,82 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
             bottom: 0,
             child: Column(
               children: [
-                // Project Title and Add Button Section
-                Container(
-                  padding: EdgeInsets.all(16.h),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.project.name,
-                              style: TextStyle(
-                                fontSize: 20.h,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                InkWell(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => const AddOrderCard(),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(16.h),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                widget.project.name,
+                                style: TextStyle(
+                                  fontSize: 20.h,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            height: 36.h,
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            decoration: BoxDecoration(
-                              color: AppColors.buttonGreen,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.black,
-                                  size: 18.h,
-                                ),
-                                SizedBox(width: 4.w),
-                                Text(
-                                  'Add new order',
-                                  style: TextStyle(
+                            Container(
+                              height: 36.h,
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.buttonGreen,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.add,
                                     color: Colors.black,
-                                    fontSize: 14.h,
-                                    fontWeight: FontWeight.w600,
+                                    size: 18.h,
                                   ),
-                                ),
-                              ],
+                                  SizedBox(width: 4.w),
+                                  Text(
+                                    'Add new order',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.h,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 8.h),
-
-                      // Order Information / Design Information
-                      Container(
-                        child: TabBar(
-                          controller: _mainTabController,
-                          indicatorColor: Colors.blue,
-                          labelColor: Colors.blue,
-                          unselectedLabelColor: Colors.grey,
-                          labelStyle: TextStyle(
-                            fontSize: 14.h,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          unselectedLabelStyle: TextStyle(
-                            fontSize: 14.h,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          tabs: const [
-                            Tab(text: 'Order Information'),
-                            Tab(text: 'Design Information'),
                           ],
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 8.h),
+
+                        // Order Information / Design Information
+                        Container(
+                          child: TabBar(
+                            controller: _mainTabController,
+                            indicatorColor: Colors.blue,
+                            labelColor: Colors.blue,
+                            unselectedLabelColor: Colors.grey,
+                            labelStyle: TextStyle(
+                              fontSize: 14.h,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            unselectedLabelStyle: TextStyle(
+                              fontSize: 14.h,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            tabs: const [
+                              Tab(text: 'Order Information'),
+                              Tab(text: 'Design Information'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
@@ -194,6 +204,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                             height: 50.h,
                             child: TabBar(
                               controller: _statusTabController,
+                              tabAlignment: TabAlignment.start,
                               isScrollable: true,
                               indicatorColor: Colors.blue,
                               labelColor: Colors.blue,

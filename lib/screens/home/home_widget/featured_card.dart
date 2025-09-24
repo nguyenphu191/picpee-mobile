@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
 import 'package:picpee_mobile/widgets/before_after_card.dart';
 
 class FeaturedCard extends StatefulWidget {
@@ -342,7 +343,14 @@ class _FeaturedCardState extends State<FeaturedCard> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AddOrderCard();
+                                    },
+                                  );
+                          },
                           child: Text(
                             'Start Order',
                             style: TextStyle(

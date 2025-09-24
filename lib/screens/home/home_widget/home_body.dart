@@ -5,6 +5,7 @@ import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/home/home_widget/all_service_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/designer_top_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/featured_card.dart';
+import 'package:picpee_mobile/screens/home/home_widget/top_video_card.dart';
 import 'package:picpee_mobile/screens/photo-services/all_services_screen.dart';
 import 'package:picpee_mobile/widgets/footer.dart';
 import 'package:picpee_mobile/widgets/top_service_card.dart';
@@ -188,6 +189,19 @@ class _HomeBodyState extends State<HomeBody> {
               },
             ),
             SizedBox(height: 10.h),
+            TopVideoCard(
+              title: "Property Video",
+              onSeeAllTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AllServicesScreen(title: "Property Video"),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 10.h),
             TopServiceCard(
               title: "Room Cleaning",
               isDuck: true,
@@ -221,4 +235,5 @@ class _HomeBodyState extends State<HomeBody> {
       ),
     );
   }
+  
 }

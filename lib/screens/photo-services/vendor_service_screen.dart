@@ -4,6 +4,7 @@ import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/service_model.dart';
 import 'package:picpee_mobile/models/top_notch_clipper.dart';
+import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
 import 'package:picpee_mobile/widgets/before_after_card.dart';
 import 'package:picpee_mobile/widgets/customer_drawer.dart';
 import 'package:picpee_mobile/widgets/footer.dart';
@@ -628,7 +629,12 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                               Spacer(),
                               InkWell(
                                 onTap: () {
-                                  // Handle share action
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AddOrderCard();
+                                    },
+                                  );
                                 },
 
                                 child: Container(
@@ -778,7 +784,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
           // Before/After
           Positioned(
-            top: 75.h,
+            top: 70.h,
             left: 0,
             right: 0,
             child: Container(
@@ -790,14 +796,13 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
           ),
           // Service Details
           Positioned(
-            top: 260.h,
+            top: 250.h,
             left: 0,
             right: 0,
             child: ClipPath(
               clipper: TopNotchClipper(),
               child: Container(
                 padding: EdgeInsets.all(16),
-                height: 120.h,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -886,15 +891,22 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 16.h),
+                    SizedBox(height: 12.h),
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AddOrderCard();
+                            },
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: 8.h),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -902,8 +914,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                         child: Text(
                           'Start Order',
                           style: TextStyle(
-                            fontSize: 16.h,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 14.h,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),

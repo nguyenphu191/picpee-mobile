@@ -59,7 +59,6 @@ class AllServicesCard extends StatelessWidget {
         height: 380.h,
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
-        // margin: EdgeInsets.symmetric(horizontal: 8.w),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFFFFFEFF), Color(0xFFF4E9F5), Color(0xFFEEEFFA)],
@@ -100,7 +99,6 @@ class AllServicesCard extends StatelessWidget {
               child: PageView.builder(
                 controller: PageController(viewportFraction: 1),
                 itemBuilder: (context, pageIndex) {
-                  // dùng modulo để lặp vô hạn
                   final chunk = serviceChunks[pageIndex % serviceChunks.length];
                   return Padding(
                     padding: EdgeInsets.only(right: 3.h),

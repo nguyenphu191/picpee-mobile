@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
+import 'package:picpee_mobile/screens/project/project_detail_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomEndDrawer extends StatefulWidget {
@@ -97,7 +99,22 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                   "Orders",
                   style: TextStyle(color: Colors.black, fontSize: 16.h),
                 ),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProjectDetailScreen(
+                        project: Project(
+                          id: '1',
+                          name: 'FakeReview',
+                          lastOrdered: DateTime.parse('2025-08-09 05:17:00'),
+                          description: 'Orders: 360° Image Enhancement,...',
+                          iconColor: Colors.purple,
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
               ListTile(
                 leading: Image.asset(

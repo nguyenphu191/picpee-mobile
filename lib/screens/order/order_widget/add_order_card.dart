@@ -804,8 +804,27 @@ class _AddOrderCardState extends State<AddOrderCard> {
                               ),
                               SizedBox(height: 5.h),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.w,
+                                      vertical: 8.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.orangeAccent,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      'Add to Cart',
+                                      style: TextStyle(
+                                        fontSize: 14.h,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
                                   Container(
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 10.w,
@@ -816,7 +835,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
-                                      'Add to Order',
+                                      'Order Now',
                                       style: TextStyle(
                                         fontSize: 14.h,
                                         fontWeight: FontWeight.w600,

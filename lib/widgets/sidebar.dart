@@ -5,8 +5,10 @@ import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/chat/chat_screen.dart';
 import 'package:picpee_mobile/screens/discount/discount_screen.dart';
 import 'package:picpee_mobile/screens/home/home_screen.dart';
+import 'package:picpee_mobile/screens/payment/payment_history.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_screen.dart';
+import 'package:picpee_mobile/screens/payment/top_up.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SideBar extends StatefulWidget {
@@ -364,7 +366,12 @@ class _SideBarState extends State<SideBar> {
                               borderRadius: BorderRadius.circular(6),
                             ),
                           ),
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => TopUpDialog(),
+                            );
+                          },
                           child: Text(
                             "Topup",
                             style: TextStyle(
@@ -378,7 +385,14 @@ class _SideBarState extends State<SideBar> {
                       SizedBox(height: 8.h),
                       Center(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PaymentHistoryScreen(),
+                              ),
+                            );
+                          },
                           child: Text(
                             "Payment History",
                             style: TextStyle(

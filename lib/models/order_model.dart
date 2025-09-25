@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 
 enum OrderStatus {
+  inCart('In Cart'),
   inProgress('In progress'),
   delivered('Delivered'),
   pendingVendorConfirm('Pending Vendor Confirm'),
@@ -127,6 +128,8 @@ class Order {
         return Colors.redAccent;
       case OrderStatus.resolve:
         return Colors.teal;
+      case OrderStatus.inCart:
+        return Colors.blue;
     }
   }
 
@@ -146,6 +149,8 @@ class Order {
         return Icons.error;
       case OrderStatus.resolve:
         return Icons.check_circle_outline;
+      case OrderStatus.inCart:
+        return Icons.shopping_cart;
     }
   }
 

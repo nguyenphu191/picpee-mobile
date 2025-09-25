@@ -4,8 +4,10 @@ import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
+import 'package:picpee_mobile/screens/payment/payment_history.dart';
 import 'package:picpee_mobile/screens/profile/profile_screen.dart';
 import 'package:picpee_mobile/screens/project/project_detail_screen.dart';
+import 'package:picpee_mobile/screens/payment/top_up.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CustomEndDrawer extends StatefulWidget {
@@ -175,7 +177,12 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => TopUpDialog(),
+                          );
+                        },
                         child: Text(
                           "Topup",
                           style: TextStyle(
@@ -189,7 +196,14 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                     SizedBox(height: 8.h),
                     Center(
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentHistoryScreen(),
+                            ),
+                          );
+                        },
                         child: Text(
                           "Payment History",
                           style: TextStyle(color: Colors.white, fontSize: 16.h),

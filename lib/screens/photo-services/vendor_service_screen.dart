@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/core/utils/service_hard_data.dart';
 import 'package:picpee_mobile/models/service_model.dart';
 import 'package:picpee_mobile/models/top_notch_clipper.dart';
+import 'package:picpee_mobile/screens/chat/chat_widget/detail_chat.dart';
 import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
 import 'package:picpee_mobile/widgets/before_after_card.dart';
 import 'package:picpee_mobile/widgets/customer_drawer.dart';
@@ -93,7 +95,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
       ),
     ),
     ServiceModel(
-      title: 'Blended Bracket',
+      title: 'Blended Brackets (HDR)',
       subtitle: 'What\'s included?',
       startingPrice: 0.75,
       beforeImageUrl:
@@ -117,7 +119,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
     ),
     ServiceModel(
       id: "3",
-      title: 'Virtual Staging Premium',
+      title: 'Virtual Staging',
       subtitle: 'What\'s included?',
       startingPrice: 2.50,
       beforeImageUrl:
@@ -140,7 +142,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
     ),
     ServiceModel(
       id: "4",
-      title: 'Day to Dusk Conversion',
+      title: 'Day to Dusk',
       subtitle: 'What\'s included?',
       startingPrice: 1.25,
       beforeImageUrl:
@@ -341,6 +343,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
     });
   }
 
+  List<Map<String, String>> titleDescriptionPairs = getTitleDescriptionPairs();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -358,15 +362,15 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                   // Vendor Info Section
                   Container(
                     color: const Color.fromARGB(239, 0, 0, 0),
-                    padding: EdgeInsets.all(20.h),
+                    padding: EdgeInsets.all(16.h),
                     child: Column(
                       children: [
                         SizedBox(height: 100.h),
                         Row(
                           children: [
                             Container(
-                              width: 80.h,
-                              height: 80.h,
+                              width: 68.h,
+                              height: 68.h,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
@@ -386,7 +390,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                                     'The Best Editor',
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 22.h,
+                                      fontSize: 20.h,
                                       fontWeight: FontWeight.bold,
                                     ),
                                     overflow: TextOverflow.ellipsis,
@@ -482,36 +486,6 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                         ),
                         SizedBox(height: 16.h),
 
-                        // Chat button
-                        Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(vertical: 8.h),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey, width: 1.5),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                AppImages.MessageIcon,
-                                width: 25.h,
-                                height: 25.h,
-                                color: Color(0xff2ABFD5),
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Chat with Designer',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16.h,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 20),
-
                         // Services Filter
                         Container(
                           width: double.maxFinite,
@@ -533,8 +507,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: 16.h,
-                                    vertical: 6.h,
+                                    horizontal: 12.h,
+                                    vertical: 4.h,
                                   ),
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -552,6 +526,9 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                                           ? Colors.white
                                           : Colors.grey[400],
                                       fontSize: 14.h,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
                                     ),
                                   ),
                                 ),
@@ -559,7 +536,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                             }).toList(),
                           ),
                         ),
-                        SizedBox(height: 26.h),
+                        SizedBox(height: 18.h),
 
                         // Stats row
                         Container(
@@ -567,8 +544,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                             children: [
                               Container(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: 16.h,
-                                  vertical: 8.h,
+                                  horizontal: 12.h,
+                                  vertical: 5.h,
                                 ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50),
@@ -583,7 +560,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                                       '33',
                                       style: TextStyle(
                                         color: Colors.white,
-                                        fontSize: 16.h,
+                                        fontSize: 14.h,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
                                     SizedBox(width: 5),
@@ -598,8 +576,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                               SizedBox(width: 20.w),
                               Container(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: 16.h,
-                                  vertical: 8.h,
+                                  horizontal: 12.h,
+                                  vertical: 5.h,
                                 ),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(50),
@@ -610,18 +588,19 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
-                                      Icons.chat_bubble_outline,
-                                      color: Colors.grey[400],
-                                      size: 16.h,
-                                    ),
-                                    SizedBox(width: 5),
                                     Text(
                                       '32',
                                       style: TextStyle(
                                         color: Colors.grey[400],
-                                        fontSize: 16.h,
+                                        fontSize: 14.h,
+                                        fontWeight: FontWeight.w500,
                                       ),
+                                    ),
+                                    SizedBox(width: 5),
+                                    Icon(
+                                      Icons.chat,
+                                      color: Color(0xff2ABFD5),
+                                      size: 16.h,
                                     ),
                                   ],
                                 ),
@@ -639,7 +618,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: 16.h,
+                                    horizontal: 12.h,
                                     vertical: 8.h,
                                   ),
                                   decoration: BoxDecoration(
@@ -665,22 +644,17 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
                   // Services List
                   Container(
-                    padding: EdgeInsets.only(
-                      top: 16.h,
-                      bottom: 16.h,
-                      left: 8.h,
-                      right: 8.h,
-                    ),
+                    padding: EdgeInsets.only(left: 16.w, right: 16.w),
                     color: Colors.black,
                     child: Column(
                       children: [
                         ListView.separated(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
-                          padding: EdgeInsets.all(16),
+                          // padding: EdgeInsets.all(16),
                           itemCount: filteredServiceItems.length,
                           separatorBuilder: (context, index) =>
-                              SizedBox(height: 16.h),
+                              SizedBox(height: 10.h),
                           itemBuilder: (context, index) {
                             final item = filteredServiceItems[index];
                             return _buildServiceItem(item);
@@ -698,7 +672,41 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
               ),
             ),
           ),
-          Positioned(top: 16.h, left: 16.w, right: 16.w, child: Header()),
+          Positioned(
+            top: 118.h,
+            right: 26.w,
+            child: // Chat button
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailChat(
+                      user: {
+                        'id': '1',
+                        'name': 'The Best Editor',
+                        'avatar':
+                            'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=80',
+                      },
+                      onClose: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                width: 50.h,
+                height: 50.h,
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.chat, color: Color(0xff2ABFD5), size: 32.h),
+              ),
+            ),
+          ),
+          Positioned(top: 30.h, left: 16.w, right: 16.w, child: Header()),
         ],
       ),
     );
@@ -706,7 +714,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
   Widget _buildServiceItem(ServiceModel item) {
     return Container(
-      height: 380.h,
+      height: 370.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -719,24 +727,25 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
             left: 0,
             right: 0,
             child: Container(
-              height: 75.h,
-              padding: EdgeInsets.all(16),
+              height: 70.h,
+              padding: EdgeInsets.all(12.h),
               child: Row(
                 children: [
                   Image.asset(
                     AppImages.SingleExportIcon,
-                    width: 40.h,
-                    height: 40.h,
+                    width: 38.h,
+                    height: 38.h,
                   ),
                   SizedBox(width: 12.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Text(
                           item.title,
                           style: TextStyle(
-                            fontSize: 20.h,
+                            fontSize: 16.h,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -744,7 +753,35 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                         ),
                         InkWell(
                           onTap: () {
-                            // Handle "What's included?" tap
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(16.h),
+                                    child: Text(
+                                      titleDescriptionPairs.firstWhere(
+                                            (pair) =>
+                                                pair['title'] == item.title,
+                                            orElse: () => {
+                                              'title': item.title,
+                                              'description':
+                                                  'No description available for this service.',
+                                            },
+                                          )['description'] ??
+                                          'No description available.',
+                                      style: TextStyle(
+                                        fontSize: 13.h,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
                           },
                           child: Text(
                             item.subtitle,
@@ -791,7 +828,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
               height: 250.h,
               color: Colors.white,
               width: double.maxFinite,
-              child: BeforeAfterCard(height: 200.h, width: 310.w),
+              child: BeforeAfterCard(height: 200.h, width: 320.w),
             ),
           ),
           // Service Details

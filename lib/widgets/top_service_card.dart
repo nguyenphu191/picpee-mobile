@@ -88,7 +88,7 @@ class _TopServiceCardState extends State<TopServiceCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 520.h,
+      height: 500.h,
       decoration: BoxDecoration(
         color: widget.isDuck ? AppColors.brandDuckGreen : Colors.white,
       ),
@@ -96,15 +96,11 @@ class _TopServiceCardState extends State<TopServiceCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 8.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  height: 80.h,
                   width: widget.isHome ? 240.w : 340.w,
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -113,7 +109,9 @@ class _TopServiceCardState extends State<TopServiceCard> {
                       fontSize: 22.h,
                       fontWeight: FontWeight.bold,
                       color: !widget.isDuck ? Colors.black : Colors.white,
+                      height: 1.2,
                     ),
+                    overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
                 ),
@@ -150,15 +148,14 @@ class _TopServiceCardState extends State<TopServiceCard> {
           SizedBox(height: 12.h),
 
           Container(
-            height: 370.h,
-            margin: EdgeInsets.symmetric(horizontal: 16.h),
+            height: 360.h,
+            margin: EdgeInsets.symmetric(horizontal: 16.w),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: _hardcodedServices.length,
               itemBuilder: (context, index) {
                 final service = _hardcodedServices[index];
                 return Container(
-                  height: 370.h,
                   width: 320.w,
                   margin: EdgeInsets.only(
                     right: index < _hardcodedServices.length - 1 ? 4.h : 0,

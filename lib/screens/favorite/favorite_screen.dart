@@ -11,6 +11,10 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
+  // Add search controller
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   List<Map<String, dynamic>> favoriteItems = [
     {
       'editor': {
@@ -44,8 +48,54 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
             'https://tse2.mm.bing.net/th/id/OIP.gRsMK8djOPccYsCUVi2fYAHaDt?pid=Api&h=220&P=0',
       },
     },
-    // Add more items as needed
+    {
+      'editor': {
+        'id': 2,
+        'name': 'Bob Smith',
+        'rating': 4.5,
+        'reviews': 85,
+        'avatarUrl':
+            'https://tse2.mm.bing.net/th/id/OIP.gRsMK8djOPccYsCUVi2fYAHaDt?pid=Api&h=220&P=0',
+      },
+      'service': {
+        'id': 2,
+        'name': 'Video Editing',
+        'imageUrl':
+            'https://tse2.mm.bing.net/th/id/OIP.gRsMK8djOPccYsCUVi2fYAHaDt?pid=Api&h=220&P=0',
+      },
+    },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Add listener to update search query when text changes
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    // Clean up controller
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // Filter items based on search query
+  List<Map<String, dynamic>> get filteredItems {
+    if (_searchQuery.isEmpty) {
+      return favoriteItems;
+    }
+    return favoriteItems.where((item) {
+      final serviceName = item['service']['name'].toString().toLowerCase();
+      final editorName = item['editor']['name'].toString().toLowerCase();
+      final query = _searchQuery.toLowerCase();
+      return serviceName.contains(query) || editorName.contains(query);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,15 +120,98 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           textAlign: TextAlign.center,
         ),
       ),
-      body: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.w),
-        child: ListView.builder(
-          itemCount: favoriteItems.length,
-          itemBuilder: (context, index) {
-            final item = favoriteItems[index];
-            return _buildItemCard(item);
-          },
-        ),
+      body: Column(
+        children: [
+          // Search bar
+          Container(
+            margin: EdgeInsets.only(
+              top: 16.h,
+              left: 16.w,
+              right: 16.w,
+              bottom: 8.h,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(0, 1),
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search favorites...',
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: Icon(Icons.clear, color: Colors.grey),
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey[400]!, width: 1.2),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                contentPadding: EdgeInsets.symmetric(vertical: 12.h),
+              ),
+            ),
+          ),
+
+          // Results count when searching
+          if (_searchQuery.isNotEmpty)
+            Padding(
+              padding: EdgeInsets.only(left: 16.w, bottom: 8.h),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '${filteredItems.length} results found',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12.h),
+                ),
+              ),
+            ),
+
+          // List of favorites
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              child: filteredItems.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64.h,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 16.h),
+                          Text(
+                            'No favorites found',
+                            style: TextStyle(
+                              fontSize: 16.h,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: filteredItems.length,
+                      itemBuilder: (context, index) {
+                        final item = filteredItems[index];
+                        return _buildItemCard(item);
+                      },
+                    ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -101,7 +234,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       ),
       child: Row(
         children: [
-          // Service Image
           Stack(
             children: [
               ClipRRect(
@@ -130,8 +262,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     width: 28.h,
                     height: 28.h,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withOpacity(0.2),
                       shape: BoxShape.circle,
+                      border: Border.all(color: Colors.grey, width: 1),
                     ),
                     child: Center(
                       child: Icon(
@@ -147,12 +280,11 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           ),
           SizedBox(width: 8.w),
 
-          // Service and Editor Info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 16.h),
+                SizedBox(height: 8.h),
                 Text(
                   item['service']['name'],
                   style: TextStyle(
@@ -162,7 +294,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 8.h),
+                SizedBox(height: 6.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -175,6 +307,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     SizedBox(width: 8.w),
                     Expanded(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
@@ -185,7 +318,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: 4.h),
+                          SizedBox(height: 2.h),
                           Row(
                             children: [
                               Icon(Icons.star, size: 14.h, color: Colors.amber),
@@ -203,6 +336,31 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                       ),
                     ),
                   ],
+                ),
+                SizedBox(height: 5.h),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: AppColors.brandGreen, width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.check, color: AppColors.textGreen, size: 14.h),
+                      SizedBox(width: 3.h),
+                      Text(
+                        'Auto-accepting',
+                        style: TextStyle(
+                          color: AppColors.textGreen,
+                          fontSize: 12.h,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -416,3 +416,13 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
 ];
+List<Map<String, String>> getTitleDescriptionPairs() {
+  return servicesData
+      .map(
+        (service) => {
+          'title': service.title,
+          'description': service.description,
+        },
+      )
+      .toList();
+}

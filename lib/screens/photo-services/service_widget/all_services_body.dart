@@ -23,19 +23,22 @@ class _AllServicesBodyState extends State<AllServicesBody> {
       color: Colors.cyan,
       child: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: 220.h,
+              height: 190.h,
               width: size.width,
-              padding: EdgeInsets.only(top: 120.h, left: 16.h, right: 16.h),
+              padding: EdgeInsets.only(top: 125.h, left: 16.w, right: 16.w),
               color: AppColors.brandDuck,
               child: Text(
                 widget.title,
                 style: TextStyle(
-                  fontSize: 28.h,
+                  fontSize: 24.h,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
               ),
             ),

@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/service_model.dart';
-import 'package:picpee_mobile/screens/home/home_widget/all_service_card.dart';
+import 'package:picpee_mobile/models/top_notch_clipper.dart';
 import 'package:picpee_mobile/screens/order/order_widget/designer_card.dart';
 
 class FindDesigner extends StatefulWidget {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:picpee_mobile/core/images/app_image.dart';
+import 'package:picpee_mobile/models/top_notch_clipper.dart';
 
 class AllServicesCard extends StatelessWidget {
   const AllServicesCard({super.key});
@@ -56,7 +58,7 @@ class AllServicesCard extends StatelessWidget {
     return ClipPath(
       clipper: TopNotchClipper(),
       child: Container(
-        height: 380.h,
+        height: 390.h,
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
         decoration: BoxDecoration(
@@ -79,9 +81,9 @@ class AllServicesCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
+            Center(
               child: Text(
                 "All Services",
                 style: TextStyle(
@@ -92,10 +94,11 @@ class AllServicesCard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 12.h),
+            SizedBox(height: 8.h),
             Container(
-              height: 290.h,
-              padding: EdgeInsets.all(8.h),
+              height: 300.h,
+              padding: EdgeInsets.only(left: 10.w, right: 10.w),
+              alignment: Alignment.topCenter,
               child: PageView.builder(
                 controller: PageController(viewportFraction: 1),
                 itemBuilder: (context, pageIndex) {
@@ -109,7 +112,7 @@ class AllServicesCard extends StatelessWidget {
                         crossAxisCount: 2,
                         mainAxisSpacing: 3.h,
                         crossAxisSpacing: 3.h,
-                        childAspectRatio: 1.2,
+                        childAspectRatio: 1.4,
                       ),
                       itemCount: chunk.length,
                       itemBuilder: (context, index) {
@@ -132,7 +135,7 @@ class AllServicesCard extends StatelessWidget {
 
   Widget _buildServiceItem(String title, String icon) {
     return Container(
-      padding: EdgeInsets.all(12.h),
+      padding: EdgeInsets.all(10.h),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(5.r),
@@ -149,13 +152,13 @@ class AllServicesCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(icon, height: 48.sp),
-          SizedBox(height: 8.h),
+          Image.asset(icon, height: 42.h, width: 42.h),
+          SizedBox(height: 5.h),
           Text(
             title,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 16.h,
+              fontSize: 14.h,
               fontWeight: FontWeight.w500,
               color: Colors.black87,
             ),
@@ -164,31 +167,4 @@ class AllServicesCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class TopNotchClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final Path path = Path();
-
-    double notchWidth = 120.w; // Notch width
-    double notchDepth = 8.w; // Notch depth
-
-    // Start from top-left corner
-    path.lineTo((size.width - notchWidth) / 2, 0);
-    // Create trapezoid notch
-    path.lineTo(size.width / 2 - notchWidth / 3, notchDepth);
-    path.lineTo(size.width / 2 + notchWidth / 3, notchDepth);
-    path.lineTo((size.width + notchWidth) / 2, 0);
-    // Continue with the rest of the edges
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

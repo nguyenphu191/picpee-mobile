@@ -58,7 +58,7 @@ class AllServicesCard extends StatelessWidget {
     return ClipPath(
       clipper: TopNotchClipper(),
       child: Container(
-        height: 390.h,
+        height: 325.h,
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 20.h),
         decoration: BoxDecoration(
@@ -94,9 +94,9 @@ class AllServicesCard extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 8.h),
+            SizedBox(height: 10.h),
             Container(
-              height: 300.h,
+              height: 240.h,
               padding: EdgeInsets.only(left: 10.w, right: 10.w),
               alignment: Alignment.topCenter,
               child: PageView.builder(
@@ -108,6 +108,7 @@ class AllServicesCard extends StatelessWidget {
                     child: GridView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       shrinkWrap: true,
+                      padding: EdgeInsets.zero,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         mainAxisSpacing: 3.h,
@@ -135,10 +136,10 @@ class AllServicesCard extends StatelessWidget {
 
   Widget _buildServiceItem(String title, String icon) {
     return Container(
-      padding: EdgeInsets.all(10.h),
+      padding: EdgeInsets.all(8.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(5.r),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.grey.shade300),
         boxShadow: [
           BoxShadow(
@@ -151,6 +152,7 @@ class AllServicesCard extends StatelessWidget {
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Image.asset(icon, height: 42.h, width: 42.h),
           SizedBox(height: 5.h),

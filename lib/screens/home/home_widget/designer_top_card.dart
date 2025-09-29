@@ -121,8 +121,8 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 610.h,
-      padding: EdgeInsets.symmetric(vertical: 20.h),
+      height: 536.h,
+      padding: EdgeInsets.symmetric(vertical: 16.h),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFFFFFEFF), Color(0xFFEDF5E9), Color(0xFFF5FAEE)],
@@ -134,25 +134,27 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
         ),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Title
           Text(
             "Access verified\nDesigners globally",
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 24.h,
+              fontSize: 22.h,
               fontWeight: FontWeight.w600,
               color: Colors.black,
-              height: 1.5,
+              height: 1.4,
             ),
           ),
-          SizedBox(height: 30.h),
+          SizedBox(height: 20.h),
           _buildTabSwitcher(),
-          SizedBox(height: 30.h),
+          SizedBox(height: 16.h),
           Container(height: 300.h, child: _buildDesignerPageView()),
-          SizedBox(height: 30.h),
+          SizedBox(height: 16.h),
           _buildPageIndicator(),
-          SizedBox(height: 30.h),
+          SizedBox(height: 16.h),
         ],
       ),
     );
@@ -186,7 +188,7 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                   style: TextStyle(
                     color: _selectedTab == 0 ? Colors.black : Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 16.h,
+                    fontSize: 14.h,
                   ),
                 ),
               ),
@@ -209,7 +211,7 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                   style: TextStyle(
                     color: _selectedTab == 1 ? Colors.black : Colors.white,
                     fontWeight: FontWeight.w600,
-                    fontSize: 16.h,
+                    fontSize: 14.h,
                   ),
                 ),
               ),

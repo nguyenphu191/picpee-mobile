@@ -343,6 +343,113 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
     });
   }
 
+  void _showFilterDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          backgroundColor: Colors.grey[900],
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 8.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Filter Services',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16.h,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.grey[400]),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                Divider(color: Colors.grey[700]),
+                SizedBox(height: 8.h),
+
+                // Services list
+                Container(
+                  width: double.maxFinite,
+                  constraints: BoxConstraints(maxHeight: 300.h),
+                  child: SingleChildScrollView(
+                    child: Wrap(
+                      spacing: 8.h,
+                      runSpacing: 8.h,
+                      children: services.map((service) {
+                        bool isSelected = selectedCategory == service.category;
+                        return InkWell(
+                          onTap: () {
+                            setState(() {
+                              selectedCategory = service.category;
+                            });
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.h,
+                              vertical: 3.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppColors.buttonGreen.withOpacity(0.2)
+                                  : Colors.transparent,
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppColors.buttonGreen
+                                    : Colors.grey[600]!,
+                                width: isSelected ? 1.5 : 1.2,
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (isSelected)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 4),
+                                    child: Icon(
+                                      Icons.check,
+                                      color: AppColors.buttonGreen,
+                                      size: 14.h,
+                                    ),
+                                  ),
+                                Text(
+                                  '${service.name}',
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.grey[400],
+                                    fontSize: 14.h,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 18.h),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   List<Map<String, String>> titleDescriptionPairs = getTitleDescriptionPairs();
 
   @override
@@ -436,12 +543,38 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                                           ),
                                         ),
                                       ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Vietnam',
-                                        style: TextStyle(
-                                          color: Colors.grey[400],
-                                          fontSize: 14.h,
+                                      SizedBox(width: 16.w),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: AppColors.buttonGreen,
+                                            width: 1.5,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              Icons.check,
+                                              color: AppColors.buttonGreen,
+                                              size: 16.h,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text(
+                                              'Auto-accepting',
+                                              style: TextStyle(
+                                                color: Colors.grey[400],
+                                                fontSize: 14.h,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
@@ -451,192 +584,101 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 5.h),
-
-                        Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.buttonGreen,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.check,
-                                color: AppColors.buttonGreen,
-                                size: 16.h,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                'Auto-accepting',
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 14.h,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
-
-                        // Services Filter
-                        Container(
-                          width: double.maxFinite,
-                          constraints: BoxConstraints(
-                            maxHeight: 258.h,
-                            minHeight: 50.h,
-                          ),
-                          child: Wrap(
-                            spacing: 8.h,
-                            runSpacing: 8.h,
-                            children: services.map((service) {
-                              bool isSelected =
-                                  selectedCategory == service.category;
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedCategory = service.category;
-                                  });
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 12.h,
-                                    vertical: 4.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? AppColors.buttonGreen
-                                          : Colors.grey[600]!,
-                                      width: isSelected ? 2 : 1.5,
-                                    ),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '${service.name} ${service.count}',
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : Colors.grey[400],
-                                      fontSize: 14.h,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        SizedBox(height: 18.h),
-
+                        SizedBox(height: 10.h),
                         // Stats row
-                        Container(
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 12.h,
-                                  vertical: 5.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      '33',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14.h,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(width: 5),
-                                    Icon(
-                                      Icons.favorite,
-                                      color: Colors.red,
-                                      size: 16.h,
-                                    ),
-                                  ],
+                        Row(
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.h,
+                                vertical: 5.h,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 1.5,
                                 ),
                               ),
-                              SizedBox(width: 20.w),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 12.h,
-                                  vertical: 5.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(50),
-                                  border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      '32',
-                                      style: TextStyle(
-                                        color: Colors.grey[400],
-                                        fontSize: 14.h,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    SizedBox(width: 5),
-                                    Icon(
-                                      Icons.chat,
-                                      color: Color(0xff2ABFD5),
-                                      size: 16.h,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Spacer(),
-                              InkWell(
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return AddOrderCard();
-                                    },
-                                  );
-                                },
-
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 12.h,
-                                    vertical: 8.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.buttonGreen,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    'Start Order',
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '33',
                                     style: TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.white,
                                       fontSize: 14.h,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                  SizedBox(width: 5),
+                                  Icon(
+                                    Icons.favorite,
+                                    color: Colors.red,
+                                    size: 16.h,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(width: 20.w),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.h,
+                                vertical: 5.h,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                  width: 1.5,
                                 ),
                               ),
-                            ],
-                          ),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    '32',
+                                    style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontSize: 14.h,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(width: 5),
+                                  Icon(
+                                    Icons.chat,
+                                    color: Color(0xff2ABFD5),
+                                    size: 16.h,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Spacer(),
+                            InkWell(
+                              onTap: () => _showFilterDialog(),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 5.h,
+                                  vertical: 5.h,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppColors.buttonGreen,
+                                    width: 1.5,
+                                  ),
+                                  borderRadius: BorderRadius.circular(50),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.filter_list,
+                                      color: AppColors.buttonGreen,
+                                      size: 20.h,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -651,7 +693,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                         ListView.separated(
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
-                          // padding: EdgeInsets.all(16),
+                          padding: EdgeInsets.zero,
                           itemCount: filteredServiceItems.length,
                           separatorBuilder: (context, index) =>
                               SizedBox(height: 10.h),
@@ -714,7 +756,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
   Widget _buildServiceItem(ServiceModel item) {
     return Container(
-      height: 370.h,
+      height: 320.h,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -727,8 +769,8 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
             left: 0,
             right: 0,
             child: Container(
-              height: 70.h,
-              padding: EdgeInsets.all(12.h),
+              height: 60.h,
+              padding: EdgeInsets.all(8.h),
               child: Row(
                 children: [
                   Image.asset(
@@ -736,7 +778,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                     width: 38.h,
                     height: 38.h,
                   ),
-                  SizedBox(width: 12.w),
+                  SizedBox(width: 5.w),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -821,25 +863,24 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
           // Before/After
           Positioned(
-            top: 70.h,
+            top: 56.h,
             left: 0,
             right: 0,
             child: Container(
-              height: 250.h,
-              color: Colors.white,
+              height: 200.h,
               width: double.maxFinite,
-              child: BeforeAfterCard(height: 200.h, width: 320.w),
+              child: BeforeAfterCard(height: 180.h, width: 320.w),
             ),
           ),
           // Service Details
           Positioned(
-            top: 250.h,
+            top: 210.h,
             left: 0,
             right: 0,
             child: ClipPath(
               clipper: TopNotchClipper(),
               child: Container(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.all(12.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -928,7 +969,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: 5.h),
                     Container(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -1001,8 +1042,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                   (value) {
                     setState(() {
                       selectedSortBy = value;
-                      displayedReviewsCount =
-                          reviewsPerLoad; // Reset to initial count
+                      displayedReviewsCount = reviewsPerLoad;
                     });
                   },
                 ),
@@ -1016,8 +1056,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                   (value) {
                     setState(() {
                       selectedFilterBy = value;
-                      displayedReviewsCount =
-                          reviewsPerLoad; // Reset to initial count
+                      displayedReviewsCount = reviewsPerLoad;
                     });
                   },
                 ),
@@ -1029,6 +1068,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
           // Reviews List
           ListView.separated(
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: NeverScrollableScrollPhysics(),
             itemCount: displayedReviews.length,
             separatorBuilder: (context, index) => SizedBox(height: 10.h),
@@ -1048,7 +1088,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(
-                      vertical: 12.h,
+                      vertical: 8.h,
                       horizontal: 16.w,
                     ),
                     shape: RoundedRectangleBorder(
@@ -1079,7 +1119,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
     Function(String) onChanged,
   ) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey[600]!, width: 1.5),
         borderRadius: BorderRadius.circular(8),
@@ -1091,7 +1131,6 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
             label,
             style: TextStyle(color: Colors.grey[400], fontSize: 12.h),
           ),
-          SizedBox(height: 4.h),
           DropdownButton<String>(
             value: value,
             isExpanded: true,
@@ -1122,7 +1161,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
 
   Widget _buildReviewItem(Review review) {
     return Container(
-      padding: EdgeInsets.all(16.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.h, vertical: 8.h),
       decoration: BoxDecoration(
         color: Colors.grey[900],
         borderRadius: BorderRadius.circular(12),

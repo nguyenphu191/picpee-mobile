@@ -87,7 +87,7 @@ class _TopVideoCardState extends State<TopVideoCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.isHome ? 490.h : 520.h,
+      height: 450.h,
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,9 +107,10 @@ class _TopVideoCardState extends State<TopVideoCard> {
                   child: Text(
                     "Top Designers In ${widget.title}",
                     style: TextStyle(
-                      fontSize: 22.h,
+                      fontSize: 20.h,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
+                      height: 1.4,
                     ),
                     maxLines: 2,
                   ),
@@ -118,8 +119,6 @@ class _TopVideoCardState extends State<TopVideoCard> {
                     ? InkWell(
                         onTap: widget.onSeeAllTap,
                         child: Container(
-                          height: 42.h,
-                          width: 90.w,
                           padding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8.h,
@@ -133,7 +132,7 @@ class _TopVideoCardState extends State<TopVideoCard> {
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
-                              fontSize: 16.h,
+                              fontSize: 14.h,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -147,7 +146,7 @@ class _TopVideoCardState extends State<TopVideoCard> {
           SizedBox(height: 12.h),
 
           Container(
-            height: widget.isHome ? 340.h : 370.h,
+            height: widget.isHome ? 310.h : 360.h,
             margin: EdgeInsets.symmetric(horizontal: 16.h),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
@@ -155,12 +154,18 @@ class _TopVideoCardState extends State<TopVideoCard> {
               itemBuilder: (context, index) {
                 final service = _hardcodedServices[index];
                 return Container(
-                  height: widget.isHome ? 350.h : 370.h,
+                  height: widget.isHome ? 300.h : 360.h,
                   width: widget.isHome
                       ? MediaQuery.of(context).size.width - 32.h
                       : 310.w,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.r),
+
+                    border: Border.all(color: Colors.grey.shade300, width: 1.0),
+                  ),
                   margin: EdgeInsets.only(
-                    right: index < _hardcodedServices.length - 1 ? 4.h : 0,
+                    right: index < _hardcodedServices.length - 1 ? 6.h : 0,
                   ),
                   child: widget.isHome
                       ? OneVideoCard(

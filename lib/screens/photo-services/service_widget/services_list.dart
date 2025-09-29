@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/service_model.dart';
 import 'package:picpee_mobile/screens/photo-services/vendor_service_screen.dart';
-import 'package:picpee_mobile/widgets/one_service_card.dart';
+import 'package:picpee_mobile/widgets/before_after_card.dart';
 
 class ServiceListPage extends StatefulWidget {
   const ServiceListPage({super.key});
@@ -187,7 +187,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.h, vertical: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.h, vertical: 8.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -247,22 +247,11 @@ class _ServiceListPageState extends State<ServiceListPage> {
                 .map(
                   (service) => Container(
                     margin: EdgeInsets.only(
-                      bottom: 10.h,
-                      left: 16.h,
-                      right: 16.h,
+                      bottom: 5.h,
+                      left: 10.h,
+                      right: 10.h,
                     ),
-                    child: OneServiceCard(
-                      service: service,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VendorServiceScreen(),
-                          ),
-                        );
-                      },
-                      isDuck: false,
-                    ),
+                    child: _buildServiceCard(service),
                   ),
                 )
                 .toList(),
@@ -277,7 +266,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                   color: currentPage > 1
                       ? const Color(0xFFF5F9F5)
                       : Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(50),
                   child: InkWell(
                     onTap: currentPage > 1
                         ? () => setState(() => currentPage--)
@@ -285,7 +274,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                     borderRadius: BorderRadius.circular(50),
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
+                        horizontal: 8.h,
                         vertical: 8.h,
                       ),
                       child: Icon(
@@ -293,7 +282,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                         size: 16.h,
                         color: currentPage > 1
                             ? const Color(0xFF2E7D32)
-                            : Colors.grey.shade400,
+                            : Colors.grey,
                       ),
                     ),
                   ),
@@ -303,7 +292,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                   margin: EdgeInsets.symmetric(horizontal: 16.w),
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
-                    vertical: 8.h,
+                    vertical: 5.h,
                   ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF4CAF50).withOpacity(0.1),
@@ -327,7 +316,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                   color: currentPage < totalPages
                       ? const Color(0xFFF5F9F5)
                       : Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(50),
                   child: InkWell(
                     onTap: currentPage < totalPages
                         ? () => setState(() => currentPage++)
@@ -335,7 +324,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
+                        horizontal: 8.h,
                         vertical: 8.h,
                       ),
                       child: Icon(
@@ -343,7 +332,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                         size: 16.h,
                         color: currentPage < totalPages
                             ? const Color(0xFF2E7D32)
-                            : Colors.grey.shade400,
+                            : Colors.grey,
                       ),
                     ),
                   ),
@@ -352,6 +341,153 @@ class _ServiceListPageState extends State<ServiceListPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildServiceCard(ServiceModel service) {
+    return Container(
+      height: 98.h,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey.shade300, width: 1.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+            spreadRadius: 1.5,
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => VendorServiceScreen()),
+          );
+        },
+        child: Row(
+          children: [
+            Container(
+              width: 130.h,
+              height: 98.h,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  bottomLeft: Radius.circular(8),
+                ),
+                child: CustomBeforeAfterSlider(
+                  beforeImage: service.beforeImageUrl,
+                  afterImage: service.afterImageUrl,
+                  width: 130.h,
+                  height: 98.h,
+                ),
+              ),
+            ),
+            SizedBox(width: 5.w),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    service.designer.name,
+                    style: TextStyle(
+                      fontSize: 14.h,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 4.h),
+                  Row(
+                    children: [
+                      Icon(Icons.star, color: Colors.amber, size: 14.h),
+                      SizedBox(width: 4.w),
+                      Text(
+                        '${service.rating} ',
+                        style: TextStyle(
+                          fontSize: 12.h,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '(${service.reviewCount})',
+                        style: TextStyle(
+                          fontSize: 12.h,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 4.h),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      border: Border.all(
+                        color: AppColors.brandGreen,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.check,
+                          color: AppColors.buttonGreen,
+                          size: 12.h,
+                        ),
+                        SizedBox(width: 3.h),
+                        Text(
+                          'Auto-accepting',
+                          style: TextStyle(color: Colors.black, fontSize: 10.h),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.favorite_border_outlined),
+                  onPressed: () {},
+                  iconSize: 18.h,
+                  color: Colors.grey,
+                ),
+                Column(
+                  children: [
+                    Text(
+                      "From",
+                      style: TextStyle(fontSize: 12.h, color: Colors.grey[600]),
+                    ),
+                    Text(
+                      '\$${service.startingPrice.toStringAsFixed(2)}',
+                      style: TextStyle(
+                        fontSize: 14.h,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(width: 5.w),
+          ],
+        ),
       ),
     );
   }

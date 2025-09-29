@@ -126,7 +126,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 24.h),
+                        SizedBox(height: 16.h),
                         Container(
                           width: double.infinity,
                           child: Text(
@@ -218,7 +218,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -344,7 +344,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                           ],
                         ),
 
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         Text(
                           'Due date',
@@ -608,7 +608,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                           ),
                         ),
 
-                        SizedBox(height: 16.h),
+                        SizedBox(height: 10.h),
 
                         Text(
                           'Further guidelines',
@@ -619,7 +619,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                           ),
                         ),
                         TextField(
-                          maxLines: 3,
+                          maxLines: 2,
                           controller: _guidelinesController,
                           decoration: InputDecoration(
                             hintText:
@@ -643,7 +643,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                           ),
                         ),
 
-                        SizedBox(height: 24.h),
+                        SizedBox(height: 16.h),
 
                         Container(
                           width: double.infinity,
@@ -651,7 +651,12 @@ class _AddOrderCardState extends State<AddOrderCard> {
                             color: Color(0xFFF3EBF7),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          padding: EdgeInsets.all(12.h),
+                          padding: EdgeInsets.only(
+                            top: 10.h,
+                            bottom: 16.h,
+                            left: 10.w,
+                            right: 10.w,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -666,7 +671,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              SizedBox(height: 16.h),
+                              SizedBox(height: 10.h),
 
                               Text(
                                 'Link to source files',
@@ -755,7 +760,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                           ),
                         ),
 
-                        SizedBox(height: 24.h),
+                        SizedBox(height: 16.h),
 
                         Container(
                           padding: EdgeInsets.symmetric(

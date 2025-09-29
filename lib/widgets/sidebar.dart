@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/chat/chat_screen.dart';
 import 'package:picpee_mobile/screens/discount/discount_screen.dart';
 import 'package:picpee_mobile/screens/home/home_screen.dart';
@@ -284,6 +285,36 @@ class _SideBarState extends State<SideBar> {
                           SizedBox(width: 12.w),
                           Text(
                             "Support",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.h,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                      );
+                    },
+                    child: Container(
+                      height: 55.h,
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 8.h,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.logout, color: Colors.red, size: 24.h),
+                          SizedBox(width: 12.w),
+                          Text(
+                            "Logout",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.h,

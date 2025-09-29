@@ -88,7 +88,7 @@ class _TopServiceCardState extends State<TopServiceCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 500.h,
+      height: 450.h,
       decoration: BoxDecoration(
         color: widget.isDuck ? AppColors.brandDuckGreen : Colors.white,
       ),
@@ -106,7 +106,7 @@ class _TopServiceCardState extends State<TopServiceCard> {
                   child: Text(
                     "Top Designers In ${widget.title}",
                     style: TextStyle(
-                      fontSize: 22.h,
+                      fontSize: 20.h,
                       fontWeight: FontWeight.bold,
                       color: !widget.isDuck ? Colors.black : Colors.white,
                       height: 1.2,
@@ -119,8 +119,6 @@ class _TopServiceCardState extends State<TopServiceCard> {
                     ? InkWell(
                         onTap: widget.onSeeAllTap,
                         child: Container(
-                          height: 42.h,
-                          width: 90.w,
                           padding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 8.h,
@@ -134,7 +132,7 @@ class _TopServiceCardState extends State<TopServiceCard> {
                             style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w600,
-                              fontSize: 16.h,
+                              fontSize: 14.h,
                             ),
                             textAlign: TextAlign.center,
                           ),

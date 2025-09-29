@@ -153,7 +153,7 @@ class _DetailChatState extends State<DetailChat> {
         children: [
           Column(
             children: [
-              Container(height: 32.h, color: Colors.white),
+              Container(height: 30.h, color: Colors.white),
               ChatHeader(
                 userName: widget.user['name']!,
                 onClose: widget.onClose,

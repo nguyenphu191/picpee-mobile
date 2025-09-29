@@ -125,9 +125,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           // Search bar
           Container(
             margin: EdgeInsets.only(
-              top: 16.h,
-              left: 16.w,
-              right: 16.w,
+              top: 12.h,
+              left: 12.w,
+              right: 12.w,
               bottom: 8.h,
             ),
             decoration: BoxDecoration(
@@ -167,7 +167,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           // Results count when searching
           if (_searchQuery.isNotEmpty)
             Padding(
-              padding: EdgeInsets.only(left: 16.w, bottom: 8.h),
+              padding: EdgeInsets.only(left: 12.w, bottom: 8.h),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -180,7 +180,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           // List of favorites
           Expanded(
             child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              margin: EdgeInsets.symmetric(horizontal: 12.w),
               child: filteredItems.isEmpty
                   ? Center(
                       child: Column(
@@ -218,7 +218,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
   _buildItemCard(Map<String, dynamic> item) {
     return Container(
-      height: 118.h,
+      height: 108.h,
       margin: EdgeInsets.only(top: 10.h),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -278,23 +278,23 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               ),
             ],
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: 5.w),
 
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 8.h),
+                SizedBox(height: 5.h),
                 Text(
                   item['service']['name'],
                   style: TextStyle(
-                    fontSize: 16.h,
+                    fontSize: 14.h,
                     fontWeight: FontWeight.w600,
                     color: Colors.black,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 4.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -315,6 +315,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             style: TextStyle(
                               fontSize: 14.h,
                               color: Colors.black,
+                              fontWeight: FontWeight.w500,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -324,7 +325,15 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                               Icon(Icons.star, size: 14.h, color: Colors.amber),
                               SizedBox(width: 4.w),
                               Text(
-                                '${item['editor']['rating']} (${item['editor']['reviews']} reviews)',
+                                '${item['editor']['rating']} ',
+                                style: TextStyle(
+                                  fontSize: 12.h,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                '(${item['editor']['reviews']} reviews)',
                                 style: TextStyle(
                                   fontSize: 12.h,
                                   color: Colors.grey[600],

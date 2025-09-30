@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/models/order_model.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({super.key});

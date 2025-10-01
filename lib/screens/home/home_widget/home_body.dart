@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/screens/home/home_widget/blog_demo_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/all_service_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/designer_top_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/featured_card.dart';
+import 'package:picpee_mobile/screens/home/home_widget/top_video_card.dart';
 import 'package:picpee_mobile/screens/photo-services/all_services_screen.dart';
 import 'package:picpee_mobile/widgets/footer.dart';
 import 'package:picpee_mobile/widgets/top_service_card.dart';
@@ -29,7 +29,7 @@ class _HomeBodyState extends State<HomeBody> {
         child: Column(
           children: [
             Container(
-              height: 750.h,
+              height: 685.h,
               child: Stack(
                 children: [
                   Positioned(
@@ -47,18 +47,18 @@ class _HomeBodyState extends State<HomeBody> {
                       ),
                       child: Column(
                         children: [
-                          SizedBox(height: 100.h),
+                          SizedBox(height: 110.h),
                           Text(
                             "LAUNCHING 2025",
                             style: TextStyle(
                               color: Colors.grey.shade300,
-                              fontSize: 14.h,
+                              fontSize: 12.h,
                               letterSpacing: 1.5,
                             ),
                           ),
-                          SizedBox(height: 16.h),
+                          SizedBox(height: 10.h),
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24.w),
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Text(
                               "Transform Your Real Estate Photos with Professional Editing.",
                               textAlign: TextAlign.center,
@@ -74,18 +74,18 @@ class _HomeBodyState extends State<HomeBody> {
 
                           // Subtitle
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 24.h),
+                            padding: EdgeInsets.symmetric(horizontal: 16.h),
                             child: Text(
                               "Boost your listings with crisp, vibrant images from our skilled freelancers.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.grey.shade400,
                                 fontSize: 14.h,
-                                height: 1.5,
+                                height: 1.3,
                               ),
                             ),
                           ),
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 16.h),
 
                           // Search box
                           Padding(
@@ -159,7 +159,6 @@ class _HomeBodyState extends State<HomeBody> {
                 ],
               ),
             ),
-            SizedBox(height: 10.h),
             DesignerTopCardCard(),
             FeaturedCard(),
             SizedBox(height: 20.h),
@@ -189,6 +188,20 @@ class _HomeBodyState extends State<HomeBody> {
               },
             ),
             SizedBox(height: 10.h),
+            TopVideoCard(
+              title: "Property Video",
+              onSeeAllTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AllServicesScreen(title: "Property Video"),
+                  ),
+                );
+              },
+              isHome: true,
+            ),
+            SizedBox(height: 10.h),
             TopServiceCard(
               title: "Room Cleaning",
               isDuck: true,
@@ -216,7 +229,6 @@ class _HomeBodyState extends State<HomeBody> {
               },
             ),
             SizedBox(height: 10.h),
-            // BlogDemoCard(),
             Footer(),
           ],
         ),

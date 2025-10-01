@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
+import 'package:picpee_mobile/screens/auth/register_infor.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -193,7 +194,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         shape: RoundedRectangleBorder(),
                       ),
                       onPressed: () {
-                        // Handle Register action
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterInforScreen(
+                              email: emailController.text,
+                              password: passwordController.text,
+                            ),
+                          ),
+                        );
                       },
                       child: Text(
                         'Create Account',

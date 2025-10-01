@@ -1,3 +1,4 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,7 +10,6 @@ import 'profile_widget/avatar_section_widget.dart';
 import 'profile_widget/custom_text_field.dart';
 import 'profile_widget/password_field_widget.dart';
 import 'profile_widget/custom_dropdown_field.dart';
-import 'profile_widget/phone_number_field_widget.dart';
 import 'profile_widget/image_picker_options_dialog.dart';
 import 'profile_widget/delete_account_dialog.dart';
 
@@ -24,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ImagePicker _picker = ImagePicker();
+  Country? selectedCountry;
 
   // Avatar image
   File? _avatarImage;
@@ -200,7 +201,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: AppColors.buttonGreen,
-                            width: 1.8,
+                            width: 1.5,
                           ),
                         ),
                         indicatorSize: TabBarIndicatorSize.tab,
@@ -272,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.red),
+                            border: Border.all(color: Colors.red, width: 1.5),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -295,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                   SizedBox(height: 16.h),
                   Container(
-                    height: MediaQuery.of(context).size.height - 295.h,
+                    height: MediaQuery.of(context).size.height - 285.h,
                     color: Colors.white,
                     child: TabBarView(
                       controller: _tabController,
@@ -342,10 +343,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             controller: _firstNameController,
           ),
           SizedBox(height: 16.h),
-          CustomTextField(
-            label: 'Last name', 
-            controller: _lastNameController,
-          ),
+          CustomTextField(label: 'Last name', controller: _lastNameController),
           SizedBox(height: 16.h),
           CustomTextField(
             label: 'Business name',
@@ -368,7 +366,75 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SizedBox(height: 16.h),
 
-          PhoneNumberFieldWidget(controller: _phoneController),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Phone number',
+                style: TextStyle(fontSize: 14.h, color: Colors.black),
+              ),
+              SizedBox(height: 5.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey, width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        showCountryPicker(
+                          context: context,
+                          showPhoneCode: true,
+                          countryListTheme: CountryListThemeData(
+                            bottomSheetHeight: 500,
+                          ),
+                          onSelect: (Country country) {
+                            setState(() {
+                              selectedCountry = country;
+                              _phoneController.text = '+${country.phoneCode}';
+                            });
+                          },
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(left: 10.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              selectedCountry?.flagEmoji ?? '🌐',
+                              style: TextStyle(fontSize: 20.h),
+                            ),
+                            SizedBox(width: 4.w),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              size: 20.h,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: TextField(
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          hintText: '+1 547539853',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8.h),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 16),
 
           CustomDropdownField(
@@ -386,11 +452,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           CustomDropdownField(
             label: 'Timezone',
             value: _selectedTimezone,
-            items: [
-              'America/Adak',
-              'America/New_York', 
-              'America/Chicago',
-            ],
+            items: ['America/Adak', 'America/New_York', 'America/Chicago'],
             onChanged: (String? newValue) {
               setState(() {
                 _selectedTimezone = newValue!;
@@ -486,7 +548,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             hint: 'Password',
             controller: _oldPasswordController,
             isVisible: _isOldPasswordVisible,
-            toggleVisibility: () => setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
+            toggleVisibility: () =>
+                setState(() => _isOldPasswordVisible = !_isOldPasswordVisible),
           ),
           SizedBox(height: 16.h),
 
@@ -503,7 +566,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             hint: 'New Password',
             controller: _newPasswordController,
             isVisible: _isNewPasswordVisible,
-            toggleVisibility: () => setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
+            toggleVisibility: () =>
+                setState(() => _isNewPasswordVisible = !_isNewPasswordVisible),
           ),
           SizedBox(height: 4),
           Text(
@@ -526,7 +590,9 @@ class _ProfileScreenState extends State<ProfileScreen>
             hint: 'Confirm New Password',
             controller: _confirmPasswordController,
             isVisible: _isConfirmPasswordVisible,
-            toggleVisibility: () => setState(() => _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+            toggleVisibility: () => setState(
+              () => _isConfirmPasswordVisible = !_isConfirmPasswordVisible,
+            ),
           ),
           SizedBox(height: 4.h),
           Text(
@@ -595,8 +661,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
-
-
 
   // Show delete account confirmation dialog
   void _showDeleteAccountDialog() {

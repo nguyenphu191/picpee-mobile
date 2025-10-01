@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
 import 'package:picpee_mobile/widgets/before_after_card.dart';
 
 class FeaturedCard extends StatefulWidget {
@@ -62,7 +63,7 @@ class _FeaturedCardState extends State<FeaturedCard> {
     final currentDesigner = designers[_currentDesignerIndex];
 
     return Container(
-      height: 770.h,
+      height: 750.h,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFFFFFEFF), Color(0xFFF4E9F5), Color(0xFFEEEFFA)],
@@ -81,7 +82,7 @@ class _FeaturedCardState extends State<FeaturedCard> {
                 Text(
                   'Featured Project',
                   style: TextStyle(
-                    fontSize: 24.h,
+                    fontSize: 22.h,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
                   ),
@@ -305,10 +306,10 @@ class _FeaturedCardState extends State<FeaturedCard> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Container(
-                      height: 48.h,
+                      height: 42.h,
                       padding: EdgeInsets.symmetric(
                         horizontal: 16.h,
-                        vertical: 8.h,
+                        vertical: 4.h,
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
@@ -319,7 +320,7 @@ class _FeaturedCardState extends State<FeaturedCard> {
                         child: Text(
                           'View More Projects',
                           style: TextStyle(
-                            fontSize: 16.h,
+                            fontSize: 14.h,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -331,22 +332,32 @@ class _FeaturedCardState extends State<FeaturedCard> {
                   SizedBox(height: 10.h),
 
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 16.h,
+                      vertical: 4.h,
+                    ),
                     child: Align(
                       alignment: Alignment.centerLeft,
                       child: Container(
                         width: 120.w,
-                        height: 48.h,
+                        height: 42.h,
                         decoration: BoxDecoration(
                           color: AppColors.buttonGreen,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AddOrderCard();
+                              },
+                            );
+                          },
                           child: Text(
                             'Start Order',
                             style: TextStyle(
-                              fontSize: 16.h,
+                              fontSize: 14.h,
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),

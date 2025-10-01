@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Nội dung chính
           Positioned(top: 0, left: 0, right: 0, bottom: 0, child: HomeBody()),
           // Header
-          Positioned(top: 16.h, left: 16.w, right: 16.w, child: Header()),
+          Positioned(top: 30.h, left: 16.w, right: 16.w, child: Header()),
         ],
       ),
     );

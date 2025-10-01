@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/message_model.dart';
 import 'package:picpee_mobile/screens/chat/chat_widget/user_list.dart';
-import 'package:picpee_mobile/screens/chat/chat_widget/detail_chat.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
 
@@ -64,24 +63,6 @@ class _ChatScreenState extends State<ChatScreen> {
     ),
   ];
 
-  void _onSendMessage(MessageModel message) {
-    setState(() {
-      messages.add(message);
-    });
-  }
-
-  void _onSelectUser(String userId) {
-    setState(() {
-      selectedUserId = userId;
-    });
-  }
-
-  void _onCloseChat() {
-    setState(() {
-      selectedUserId = null;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,18 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ],
               ),
-              child: selectedUserId == null
-                  ? UserList(
-                      users: users,
-                      messages: messages,
-                      onSelectUser: _onSelectUser,
-                    )
-                  : DetailChat(
-                      user: users.firstWhere((u) => u['id'] == selectedUserId),
-                      messages: messages,
-                      onSendMessage: _onSendMessage,
-                      onClose: _onCloseChat,
-                    ),
+              child: UserList(users: users, messages: messages),
             ),
           ),
           Positioned(

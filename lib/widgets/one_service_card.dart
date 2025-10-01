@@ -105,13 +105,11 @@ class OneServiceCard extends StatelessWidget {
                                 child: CircleAvatar(
                                   radius: 18,
                                   backgroundImage: NetworkImage(
-                                    service.designer != null
-                                        ? service.designer!.avatarUrl
-                                        : '',
+                                    service.designer.avatarUrl,
                                   ),
                                   onBackgroundImageError:
                                       (exception, stackTrace) {},
-                                  child: service.designer!.avatarUrl.isEmpty
+                                  child: service.designer.avatarUrl.isEmpty
                                       ? Icon(
                                           Icons.person,
                                           color: !this.isDuck
@@ -133,9 +131,7 @@ class OneServiceCard extends StatelessWidget {
                                       children: [
                                         Flexible(
                                           child: Text(
-                                            service.designer != null
-                                                ? service.designer!.name
-                                                : 'Unknown Designer',
+                                            service.designer.name,
                                             style: TextStyle(
                                               color: !this.isDuck
                                                   ? Colors.white
@@ -203,7 +199,7 @@ class OneServiceCard extends StatelessWidget {
                                         ),
 
                                         if (service
-                                            .designer!
+                                            .designer
                                             .isAutoAccepting) ...[
                                           Container(
                                             padding: const EdgeInsets.symmetric(

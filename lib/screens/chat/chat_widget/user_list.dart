@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picpee_mobile/screens/chat/chat_widget/detail_chat.dart';
 import '../../../models/message_model.dart';
 
 class UserList extends StatefulWidget {
   final List<Map<String, String>> users;
   final List<MessageModel> messages;
-  final Function(String) onSelectUser;
 
-  const UserList({
-    super.key,
-    required this.users,
-    required this.messages,
-    required this.onSelectUser,
-  });
+  const UserList({super.key, required this.users, required this.messages});
 
   @override
   State<UserList> createState() => _UserListState();
@@ -66,7 +61,7 @@ class _UserListState extends State<UserList> {
         Container(
           height: 50.h,
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+          padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 8.h),
           child: Row(
             children: [
               PopupMenuButton<String>(
@@ -224,7 +219,19 @@ class _UserListState extends State<UserList> {
                           ),
                         )
                       : null,
-                  onTap: () => widget.onSelectUser(user['id']!),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DetailChat(
+                          user: user,
+                          onClose: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
               );
             },

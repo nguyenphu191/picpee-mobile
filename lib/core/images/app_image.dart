@@ -60,6 +60,7 @@ class AppImages {
   static const String ServiceIcon = '${basePath}service-icon.png';
   static const String VerifiedIcon = '${basePath}verify.png';
   static const String TimerIcon = '${basePath}timer.png';
+  static const String PaypalIcon = '${basePath}paypal-icon.png';
 
   //other images
   static const String Designer = '${basePath}designer.png';

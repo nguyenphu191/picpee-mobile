@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/screens/auth/forgot_screen.dart';
 import 'package:picpee_mobile/screens/auth/register_screen.dart';
 import 'package:picpee_mobile/screens/home/home_screen.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  void _handleGoogleSignIn(BuildContext context) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -87,24 +90,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          AppImages.GGIcon,
-                          height: 28.h,
-                          width: 28.w,
-                        ),
-                        SizedBox(width: 10.w),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.h,
-                            fontWeight: FontWeight.bold,
+                    child: InkWell(
+                      onTap: () => _handleGoogleSignIn(context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            AppImages.GGIcon,
+                            height: 28.h,
+                            width: 28.w,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 10.w),
+                          Text(
+                            'Continue with Google',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.h,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 

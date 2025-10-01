@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/auth/register_infor.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,7 +18,53 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  void _handleGoogleSignup(BuildContext context) async {
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(child: CircularProgressIndicator());
+        },
+      );
 
+      // Sign in with Google
+      final success = await authProvider.signInWithGoogleForRegistration();
+      
+      // Close loading dialog
+      Navigator.pop(context);
+
+      if (success) {
+        // Navigate to RegisterInforScreen with Google email
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RegisterInforScreen(
+              email: authProvider.googleEmail ?? '',
+              password: '', // No password for Google sign-up
+              isGoogleSignUp: true, // Add this flag
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      // Close loading dialog if it's still open
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google sign-up failed: ${error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -86,24 +134,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.grey),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          AppImages.GGIcon,
-                          height: 28.h,
-                          width: 28.w,
-                        ),
-                        SizedBox(width: 10.w),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16.h,
-                            fontWeight: FontWeight.bold,
+                    child: InkWell(
+                      onTap: () => _handleGoogleSignup(context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            AppImages.GGIcon,
+                            height: 28.h,
+                            width: 28.w,
                           ),
-                        ),
-                      ],
+                          SizedBox(width: 10.w),
+                          Text(
+                            'Continue with Google',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.h,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 

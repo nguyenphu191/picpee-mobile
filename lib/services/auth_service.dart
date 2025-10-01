@@ -29,13 +29,31 @@ class AuthService {
     }
   }
 
-  /// Login với Google SSO
-  Future<User?> loginSSO(String googleToken) async {
-    final url = Uri.parse("$baseUrl/login-sso");
+  /// Đăng ký bằng Google và thông tin bổ sung
+  Future<User?> registerWithGoogle({
+    required String googleToken,
+    required String email,
+    required String firstname,
+    required String lastname,
+    required String businessName,
+    required String phone,
+    required String country,
+    required String timezone,
+  }) async {
+    final url = Uri.parse("$baseUrl/register-google");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"googleToken": googleToken}),
+      body: jsonEncode({
+        "googleToken": googleToken,
+        "email": email,
+        "firstname": firstname,
+        "lastname": lastname,
+        "businessName": businessName,
+        "phone": phone,
+        "country": country,
+        "timezone": timezone,
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -48,7 +66,7 @@ class AuthService {
 
       return user;
     } else {
-      throw Exception("Login SSO failed: ${response.body}");
+      throw Exception("Google registration failed: ${response.body}");
     }
   }
 

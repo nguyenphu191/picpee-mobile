@@ -3,18 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/screens/home/home_screen.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 
 class RegisterInforScreen extends StatefulWidget {
   const RegisterInforScreen({
     super.key,
     required this.email,
     required this.password,
+    this.isGoogleSignUp = false, // Add this parameter
   });
+
   final String email;
   final String password;
+  final bool isGoogleSignUp; // Add this field
 
   @override
   State<RegisterInforScreen> createState() => _RegisterInforScreenState();
@@ -485,7 +491,56 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  onPressed: _handleSignUp,
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final authProvider = Provider.of<AuthProvider>(
+                        context,
+                        listen: false,
+                      );
+
+                      try {
+                        if (widget.isGoogleSignUp) {
+                          // Complete Google registration with additional info
+                          await authProvider.registerWithGoogle(
+                            firstname: _firstNameController.text,
+                            lastname: _lastNameController.text,
+                            businessName: _businessNameController.text,
+                            phone: _phoneController.text,
+                            country: _selectedCountry?.name ?? 'Afghanistan',
+                            timezone: _selectedTimezone ?? 'UTC',
+                          );
+                        } else {
+                          // Regular registration
+                          await authProvider.register(
+                            email: widget.email,
+                            password: widget.password,
+                            firstname: _firstNameController.text,
+                            lastname: _lastNameController.text,
+                            businessName: _businessNameController.text,
+                            phone: _phoneController.text,
+                            country: _selectedCountry?.name ?? 'Afghanistan',
+                            timezone: _selectedTimezone ?? 'UTC',
+                          );
+                        }
+
+                        // Navigate to home screen on success
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          (route) => false,
+                        );
+                      } catch (error) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Registration failed: ${error.toString()}',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00FF00),
                     shape: RoundedRectangleBorder(

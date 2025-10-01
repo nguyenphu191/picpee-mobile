@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:picpee_mobile/models/user_model.dart';
-import '../services/auth_service.dart';
+import 'package:picpee_mobile/services/auth_service.dart';
 
-class AuthProvider extends ChangeNotifier {
+class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
 
   User? _user;
@@ -11,41 +11,84 @@ class AuthProvider extends ChangeNotifier {
 
   User? get user => _user;
   String? get token => _token;
-  bool get isAuthenticated => _token != null;
   bool get isLoading => _isLoading;
+  bool get isLoggedIn => _token != null && _user != null;
 
-  // Khởi động: load từ storage
-  Future<void> loadAuthData() async {
-    final data = await _authService.loadAuthData();
-    if (data != null) {
-      _token = data["token"];
-      _user = data["user"];
-      notifyListeners();
-    }
+  /// Khởi tạo: load token + user từ storage
+  Future<void> initAuth() async {
+    _token = await _authService.getToken();
+    _user = await _authService.getUser();
+    notifyListeners();
   }
 
-  // Login
+  /// Login
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final data = await _authService.login(email, password);
-      _token = data["token"];
-      _user = data["user"];
-    } catch (e) {
-      rethrow;
+      final user = await _authService.login(email, password);
+      _user = user;
+      _token = await _authService.getToken();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Logout
+  /// Login SSO
+  Future<void> loginSSO(String googleToken) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final user = await _authService.loginSSO(googleToken);
+      _user = user;
+      _token = await _authService.getToken();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Register
+  Future<void> register({
+    required String email,
+    required String password,
+    required String firstname,
+    required String lastname,
+    required String businessName,
+    required String phone,
+    required String country,
+    required String timezone,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final user = await _authService.register(
+        email: email,
+        password: password,
+        firstname: firstname,
+        lastname: lastname,
+        businessName: businessName,
+        phone: phone,
+        country: country,
+        timezone: timezone,
+      );
+      _user = user;
+      _token = await _authService.getToken();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Logout
   Future<void> logout() async {
     await _authService.logout();
-    _token = null;
     _user = null;
+    _token = null;
     notifyListeners();
   }
 }

@@ -1,3 +1,4 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,7 +10,6 @@ import 'profile_widget/avatar_section_widget.dart';
 import 'profile_widget/custom_text_field.dart';
 import 'profile_widget/password_field_widget.dart';
 import 'profile_widget/custom_dropdown_field.dart';
-import 'profile_widget/phone_number_field_widget.dart';
 import 'profile_widget/image_picker_options_dialog.dart';
 import 'profile_widget/delete_account_dialog.dart';
 
@@ -24,6 +24,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ImagePicker _picker = ImagePicker();
+  Country? selectedCountry;
 
   // Avatar image
   File? _avatarImage;
@@ -365,7 +366,75 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SizedBox(height: 16.h),
 
-          PhoneNumberFieldWidget(controller: _phoneController),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Phone number',
+                style: TextStyle(fontSize: 14.h, color: Colors.black),
+              ),
+              SizedBox(height: 5.h),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey, width: 1.5),
+                ),
+                child: Row(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        showCountryPicker(
+                          context: context,
+                          showPhoneCode: true,
+                          countryListTheme: CountryListThemeData(
+                            bottomSheetHeight: 500,
+                          ),
+                          onSelect: (Country country) {
+                            setState(() {
+                              selectedCountry = country;
+                              _phoneController.text = '+${country.phoneCode}';
+                            });
+                          },
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(left: 10.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              selectedCountry?.flagEmoji ?? '🌐',
+                              style: TextStyle(fontSize: 20.h),
+                            ),
+                            SizedBox(width: 4.w),
+                            Icon(
+                              Icons.arrow_drop_down,
+                              size: 20.h,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: TextField(
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          hintText: '+1 547539853',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8.h),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           SizedBox(height: 16),
 
           CustomDropdownField(

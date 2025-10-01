@@ -213,74 +213,72 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Phone number', style: TextStyle(fontSize: 14.h)),
-                  Row(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          showCountryPicker(
-                            context: context,
-                            showPhoneCode: true,
-                            countryListTheme: CountryListThemeData(
-                              bottomSheetHeight: 500,
-                            ),
-                            onSelect: (Country country) {
-                              setState(() {
-                                _selectedCountry = country;
-                                _phoneController.text = '+${country.phoneCode}';
-                              });
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 6.h,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey, width: 1.5),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                _selectedCountry?.flagEmoji ?? '🌐',
-                                style: TextStyle(fontSize: 20.h),
+                  Text(
+                    'Phone number',
+                    style: TextStyle(fontSize: 14.h, color: Colors.black),
+                  ),
+                  SizedBox(height: 5.h),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey, width: 1.5),
+                    ),
+                    child: Row(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            showCountryPicker(
+                              context: context,
+                              showPhoneCode: true,
+                              countryListTheme: CountryListThemeData(
+                                bottomSheetHeight: 500,
                               ),
-                              SizedBox(width: 4.w),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                size: 20.h,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-
-                      Expanded(
-                        child: TextField(
-                          controller: _phoneController,
-                          keyboardType: TextInputType.phone,
-                          decoration: InputDecoration(
-                            hintText: '(xxx) xxx-xxxx',
-                            hintStyle: TextStyle(color: Colors.grey),
-                            border: OutlineInputBorder(
+                              onSelect: (Country country) {
+                                setState(() {
+                                  _selectedCountry = country;
+                                  _phoneController.text =
+                                      '+${country.phoneCode}';
+                                });
+                              },
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.only(left: 10.w),
+                            decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16.w,
-                              vertical: 12.h,
-                            ),
-                            prefixStyle: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
+                            child: Row(
+                              children: [
+                                Text(
+                                  _selectedCountry?.flagEmoji ?? '🌐',
+                                  style: TextStyle(fontSize: 20.h),
+                                ),
+                                SizedBox(width: 4.w),
+                                Icon(
+                                  Icons.arrow_drop_down,
+                                  size: 20.h,
+                                  color: Colors.grey,
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: TextField(
+                            controller: _phoneController,
+                            decoration: InputDecoration(
+                              hintText: '+1 547539853',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: 8.h,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

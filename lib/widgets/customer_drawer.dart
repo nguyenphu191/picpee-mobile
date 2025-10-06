@@ -216,11 +216,6 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
               },
             ),
 
-            /// Bottom links
-            ListTile(
-              title: Text("Services", style: TextStyle(fontSize: 16.h)),
-              onTap: () {},
-            ),
             ListTile(
               title: Text("Blogs", style: TextStyle(fontSize: 16.h)),
               onTap: () {

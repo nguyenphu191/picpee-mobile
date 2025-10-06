@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/service_model.dart';
 import 'package:picpee_mobile/screens/photo-services/vendor_service_screen.dart';
-import 'package:picpee_mobile/widgets/before_after_card.dart';
 
 class ServiceListPage extends StatefulWidget {
   const ServiceListPage({super.key});
@@ -378,12 +377,7 @@ class _ServiceListPageState extends State<ServiceListPage> {
                   topLeft: Radius.circular(8),
                   bottomLeft: Radius.circular(8),
                 ),
-                child: CustomBeforeAfterSlider(
-                  beforeImage: service.beforeImageUrl,
-                  afterImage: service.afterImageUrl,
-                  width: 130.h,
-                  height: 98.h,
-                ),
+                child: Image.network(service.beforeImageUrl, fit: BoxFit.cover),
               ),
             ),
             SizedBox(width: 5.w),

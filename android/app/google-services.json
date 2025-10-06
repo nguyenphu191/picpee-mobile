@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "772425888071-3t3tsjl57o42tvqf0mr6jrr1q3r308u1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.picpee_mobile",
+            "certificate_hash": "3730b0775248e21ed6d000486f7a855e9de2244f"
+          }
+        },
+        {
           "client_id": "772425888071-n7j90dfock0nkveu12afmhm2rb70604n.apps.googleusercontent.com",
           "client_type": 3
         }

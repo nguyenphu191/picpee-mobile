@@ -50,11 +50,9 @@ dependencies:
   flutter_paypal_payment: ^1.0.6
   country_picker: ^2.0.27
   timezone: ^0.10.1
-  google_sign_in: ^6.1.6
-  flutter_secure_storage: ^9.0.0
-  firebase_auth: ^4.15.3
+  google_sign_in: ^6.2.1
+  firebase_auth: ^4.16.0
   firebase_core: ^2.24.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

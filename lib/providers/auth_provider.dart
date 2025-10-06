@@ -6,13 +6,14 @@ import 'package:picpee_mobile/services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
-  final firebase_auth.FirebaseAuth _firebaseAuth = firebase_auth.FirebaseAuth.instance;
+  final firebase_auth.FirebaseAuth _firebaseAuth =
+      firebase_auth.FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? _user;
   String? _token;
   bool _isLoading = false;
-  
+
   // Google user info from Firebase
   String? _googleEmail;
   String? _googleDisplayName;
@@ -23,7 +24,7 @@ class AuthProvider with ChangeNotifier {
   String? get token => _token;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _token != null && _user != null;
-  
+
   // Google user getters
   String? get googleEmail => _googleEmail;
   String? get googleDisplayName => _googleDisplayName;
@@ -51,50 +52,40 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Google Sign-In for Registration (returns Google user info)
   Future<bool> signInWithGoogleForRegistration() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Trigger Google Sign-In
+      // Google Sign-In
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      
+
       if (googleUser == null) {
         _isLoading = false;
         notifyListeners();
-        return false; // User cancelled
+        return false;
       }
 
-      // Get authentication details
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      
-      // Create Firebase credential
-      final firebase_auth.OAuthCredential credential = firebase_auth.GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      // Lấy Google authentication
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
 
-      // Sign in to Firebase
-      final firebase_auth.UserCredential userCredential = 
-          await _firebaseAuth.signInWithCredential(credential);
+      // Lưu thông tin từ Google
+      _googleEmail = googleUser.email;
+      _googleDisplayName = googleUser.displayName;
+      _googlePhotoUrl = googleUser.photoUrl;
+      _googleIdToken = googleAuth.idToken;
 
-      if (userCredential.user != null) {
-        // Store Google user info for later use in registration
-        _googleEmail = userCredential.user!.email;
-        _googleDisplayName = userCredential.user!.displayName;
-        _googlePhotoUrl = userCredential.user!.photoURL;
-        _googleIdToken = googleAuth.idToken;
-
-        _isLoading = false;
-        notifyListeners();
-        return true;
-      }
+      // In thông tin để debug
+      print("Google Email: $_googleEmail");
+      print("Google Name: $_googleDisplayName");
+      print("Google ID Token: ${_googleIdToken?.substring(0, 20)}...");
 
       _isLoading = false;
       notifyListeners();
-      return false;
+      return true;
     } catch (e) {
+      print("Google sign-in error: $e");
       _isLoading = false;
       notifyListeners();
       throw Exception("Google sign-in failed: $e");
@@ -129,10 +120,10 @@ class AuthProvider with ChangeNotifier {
         country: country,
         timezone: timezone,
       );
-      
+
       _user = user;
       _token = await _authService.getToken();
-      
+
       // Clear Google temporary data
       _clearGoogleData();
     } finally {

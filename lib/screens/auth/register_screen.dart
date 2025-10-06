@@ -19,10 +19,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   void _handleGoogleSignup(BuildContext context) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
-      // Show loading indicator
+      // Show loading
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -33,38 +33,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       // Sign in with Google
       final success = await authProvider.signInWithGoogleForRegistration();
-      
-      // Close loading dialog
-      Navigator.pop(context);
 
-      if (success) {
-        // Navigate to RegisterInforScreen with Google email
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => RegisterInforScreen(
-              email: authProvider.googleEmail ?? '',
-              password: '', // No password for Google sign-up
-              isGoogleSignUp: true, // Add this flag
+      // Close loading
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      if (success && authProvider.googleEmail != null) {
+        // Navigate to RegisterInforScreen
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RegisterInforScreen(
+                email: authProvider.googleEmail ?? '',
+                password: '',
+                isGoogleSignUp: true,
+              ),
             ),
+          );
+        }
+      }
+    } catch (error) {
+      // Close loading if still open
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+
+      // Show error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Google sign-up failed: ${error.toString()}'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
           ),
         );
       }
-    } catch (error) {
-      // Close loading dialog if it's still open
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      }
-      
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Google sign-up failed: ${error.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;

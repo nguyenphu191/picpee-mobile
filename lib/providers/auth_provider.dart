@@ -41,10 +41,17 @@ class AuthProvider with ChangeNotifier {
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-
     try {
-      final user = await _authService.login(email, password);
-      _user = user;
+      final res = await _authService.login(email, password);
+      final status = res["status"];
+      if (status != "200") {
+        if (status == "401") {
+          throw Exception("Unauthorized: Incorrect email or password.");
+        } else {
+          throw Exception("Login failed with status code: $status");
+        }
+      }
+      _user = res["user"];
       _token = await _authService.getToken();
     } finally {
       _isLoading = false;
@@ -133,7 +140,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   /// Regular registration
-  Future<void> register({
+  Future<String> register({
     required String email,
     required String password,
     required String firstname,
@@ -142,12 +149,16 @@ class AuthProvider with ChangeNotifier {
     required String phone,
     required String country,
     required String timezone,
+    required bool isReceiveNews,
+    required bool isTermService,
+    required String phoneCode,
+    required String countryCode,
   }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final user = await _authService.register(
+      final res = await _authService.register(
         email: email,
         password: password,
         firstname: firstname,
@@ -156,9 +167,39 @@ class AuthProvider with ChangeNotifier {
         phone: phone,
         country: country,
         timezone: timezone,
+        isReceiveNews: isReceiveNews,
+        isTermService: isTermService,
+        phoneCode: phoneCode,
+        countryCode: countryCode,
       );
-      _user = user;
+      final status = res["status"];
+      _user = res["user"];
       _token = await _authService.getToken();
+      return status;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> checkExistEmail(String email) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final exists = await _authService.checkEmailExists(email);
+      return exists;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> checkExistBusinessName(String businessName) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final exists = await _authService.checkBusinessNameExists(businessName);
+      return exists;
     } finally {
       _isLoading = false;
       notifyListeners();

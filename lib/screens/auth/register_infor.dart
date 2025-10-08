@@ -15,19 +15,18 @@ class RegisterInforScreen extends StatefulWidget {
     super.key,
     required this.email,
     required this.password,
-    this.isGoogleSignUp = false, // Add this parameter
+    this.isGoogleSignUp = false,
   });
 
   final String email;
   final String password;
-  final bool isGoogleSignUp; // Add this field
+  final bool isGoogleSignUp;
 
   @override
   State<RegisterInforScreen> createState() => _RegisterInforScreenState();
 }
 
 class _RegisterInforScreenState extends State<RegisterInforScreen> {
-  final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _businessNameController = TextEditingController();
@@ -62,14 +61,97 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
     super.dispose();
   }
 
-  void _handleSignUp() {
-    if (_formKey.currentState!.validate() && _agreeToTerms) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Đăng ký thành công!')));
-    } else if (!_agreeToTerms) {
+  Future<void> _handleSignUp() async {
+    if (_firstNameController.text.isEmpty ||
+        _lastNameController.text.isEmpty ||
+        _businessNameController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _selectedCountry == null ||
+        _selectedTimezone == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Vui lòng đồng ý với điều khoản dịch vụ')),
+        SnackBar(
+          content: Text('Please fill in all required fields.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You must agree to the Terms of Service.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(child: CircularProgressIndicator());
+      },
+    );
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final noExistBusiness = await authProvider.checkExistBusinessName(
+        _businessNameController.text,
+      );
+      if (noExistBusiness) {
+        final String status = await authProvider.register(
+          email: widget.email,
+          password: widget.password,
+          firstname: _firstNameController.text,
+          lastname: _lastNameController.text,
+          businessName: _businessNameController.text,
+          phone: _phoneController.text,
+          country: _selectedCountry!.name,
+          timezone: _selectedTimezone!,
+          isReceiveNews: _optInNews,
+          isTermService: _agreeToTerms,
+          phoneCode: _selectedCountry!.phoneCode,
+          countryCode: _selectedCountry!.countryCode,
+        );
+        if (mounted && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+        if (status == "200") {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => HomeScreen()),
+            (route) => false,
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Registration failed with status code: $status'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        if (mounted && Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Business name already exists. Please choose another.',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registration failed: ${error.toString()}'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -109,457 +191,399 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Let's start with some information about your business",
-                style: TextStyle(fontSize: 14.h, color: Colors.black54),
-              ),
-              SizedBox(height: 16.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Let's start with some information about your business",
+              style: TextStyle(fontSize: 14.h, color: Colors.black54),
+            ),
+            SizedBox(height: 16.h),
 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('First name', style: TextStyle(fontSize: 14.h)),
-                  TextField(
-                    controller: _firstNameController,
-                    decoration: InputDecoration(
-                      hintText: 'Input your first name',
-                      hintStyle: TextStyle(fontSize: 14.h, color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        borderSide: BorderSide(color: Colors.grey, width: 1.5),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12.h,
-                        vertical: 8.h,
-                      ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('First name', style: TextStyle(fontSize: 14.h)),
+                TextField(
+                  controller: _firstNameController,
+                  decoration: InputDecoration(
+                    hintText: 'Input your first name',
+                    hintStyle: TextStyle(fontSize: 14.h, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: BorderSide(color: Colors.grey, width: 1.5),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10.h),
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Last name', style: TextStyle(fontSize: 14.h)),
-                  TextField(
-                    controller: _lastNameController,
-                    decoration: InputDecoration(
-                      hintText: 'Input your last name',
-                      hintStyle: TextStyle(fontSize: 14.h, color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                        borderSide: BorderSide(color: Colors.grey, width: 1.5),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 12.h,
-                        vertical: 8.h,
-                      ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12.h,
+                      vertical: 8.h,
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 10.h),
-
-              Text('Business name', style: TextStyle(fontSize: 14.h)),
-              TextField(
-                controller: _businessNameController,
-                decoration: InputDecoration(
-                  hintText: 'Input your business name',
-                  hintStyle: TextStyle(fontSize: 14.h, color: Colors.grey),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(6),
-                    borderSide: BorderSide(color: Colors.grey, width: 1.5),
-                  ),
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12.h,
-                    vertical: 8.h,
                   ),
                 ),
-              ),
-              SizedBox(height: 10.h),
+              ],
+            ),
+            SizedBox(height: 10.h),
 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Primary business email',
-                    style: TextStyle(fontSize: 14.h),
-                  ),
-                  TextField(
-                    controller: TextEditingController(text: widget.email),
-                    keyboardType: TextInputType.emailAddress,
-                    readOnly: true,
-                    enabled: false,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(
-                        fontSize: 14.h,
-                        color: Colors.black87,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      fillColor: Colors.grey[200],
-                      filled: true,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Last name', style: TextStyle(fontSize: 14.h)),
+                TextField(
+                  controller: _lastNameController,
+                  decoration: InputDecoration(
+                    hintText: 'Input your last name',
+                    hintStyle: TextStyle(fontSize: 14.h, color: Colors.grey),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12.h,
+                      vertical: 8.h,
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 10.h),
+                ),
+              ],
+            ),
+            SizedBox(height: 10.h),
 
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Phone number',
-                    style: TextStyle(fontSize: 14.h, color: Colors.black),
-                  ),
-                  SizedBox(height: 5.h),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey, width: 1.5),
+            Text('Business name', style: TextStyle(fontSize: 14.h)),
+            TextField(
+              controller: _businessNameController,
+              decoration: InputDecoration(
+                hintText: 'Input your business name',
+                hintStyle: TextStyle(fontSize: 14.h, color: Colors.grey),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(6),
+                  borderSide: BorderSide(color: Colors.grey, width: 1.5),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 12.h,
+                  vertical: 8.h,
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Primary business email',
+                  style: TextStyle(fontSize: 14.h),
+                ),
+                TextField(
+                  controller: TextEditingController(text: widget.email),
+                  keyboardType: TextInputType.emailAddress,
+                  readOnly: true,
+                  enabled: false,
+                  decoration: InputDecoration(
+                    hintStyle: TextStyle(fontSize: 14.h, color: Colors.black87),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            showCountryPicker(
-                              context: context,
-                              showPhoneCode: true,
-                              countryListTheme: CountryListThemeData(
-                                bottomSheetHeight: 500,
-                              ),
-                              onSelect: (Country country) {
-                                setState(() {
-                                  _selectedCountry = country;
-                                  _phoneController.text =
-                                      '+${country.phoneCode}';
-                                });
-                              },
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.only(left: 10.w),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(6),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    fillColor: Colors.grey[200],
+                    filled: true,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10.h),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Phone number',
+                  style: TextStyle(fontSize: 14.h, color: Colors.black),
+                ),
+                SizedBox(height: 5.h),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey, width: 1.5),
+                  ),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          showCountryPicker(
+                            context: context,
+                            showPhoneCode: true,
+                            countryListTheme: CountryListThemeData(
+                              bottomSheetHeight: 500,
                             ),
-                            child: Row(
+                            onSelect: (Country country) {
+                              setState(() {
+                                _selectedCountry = country;
+                                _phoneController.text = '+${country.phoneCode}';
+                              });
+                            },
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.only(left: 10.w),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            children: [
+                              Text(
+                                _selectedCountry?.flagEmoji ?? '🌐',
+                                style: TextStyle(fontSize: 20.h),
+                              ),
+                              SizedBox(width: 4.w),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                size: 20.h,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Expanded(
+                        child: TextField(
+                          controller: _phoneController,
+                          decoration: InputDecoration(
+                            hintText: '+1 547539853',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 8.h),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 10.h),
+
+            Text('Country', style: TextStyle(fontSize: 14.h)),
+            InkWell(
+              onTap: () {
+                showCountryPicker(
+                  context: context,
+                  showPhoneCode: false,
+                  countryListTheme: CountryListThemeData(
+                    bottomSheetHeight: 500,
+                  ),
+                  onSelect: (Country country) {
+                    setState(() {
+                      _selectedCountry = country;
+                    });
+                  },
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedCountry?.name ?? 'Select Country',
+                      style: TextStyle(fontSize: 14.h),
+                    ),
+                    Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
+
+            Text('Timezone', style: TextStyle(fontSize: 14.h)),
+            GestureDetector(
+              onTap: () async {
+                final selectedValue = await showDialog<String>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    String searchQuery = '';
+                    List<String> filteredTimezones = List.from(_timezones);
+
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return AlertDialog(
+                          title: Text('Select Timezone'),
+                          content: Container(
+                            width: double.maxFinite,
+                            height: 500,
+                            child: Column(
                               children: [
-                                Text(
-                                  _selectedCountry?.flagEmoji ?? '🌐',
-                                  style: TextStyle(fontSize: 20.h),
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Search timezones...',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14.h,
+                                    ),
+                                    prefixIcon: Icon(Icons.search),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      searchQuery = value.toLowerCase();
+                                      filteredTimezones = _timezones
+                                          .where(
+                                            (tz) => tz.toLowerCase().contains(
+                                              searchQuery,
+                                            ),
+                                          )
+                                          .toList();
+                                    });
+                                  },
                                 ),
-                                SizedBox(width: 4.w),
-                                Icon(
-                                  Icons.arrow_drop_down,
-                                  size: 20.h,
-                                  color: Colors.grey,
+                                SizedBox(height: 10),
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: filteredTimezones.length,
+                                    itemBuilder: (context, index) {
+                                      final timezone = filteredTimezones[index];
+                                      return ListTile(
+                                        title: Text(timezone),
+                                        selected: _selectedTimezone == timezone,
+                                        onTap: () {
+                                          Navigator.of(context).pop(timezone);
+                                        },
+                                      );
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: TextField(
-                            controller: _phoneController,
-                            decoration: InputDecoration(
-                              hintText: '+1 547539853',
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: 8.h,
-                              ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text('Cancel'),
                             ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                );
+
+                if (selectedValue != null) {
+                  setState(() {
+                    _selectedTimezone = selectedValue;
+                  });
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      _selectedTimezone ?? 'Select Timezone',
+                      style: TextStyle(fontSize: 14.h),
+                    ),
+                    Icon(Icons.arrow_drop_down),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
+
+            Row(
+              children: [
+                Checkbox(
+                  value: _agreeToTerms,
+                  onChanged: (value) {
+                    setState(() {
+                      _agreeToTerms = value ?? false;
+                    });
+                  },
+                  activeColor: Colors.green,
+                ),
+                Expanded(
+                  child: RichText(
+                    text: TextSpan(
+                      style: TextStyle(color: Colors.black, fontSize: 14.h),
+                      children: [
+                        TextSpan(text: 'I agree to the '),
+                        TextSpan(
+                          text: 'Terms of Service',
+                          style: TextStyle(
+                            color: AppColors.linkBlue,
+                            decoration: TextDecoration.none,
                           ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchURL('https://www.picpee.com/terms');
+                            },
                         ),
+                        TextSpan(text: ' for customers.'),
                       ],
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 10.h),
-
-              Text('Country', style: TextStyle(fontSize: 14.h)),
-              InkWell(
-                onTap: () {
-                  showCountryPicker(
-                    context: context,
-                    showPhoneCode: false,
-                    countryListTheme: CountryListThemeData(
-                      bottomSheetHeight: 500,
-                    ),
-                    onSelect: (Country country) {
-                      setState(() {
-                        _selectedCountry = country;
-                      });
-                    },
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _selectedCountry?.name ?? 'Select Country',
-                        style: TextStyle(fontSize: 14.h),
-                      ),
-                      Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
                 ),
-              ),
-              SizedBox(height: 10.h),
+              ],
+            ),
 
-              Text('Timezone', style: TextStyle(fontSize: 14.h)),
-              GestureDetector(
-                onTap: () async {
-                  final selectedValue = await showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      String searchQuery = '';
-                      List<String> filteredTimezones = List.from(_timezones);
-
-                      return StatefulBuilder(
-                        builder: (context, setState) {
-                          return AlertDialog(
-                            title: Text('Select Timezone'),
-                            content: Container(
-                              width: double.maxFinite,
-                              height: 500,
-                              child: Column(
-                                children: [
-                                  TextField(
-                                    decoration: InputDecoration(
-                                      hintText: 'Search timezones...',
-                                      hintStyle: TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14.h,
-                                      ),
-                                      prefixIcon: Icon(Icons.search),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        searchQuery = value.toLowerCase();
-                                        filteredTimezones = _timezones
-                                            .where(
-                                              (tz) => tz.toLowerCase().contains(
-                                                searchQuery,
-                                              ),
-                                            )
-                                            .toList();
-                                      });
-                                    },
-                                  ),
-                                  SizedBox(height: 10),
-                                  Expanded(
-                                    child: ListView.builder(
-                                      itemCount: filteredTimezones.length,
-                                      itemBuilder: (context, index) {
-                                        final timezone =
-                                            filteredTimezones[index];
-                                        return ListTile(
-                                          title: Text(timezone),
-                                          selected:
-                                              _selectedTimezone == timezone,
-                                          onTap: () {
-                                            Navigator.of(context).pop(timezone);
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text('Cancel'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  );
-
-                  if (selectedValue != null) {
+            Row(
+              children: [
+                Checkbox(
+                  value: _optInNews,
+                  onChanged: (value) {
                     setState(() {
-                      _selectedTimezone = selectedValue;
+                      _optInNews = value ?? false;
                     });
-                  }
+                  },
+                  activeColor: Colors.green,
+                ),
+                Expanded(
+                  child: Text(
+                    'Opt in to receive news and updates.',
+                    style: TextStyle(fontSize: 14.h),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 24.h),
+
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () async {
+                  _handleSignUp();
                 },
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00FF00),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _selectedTimezone ?? 'Select Timezone',
-                        style: TextStyle(fontSize: 14.h),
-                      ),
-                      Icon(Icons.arrow_drop_down),
-                    ],
+                ),
+                child: const Text(
+                  'Sign Up',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
                 ),
               ),
-              SizedBox(height: 10.h),
-
-              Row(
-                children: [
-                  Checkbox(
-                    value: _agreeToTerms,
-                    onChanged: (value) {
-                      setState(() {
-                        _agreeToTerms = value ?? false;
-                      });
-                    },
-                    activeColor: Colors.green,
-                  ),
-                  Expanded(
-                    child: RichText(
-                      text: TextSpan(
-                        style: TextStyle(color: Colors.black, fontSize: 14.h),
-                        children: [
-                          TextSpan(text: 'I agree to the '),
-                          TextSpan(
-                            text: 'Terms of Service',
-                            style: TextStyle(
-                              color: AppColors.linkBlue,
-                              decoration: TextDecoration.none,
-                            ),
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () {
-                                _launchURL('https://www.picpee.com/terms');
-                              },
-                          ),
-                          TextSpan(text: ' for customers.'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              Row(
-                children: [
-                  Checkbox(
-                    value: _optInNews,
-                    onChanged: (value) {
-                      setState(() {
-                        _optInNews = value ?? false;
-                      });
-                    },
-                    activeColor: Colors.green,
-                  ),
-                  Expanded(
-                    child: Text(
-                      'Opt in to receive news and updates.',
-                      style: TextStyle(fontSize: 14.h),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24.h),
-
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final authProvider = Provider.of<AuthProvider>(
-                        context,
-                        listen: false,
-                      );
-
-                      try {
-                        if (widget.isGoogleSignUp) {
-                          // Complete Google registration with additional info
-                          await authProvider.registerWithGoogle(
-                            firstname: _firstNameController.text,
-                            lastname: _lastNameController.text,
-                            businessName: _businessNameController.text,
-                            phone: _phoneController.text,
-                            country: _selectedCountry?.name ?? 'Afghanistan',
-                            timezone: _selectedTimezone ?? 'UTC',
-                          );
-                        } else {
-                          // Regular registration
-                          await authProvider.register(
-                            email: widget.email,
-                            password: widget.password,
-                            firstname: _firstNameController.text,
-                            lastname: _lastNameController.text,
-                            businessName: _businessNameController.text,
-                            phone: _phoneController.text,
-                            country: _selectedCountry?.name ?? 'Afghanistan',
-                            timezone: _selectedTimezone ?? 'UTC',
-                          );
-                        }
-
-                        // Navigate to home screen on success
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
-                          (route) => false,
-                        );
-                      } catch (error) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Registration failed: ${error.toString()}',
-                            ),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00FF00),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: const Text(
-                    'Sign Up',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 24.h),
-            ],
-          ),
+            ),
+            SizedBox(height: 24.h),
+          ],
         ),
       ),
     );

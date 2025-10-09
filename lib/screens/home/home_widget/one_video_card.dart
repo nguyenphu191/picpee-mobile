@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picpee_mobile/models/service_model.dart';
+import 'package:picpee_mobile/models/skill_model.dart';
 
 class OneVideoCard extends StatelessWidget {
-  final ServiceModel service;
+  final TopDesigner designer;
   final VoidCallback? onTap;
 
-  const OneVideoCard({super.key, required this.service, this.onTap});
+  const OneVideoCard({super.key, required this.designer, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +20,32 @@ class OneVideoCard extends StatelessWidget {
               height: 220.h,
               width: double.infinity,
               child: Image.network(
-                service.afterImageUrl,
+                designer.imageCover,
                 fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) {
+                    return child;
+                  }
+                  return Container(
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: SizedBox(
+                        width: 30.w,
+                        height: 30.h,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.grey[600]!,
+                          ),
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      ),
+                    ),
+                  );
+                },
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[300],
@@ -54,20 +78,82 @@ class OneVideoCard extends StatelessWidget {
                                 Radius.circular(50),
                               ),
                             ),
-                            child: CircleAvatar(
-                              radius: 18,
-                              backgroundImage: NetworkImage(
-                                service.designer.avatarUrl,
-                              ),
-                              onBackgroundImageError:
-                                  (exception, stackTrace) {},
-                              child: service.designer.avatarUrl.isEmpty
-                                  ? Icon(
+                            child: Stack(
+                              children: [
+                                // Loading indicator background
+                                Container(
+                                  width: 45.h,
+                                  height: 45.h,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 20.w,
+                                      height: 20.h,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.grey[600]!,
+                                            ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Actual avatar
+                                if (designer.avatar.isNotEmpty)
+                                  CircleAvatar(
+                                    radius: 22.5.h,
+                                    backgroundColor: Colors.transparent,
+                                    child: ClipOval(
+                                      child: Image.network(
+                                        designer.avatar,
+                                        width: 45.h,
+                                        height: 45.h,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              }
+                                              return Container(
+                                                width: 45.h,
+                                                height: 45.h,
+                                                color: Colors.transparent,
+                                              );
+                                            },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return Container(
+                                                width: 45.h,
+                                                height: 45.h,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[300],
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  Icons.person,
+                                                  color: Colors.grey[600],
+                                                  size: 18,
+                                                ),
+                                              );
+                                            },
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  CircleAvatar(
+                                    radius: 22.5.h,
+                                    backgroundColor: Colors.grey[300],
+                                    child: Icon(
                                       Icons.person,
-                                      color: Colors.black,
+                                      color: Colors.grey[600],
                                       size: 18,
-                                    )
-                                  : null,
+                                    ),
+                                  ),
+                              ],
                             ),
                           ),
 
@@ -81,7 +167,7 @@ class OneVideoCard extends StatelessWidget {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        service.designer.name,
+                                        designer.businessName,
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.w600,
@@ -126,7 +212,7 @@ class OneVideoCard extends StatelessWidget {
                                           size: 16.h,
                                         ),
                                         Text(
-                                          '${service.rating}',
+                                          '${designer.ratingPoint}',
                                           style: TextStyle(
                                             color: Colors.amber,
                                             fontSize: 14.h,
@@ -134,7 +220,7 @@ class OneVideoCard extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          ' (${service.reviewCount})',
+                                          ' (${designer.totalReview})',
                                           style: TextStyle(
                                             color: Colors.black54,
                                             fontSize: 14.h,
@@ -148,7 +234,7 @@ class OneVideoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "\$ ${service.startingPrice.toString()}",
+                            "\$ ${designer.cost.toString()}",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 18.h,

@@ -34,6 +34,7 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
 
   Country? _selectedCountry;
   String? _selectedTimezone;
+  String? _selectedTimezoneCountryCode; // Add this new variable
 
   bool _agreeToTerms = false;
   bool _optInNews = false;
@@ -107,7 +108,7 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
           businessName: _businessNameController.text,
           phone: _phoneController.text,
           country: _selectedCountry!.name,
-          timezone: _selectedTimezone!,
+          timezone: _selectedTimezoneCountryCode ?? 'UTC',
           isReceiveNews: _optInNews,
           isTermService: _agreeToTerms,
           phoneCode: _selectedCountry!.phoneCode,
@@ -167,6 +168,103 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
     } catch (e) {
       print('Error launching URL: $e');
     }
+  }
+
+  // Add this method to get country code from timezone
+  String? _getCountryCodeFromTimezone(String timezone) {
+    // Map of timezone to country codes
+    final Map<String, String> timezoneToCountryCode = {
+      // Europe
+      'Europe/London': 'GB',
+      'Europe/Dublin': 'IE',
+      'Europe/Paris': 'FR',
+      'Europe/Berlin': 'DE',
+      'Europe/Rome': 'IT',
+      'Europe/Madrid': 'ES',
+      'Europe/Amsterdam': 'NL',
+      'Europe/Brussels': 'BE',
+      'Europe/Vienna': 'AT',
+      'Europe/Zurich': 'CH',
+      'Europe/Prague': 'CZ',
+      'Europe/Warsaw': 'PL',
+      'Europe/Budapest': 'HU',
+      'Europe/Stockholm': 'SE',
+      'Europe/Oslo': 'NO',
+      'Europe/Copenhagen': 'DK',
+      'Europe/Helsinki': 'FI',
+      'Europe/Moscow': 'RU',
+      'Europe/Athens': 'GR',
+      'Europe/Lisbon': 'PT',
+
+      // Americas
+      'America/New_York': 'US',
+      'America/Chicago': 'US',
+      'America/Denver': 'US',
+      'America/Los_Angeles': 'US',
+      'America/Anchorage': 'US',
+      'America/Hawaii': 'US',
+      'America/Toronto': 'CA',
+      'America/Vancouver': 'CA',
+      'America/Montreal': 'CA',
+      'America/Mexico_City': 'MX',
+      'America/Sao_Paulo': 'BR',
+      'America/Buenos_Aires': 'AR',
+      'America/Lima': 'PE',
+      'America/Bogota': 'CO',
+      'America/Santiago': 'CL',
+      'America/Caracas': 'VE',
+
+      // Asia
+      'Asia/Tokyo': 'JP',
+      'Asia/Shanghai': 'CN',
+      'Asia/Hong_Kong': 'HK',
+      'Asia/Singapore': 'SG',
+      'Asia/Seoul': 'KR',
+      'Asia/Bangkok': 'TH',
+      'Asia/Jakarta': 'ID',
+      'Asia/Manila': 'PH',
+      'Asia/Kuala_Lumpur': 'MY',
+      'Asia/Ho_Chi_Minh': 'VN',
+      'Asia/Hanoi': 'VN',
+      'Asia/Mumbai': 'IN',
+      'Asia/Kolkata': 'IN',
+      'Asia/Delhi': 'IN',
+      'Asia/Dubai': 'AE',
+      'Asia/Riyadh': 'SA',
+      'Asia/Tehran': 'IR',
+      'Asia/Baghdad': 'IQ',
+      'Asia/Kabul': 'AF',
+      'Asia/Karachi': 'PK',
+      'Asia/Dhaka': 'BD',
+      'Asia/Colombo': 'LK',
+
+      // Africa
+      'Africa/Cairo': 'EG',
+      'Africa/Lagos': 'NG',
+      'Africa/Johannesburg': 'ZA',
+      'Africa/Nairobi': 'KE',
+      'Africa/Casablanca': 'MA',
+      'Africa/Algiers': 'DZ',
+      'Africa/Tunis': 'TN',
+      'Africa/Addis_Ababa': 'ET',
+      'Africa/Accra': 'GH',
+
+      // Oceania
+      'Pacific/Auckland': 'NZ',
+      'Australia/Sydney': 'AU',
+      'Australia/Melbourne': 'AU',
+      'Australia/Brisbane': 'AU',
+      'Australia/Perth': 'AU',
+      'Australia/Adelaide': 'AU',
+      'Pacific/Fiji': 'FJ',
+      'Pacific/Honolulu': 'US',
+
+      // Default/UTC
+      'UTC': 'UTC',
+      'GMT': 'GB',
+    };
+
+    return timezoneToCountryCode[timezone];
   }
 
   @override
@@ -450,8 +548,20 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
                                     itemCount: filteredTimezones.length,
                                     itemBuilder: (context, index) {
                                       final timezone = filteredTimezones[index];
+                                      final countryCode =
+                                          _getCountryCodeFromTimezone(timezone);
+
                                       return ListTile(
                                         title: Text(timezone),
+                                        subtitle: countryCode != null
+                                            ? Text(
+                                                'Country: $countryCode',
+                                                style: TextStyle(
+                                                  fontSize: 12.h,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              )
+                                            : null,
                                         selected: _selectedTimezone == timezone,
                                         onTap: () {
                                           Navigator.of(context).pop(timezone);
@@ -478,7 +588,13 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
                 if (selectedValue != null) {
                   setState(() {
                     _selectedTimezone = selectedValue;
+                    _selectedTimezoneCountryCode = _getCountryCodeFromTimezone(
+                      selectedValue,
+                    );
                   });
+                  // Debug print to see the country code
+                  print('Selected timezone: $selectedValue');
+                  print('Country code: $_selectedTimezoneCountryCode');
                 }
               },
               child: Container(
@@ -491,9 +607,22 @@ class _RegisterInforScreenState extends State<RegisterInforScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _selectedTimezone ?? 'Select Timezone',
-                      style: TextStyle(fontSize: 14.h),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _selectedTimezone ?? 'Select Timezone',
+                          style: TextStyle(fontSize: 14.h),
+                        ),
+                        if (_selectedTimezoneCountryCode != null)
+                          Text(
+                            'Country: $_selectedTimezoneCountryCode',
+                            style: TextStyle(
+                              fontSize: 12.h,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                      ],
                     ),
                     Icon(Icons.arrow_drop_down),
                   ],

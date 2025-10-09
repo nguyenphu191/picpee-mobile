@@ -7,4 +7,6 @@ class Url {
   static const String checkExistEmail = "$baseUrl/login/check-exist";
   static const String checkExistBusinessName =
       "$baseUrl/login/check-exist-business";
+  static const String getTopDesignBySkill =
+      "$baseUrl/user/get-top-designer-by-skill-category";
 }

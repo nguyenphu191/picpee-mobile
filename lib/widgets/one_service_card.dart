@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/models/skill_model.dart';
+import 'package:picpee_mobile/models/designer_model.dart';
 import 'package:picpee_mobile/models/top_notch_clipper.dart';
 
 class OneServiceCard extends StatelessWidget {
-  final TopDesigner designer;
+  final DesignerModel designer;
   final VoidCallback? onTap;
   final bool isDuck;
 
@@ -243,25 +243,26 @@ class OneServiceCard extends StatelessWidget {
                                           ),
                                         ),
                                         SizedBox(width: 16.h),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 6,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius: BorderRadius.circular(
-                                              4,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            '+',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
+                                        Image.network(
+                                          designer.imageFlag,
+                                          height: 16.h,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Container(
+                                                  width: 20.w,
+                                                  height: 20.h,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[300],
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.flag,
+                                                    color: Colors.grey[600],
+                                                    size: 12,
+                                                  ),
+                                                );
+                                              },
                                         ),
                                       ],
                                     ),

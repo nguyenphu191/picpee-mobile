@@ -9,4 +9,5 @@ class Url {
       "$baseUrl/login/check-exist-business";
   static const String getTopDesignBySkill =
       "$baseUrl/user/get-top-designer-by-skill-category";
+  static const String getAllSkillOfVendor = "$baseUrl/user/portfolio";
 }

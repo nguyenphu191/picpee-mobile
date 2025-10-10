@@ -869,7 +869,7 @@ class _VendorServiceScreenState extends State<VendorServiceScreen> {
             child: Container(
               height: 200.h,
               width: double.maxFinite,
-              child: BeforeAfterCard(height: 180.h, width: 320.w),
+              // child: BeforeAfterCard(height: 180.h, width: 320.w),
             ),
           ),
           // Service Details

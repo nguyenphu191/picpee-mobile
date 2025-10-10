@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/models/designer_model.dart';
 import 'package:picpee_mobile/models/service_model.dart';
-import 'package:picpee_mobile/models/skill_model.dart';
 import 'package:picpee_mobile/screens/home/home_widget/one_video_card.dart';
 import 'package:picpee_mobile/screens/photo-services/vendor_service_screen.dart';
 import 'package:picpee_mobile/widgets/one_service_card.dart';
@@ -20,7 +20,7 @@ class TopVideoCard extends StatefulWidget {
   final Function(ServiceModel)? onServiceTap;
   final String title;
   final bool isHome;
-  final List<TopDesigner> topDesigners;
+  final List<DesignerModel> topDesigners;
   @override
   State<TopVideoCard> createState() => _TopVideoCardState();
 }
@@ -122,7 +122,6 @@ class _TopVideoCardState extends State<TopVideoCard> {
                           },
                         )
                       : OneServiceCard(
-                          
                           designer: designer,
                           onTap: () {
                             Navigator.push(

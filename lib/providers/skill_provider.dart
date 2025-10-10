@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:picpee_mobile/models/skill_model.dart';
+import 'package:picpee_mobile/models/skill_of_vendor_model.dart';
 import 'package:picpee_mobile/services/skill_service.dart';
 
 class SkillProvider with ChangeNotifier {
@@ -34,6 +35,8 @@ class SkillProvider with ChangeNotifier {
   SkillModel? CutOutChangeColorTopDesigner;
   SkillModel? ChangeColorTopDesigner;
   List<SkillModel> haveTopDesigners = [];
+  SkillOfVendorModel? skillOfVendor;
+  List<SkillOfVendorModel> skillsOfVendor = [];
 
   bool get isLoading => _isLoading;
   SkillModel? get hdrTopDesigner => HDRTopDesigner;
@@ -66,6 +69,9 @@ class SkillProvider with ChangeNotifier {
   SkillModel? get cutOutChangeColorTopDesigner => CutOutChangeColorTopDesigner;
   SkillModel? get changeColorTopDesigner => ChangeColorTopDesigner;
   List<SkillModel> get getHaveTopDesigners => haveTopDesigners;
+
+  List<SkillOfVendorModel> get getSkillsOfVendor => skillsOfVendor;
+  SkillOfVendorModel? get getSkillOfVendor => skillOfVendor;
 
   void setLoading(bool loading) {
     _isLoading = loading;
@@ -115,6 +121,7 @@ class SkillProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  //Lấy danh sách top designer theo skill
   Future<bool> fetchTopDesignersBySkill() async {
     print("Fetching top designers by skill...");
     setLoading(true);
@@ -154,6 +161,48 @@ class SkillProvider with ChangeNotifier {
       return true;
     } catch (e) {
       print("Error fetching top designers: $e");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //Lấy danh sách skill của vendor
+  Future<bool> fetchSkillsOfVendor(int vendorId) async {
+    print("Fetching skills of vendor with ID: $vendorId");
+    setLoading(true);
+    try {
+      final result = await _skillService.getSkillsOfVendor(vendorId);
+      skillsOfVendor = result;
+      print("Skills of Vendor Count: ${skillsOfVendor.length}");
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print("Error fetching skills of vendor: $e");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //Lấy skill cụ thể của vendor
+  Future<bool> fetchSkillOfVendor(int vendorId, int skillId) async {
+    print("Fetching skill of vendor with ID: $vendorId and Skill ID: $skillId");
+    skillOfVendor = null;
+    notifyListeners();
+
+    setLoading(true);
+    try {
+      final result = await _skillService.getSkillDetailOfVendor(
+        vendorId,
+        skillId,
+      );
+      skillOfVendor = result;
+      print("Fetched Skill of Vendor: ${skillOfVendor?.skillName}");
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print("Error fetching skill of vendor: $e");
       return false;
     } finally {
       setLoading(false);

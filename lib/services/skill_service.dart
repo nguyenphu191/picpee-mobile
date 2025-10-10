@@ -3,21 +3,21 @@ import 'package:http/http.dart' as http;
 import 'package:picpee_mobile/models/skill_model.dart';
 import 'package:picpee_mobile/models/skill_of_vendor_model.dart';
 import 'package:picpee_mobile/core/utils/url.dart' show Url;
-import 'package:picpee_mobile/providers/auth_provider.dart';
+import 'package:picpee_mobile/services/auth_service.dart';
 
 class SkillService {
   // Lấy danh sách top designers theo từng skill category
   Future<Map<String, dynamic>> getTopDesignersBySkillCategory() async {
-    String? _token = AuthProvider().token;
-    if (_token == null) {
+    final token = await AuthService().getToken();
+    if (token == null) {
       throw Exception("No token found");
     }
-    print("Fetching top designers with token: $_token");
+    print("Fetching top designers with token: $token");
     final response = await http.post(
       Uri.parse(Url.getTopDesignBySkill),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $_token",
+        "Authorization": "Bearer $token",
       },
       body: jsonEncode({}),
     );
@@ -92,16 +92,16 @@ class SkillService {
 
   //Lấy danh sách skill của vendor
   Future<List<SkillOfVendorModel>> getSkillsOfVendor(int vendorId) async {
-    String? _token = AuthProvider().token;
-    if (_token == null) {
+    final token = await AuthService().getToken();
+    if (token == null) {
       throw Exception("No token found");
     }
-    print("Fetching skills of vendor with token: $_token");
+    print("Fetching skills of vendor with token: $token");
     final response = await http.get(
       Uri.parse("${Url.getAllSkillOfVendor}/$vendorId"),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $_token",
+        "Authorization": "Bearer $token",
       },
     );
     if (response.statusCode == 200) {
@@ -117,16 +117,16 @@ class SkillService {
     int vendorId,
     int skillId,
   ) async {
-    String? _token = AuthProvider().token;
-    if (_token == null) {
+    final token = await AuthService().getToken();
+    if (token == null) {
       throw Exception("No token found");
     }
-    print("Fetching skill detail of vendor with token: $_token");
+    print("Fetching skill detail of vendor with token: $token");
     final response = await http.get(
       Uri.parse("${Url.getAllSkillOfVendor}/$vendorId"),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $_token",
+        "Authorization": "Bearer $token",
       },
     );
     if (response.statusCode == 200) {

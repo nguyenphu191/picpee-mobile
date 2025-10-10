@@ -42,22 +42,6 @@ class _FeaturedCardState extends State<FeaturedCard> {
     });
   }
 
-  // void _previousDesigner() {
-  //   setState(() {
-  //     _currentDesignerIndex =
-  //         (_currentDesignerIndex - 1 + currentSkill.topDesigners.length) %
-  //         currentSkill.topDesigners.length;
-  //   });
-  // }
-
-  // void _nextDesigner() {
-  //   setState(() {
-  //     _currentDesignerIndex =
-  //         (_currentDesignerIndex + 1) % currentSkill.topDesigners.length;
-  //   });
-  // }
-
-  // Get background color from skill
   Color _getSkillBackgroundColor() {
     if (currentSkill.skill?.backgroudColor != null &&
         currentSkill.skill!.backgroudColor.isNotEmpty) {
@@ -94,7 +78,6 @@ class _FeaturedCardState extends State<FeaturedCard> {
     final skillBackgroundColor = _getSkillBackgroundColor();
 
     return Container(
-      height: 750.h,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFFFFFEFF), Color(0xFFF4E9F5), Color(0xFFEEEFFA)],
@@ -103,6 +86,7 @@ class _FeaturedCardState extends State<FeaturedCard> {
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 20.h),
@@ -162,359 +146,345 @@ class _FeaturedCardState extends State<FeaturedCard> {
             ),
           ),
 
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.h),
-              child: Column(
-                children: [
-                  // Before/After Image Container
-                  Container(
-                    height: 300.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: double.infinity,
-                            height: double.infinity,
-                            color: skillBackgroundColor,
-                            child: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              child: BeforeAfterCard(
-                                key: ValueKey(
-                                  '${currentDesigner.userId}_${currentSkill.skill!.id}',
-                                ), // Add this key
-                                designerId: currentDesigner.userId,
-                                skillId: currentSkill.skill!.id,
+          // Content section - Remove Expanded wrapper
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.h),
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Add this
+              children: [
+                // Before/After Image Container
+                Container(
+                  height: 300.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: double.infinity,
+                          color: skillBackgroundColor,
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            child: BeforeAfterCard(
+                              key: ValueKey(
+                                '${currentDesigner.userId}_${currentSkill.skill!.id}',
                               ),
+                              designerId: currentDesigner.userId,
+                              skillId: currentSkill.skill!.id,
                             ),
                           ),
+                        ),
 
-                          // Designer info overlay
-                          Positioned(
-                            bottom: 16.h,
-                            left: 16.h,
-                            right: 16.h,
-                            child: IgnorePointer(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Edit by',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14.h,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                        // Designer info overlay
+                        Positioned(
+                          bottom: 16.h,
+                          left: 16.h,
+                          right: 16.h,
+                          child: IgnorePointer(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Edit by',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14.h,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  SizedBox(height: 5.h),
-                                  Row(
-                                    children: [
-                                      // Designer Avatar
-                                      Container(
-                                        width: 36.h,
-                                        height: 36.h,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            50,
-                                          ),
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 1,
-                                          ),
+                                ),
+                                SizedBox(height: 5.h),
+                                Row(
+                                  children: [
+                                    // Designer Avatar
+                                    Container(
+                                      width: 36.h,
+                                      height: 36.h,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 1,
                                         ),
-                                        child: ClipOval(
-                                          child:
-                                              currentDesigner.avatar.isNotEmpty
-                                              ? Image.network(
-                                                  currentDesigner.avatar,
-                                                  width: 36.h,
-                                                  height: 36.h,
-                                                  fit: BoxFit.cover,
-                                                  loadingBuilder:
-                                                      (
-                                                        context,
-                                                        child,
-                                                        loadingProgress,
-                                                      ) {
-                                                        if (loadingProgress ==
-                                                            null)
-                                                          return child;
-                                                        return Container(
-                                                          color:
-                                                              skillBackgroundColor,
-                                                          child: Center(
-                                                            child: SizedBox(
-                                                              width: 16.w,
-                                                              height: 16.h,
-                                                              child: CircularProgressIndicator(
-                                                                strokeWidth: 2,
-                                                                valueColor:
-                                                                    AlwaysStoppedAnimation<
-                                                                      Color
-                                                                    >(
-                                                                      Colors
-                                                                          .white,
-                                                                    ),
-                                                              ),
+                                      ),
+                                      child: ClipOval(
+                                        child: currentDesigner.avatar.isNotEmpty
+                                            ? Image.network(
+                                                currentDesigner.avatar,
+                                                width: 36.h,
+                                                height: 36.h,
+                                                fit: BoxFit.cover,
+                                                loadingBuilder:
+                                                    (
+                                                      context,
+                                                      child,
+                                                      loadingProgress,
+                                                    ) {
+                                                      if (loadingProgress ==
+                                                          null)
+                                                        return child;
+                                                      return Container(
+                                                        color:
+                                                            skillBackgroundColor,
+                                                        child: Center(
+                                                          child: SizedBox(
+                                                            width: 16.w,
+                                                            height: 16.h,
+                                                            child: CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                              valueColor:
+                                                                  AlwaysStoppedAnimation<
+                                                                    Color
+                                                                  >(
+                                                                    Colors
+                                                                        .white,
+                                                                  ),
                                                             ),
                                                           ),
-                                                        );
-                                                      },
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) {
-                                                        return Container(
-                                                          color:
-                                                              skillBackgroundColor,
-                                                          child: Icon(
-                                                            Icons.person,
-                                                            size: 16.h,
-                                                            color: Colors.white,
-                                                          ),
-                                                        );
-                                                      },
-                                                )
-                                              : Container(
-                                                  color: skillBackgroundColor,
-                                                  child: Icon(
-                                                    Icons.person,
-                                                    size: 16.h,
+                                                        ),
+                                                      );
+                                                    },
+                                                errorBuilder:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) {
+                                                      return Container(
+                                                        color:
+                                                            skillBackgroundColor,
+                                                        child: Icon(
+                                                          Icons.person,
+                                                          size: 16.h,
+                                                          color: Colors.white,
+                                                        ),
+                                                      );
+                                                    },
+                                              )
+                                            : Container(
+                                                color: skillBackgroundColor,
+                                                child: Icon(
+                                                  Icons.person,
+                                                  size: 16.h,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 8.h),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            currentDesigner.businessName,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14.h,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          if (currentDesigner.ratingPoint > 0)
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.star,
+                                                  color: Colors.amber,
+                                                  size: 16.h,
+                                                ),
+                                                SizedBox(width: 2.w),
+                                                Text(
+                                                  '${currentDesigner.ratingPoint} (${currentDesigner.totalReview})',
+                                                  style: TextStyle(
                                                     color: Colors.white,
+                                                    fontSize: 12.h,
+                                                    fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 8.h),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              currentDesigner.businessName,
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 14.h,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
+                                              ],
                                             ),
-                                            if (currentDesigner.ratingPoint > 0)
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.star,
-                                                    color: Colors.amber,
-                                                    size: 12.h,
-                                                  ),
-                                                  SizedBox(width: 2.w),
-                                                  Text(
-                                                    '${currentDesigner.ratingPoint} (${currentDesigner.totalReview})',
-                                                    style: TextStyle(
-                                                      color: Colors.white70,
-                                                      fontSize: 12.h,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                          ],
-                                        ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 24.h),
-
-                  // Skill Information
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.h),
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.camera_alt_outlined,
-                          size: 24.h,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(width: 8.h),
-                        Expanded(
-                          child: Text(
-                            currentSkill.skill?.name ?? 'Unknown Service',
-                            style: TextStyle(
-                              fontSize: 18.h,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                ),
 
-                  SizedBox(height: 12.h),
+                SizedBox(height: 24.h),
 
-                  // Skill Description
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.h),
-                    child: Text(
-                      currentSkill.skill?.description ??
-                          'No description available.',
-                      style: TextStyle(
-                        fontSize: 14.h,
-                        color: Colors.black,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 20.h),
-
-                  // Designers Section
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(horizontal: 16.h),
-                    child: Text(
-                      'Designers (${currentSkill.topDesigners.length}):',
-                      style: TextStyle(
-                        fontSize: 16.h,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 8.h),
-
-                  // Designer Avatars
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.h),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: currentSkill.topDesigners.map((designer) {
-                          bool isSelected =
-                              designer.userId == currentDesigner.userId;
-                          return GestureDetector(
-                            onTap: () {
-                              int index = currentSkill.topDesigners.indexOf(
-                                designer,
-                              );
-                              if (index != -1) {
-                                setState(() {
-                                  _currentDesignerIndex = index;
-                                });
-                              }
-                            },
-                            child: _buildDesignerAvatar(
-                              designer,
-                              isSelected: isSelected,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 12.h),
-
-                  // Action Buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                // Skill Information
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16.h),
+                  alignment: Alignment.centerLeft,
+                  child: Row(
                     children: [
-                      Container(
-                        height: 42.h,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.h,
-                          vertical: 4.h,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Colors.white,
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            // Navigate to projects list
-                          },
-                          child: Text(
-                            'View More Projects',
-                            style: TextStyle(
-                              fontSize: 14.h,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
+                      Icon(
+                        Icons.camera_alt_outlined,
+                        size: 24.h,
+                        color: Colors.grey,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12.h,
-                          vertical: 4.h,
-                        ),
-                        child: Container(
-                          width: 110.w,
-                          height: 42.h,
-                          decoration: BoxDecoration(
-                            color: AppColors.buttonGreen,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: TextButton(
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AddOrderCard();
-                                },
-                              );
-                            },
-                            child: Text(
-                              'Start Order',
-                              style: TextStyle(
-                                fontSize: 14.h,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
+                      SizedBox(width: 8.h),
+                      Expanded(
+                        child: Text(
+                          currentSkill.skill?.name ?? 'Unknown Service',
+                          style: TextStyle(
+                            fontSize: 18.h,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ],
                   ),
+                ),
 
-                  SizedBox(height: 20.h),
+                SizedBox(height: 12.h),
 
-                  // Bottom indicator
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
+                // Skill Description - Make it flexible
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.h),
+                  child: Text(
+                    currentSkill.skill?.description ??
+                        'No description available.',
+                    style: TextStyle(
+                      fontSize: 14.h,
                       color: Colors.black,
-                      borderRadius: BorderRadius.circular(2),
+                      height:
+                          1.4, // Increased line height for better readability
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+
+                SizedBox(height: 20.h),
+
+                // Designers Section
+                Container(
+                  alignment: Alignment.centerLeft,
+                  padding: EdgeInsets.symmetric(horizontal: 16.h),
+                  child: Text(
+                    'Designers:',
+                    style: TextStyle(
+                      fontSize: 16.h,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
                     ),
                   ),
-                ],
-              ),
+                ),
+
+                SizedBox(height: 8.h),
+
+                // Designer Avatars
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.h),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: currentSkill.topDesigners.map((designer) {
+                        bool isSelected =
+                            designer.userId == currentDesigner.userId;
+                        return GestureDetector(
+                          onTap: () {
+                            int index = currentSkill.topDesigners.indexOf(
+                              designer,
+                            );
+                            if (index != -1) {
+                              setState(() {
+                                _currentDesignerIndex = index;
+                              });
+                            }
+                          },
+                          child: _buildDesignerAvatar(
+                            designer,
+                            isSelected: isSelected,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 16.h),
+                // Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      height: 42.h,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.h,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.white,
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          // Navigate to projects list
+                        },
+                        child: Text(
+                          'View More Projects',
+                          style: TextStyle(
+                            fontSize: 14.h,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.h,
+                        vertical: 4.h,
+                      ),
+                      height: 42.h,
+                      decoration: BoxDecoration(
+                        color: AppColors.buttonGreen,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: TextButton(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AddOrderCard();
+                            },
+                          );
+                        },
+                        child: Text(
+                          'Start Order',
+                          style: TextStyle(
+                            fontSize: 14.h,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 24.h), // Bottom padding
+              ],
             ),
           ),
         ],
@@ -522,7 +492,10 @@ class _FeaturedCardState extends State<FeaturedCard> {
     );
   }
 
-  Widget _buildDesignerAvatar(DesignerModel designer, {bool isSelected = false}) {
+  Widget _buildDesignerAvatar(
+    DesignerModel designer, {
+    bool isSelected = false,
+  }) {
     return Container(
       margin: EdgeInsets.only(right: 5.h),
       width: 40.h,

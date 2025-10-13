@@ -1,31 +1,28 @@
 class User {
   final String? avatar;
-  final int? balance;
+  final double? balance;
   final String? banner;
   final String? biography;
   final String? businessName;
   final String? code;
   final String? countryCode;
   final String? countryName;
-  final int? createdTime;
   final String? describesBusiness;
   final String? describesSpecialty;
   final String? descriptionCompany;
   final String? firstname;
-  final int? id;
+  final int id;
   final String? lastname;
-  final int? modifiedTime;
   final String? paypalAccount;
   final String? phone;
   final String? phoneCode;
   final String? registrationId;
   final List<String>? registrationImages;
-  final String? role;
+  final String role;
   final String? status;
   final String? statusVerify;
   final int? teamSize;
   final String? timezone;
-  final String? token;
   final String? type;
   final List<UserWorking>? userWorkings;
   final String? username;
@@ -39,25 +36,22 @@ class User {
     this.code,
     this.countryCode,
     this.countryName,
-    this.createdTime,
     this.describesBusiness,
     this.describesSpecialty,
     this.descriptionCompany,
     this.firstname,
-    this.id,
+    required this.id,
     this.lastname,
-    this.modifiedTime,
     this.paypalAccount,
     this.phone,
     this.phoneCode,
     this.registrationId,
     this.registrationImages,
-    this.role,
+    required this.role,
     this.status,
     this.statusVerify,
     this.teamSize,
     this.timezone,
-    this.token,
     this.type,
     this.userWorkings,
     this.username,
@@ -65,40 +59,42 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      avatar: json['avatar'],
-      balance: json['balance'],
-      banner: json['banner'],
-      biography: json['biography'],
-      businessName: json['businessName'],
-      code: json['code'],
-      countryCode: json['countryCode'],
-      countryName: json['countryName'],
-      createdTime: json['createdTime'],
-      describesBusiness: json['describesBusiness'],
-      describesSpecialty: json['describesSpecialty'],
-      descriptionCompany: json['descriptionCompany'],
-      firstname: json['firstname'],
-      id: json['id'],
-      lastname: json['lastname'],
-      modifiedTime: json['modifiedTime'],
-      paypalAccount: json['paypalAccount'],
-      phone: json['phone'],
-      phoneCode: json['phoneCode'],
-      registrationId: json['registrationId'],
-      registrationImages: (json['registrationImages'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList(),
-      role: json['role'],
-      status: json['status'],
-      statusVerify: json['statusVerify'],
-      teamSize: json['teamSize'],
-      timezone: json['timezone'],
-      token: json['token'],
-      type: json['type'],
-      userWorkings: (json['userWorkings'] as List<dynamic>?)
-          ?.map((e) => UserWorking.fromJson(e))
-          .toList(),
-      username: json['username'],
+      avatar: json['avatar'] ?? "",
+      balance: json['balance'] != null
+          ? double.tryParse(json['balance'].toString()) ?? 0.0
+          : 0.0,
+      banner: json['banner'] ?? "",
+      biography: json['biography'] ?? "",
+      businessName: json['businessName'] ?? "",
+      code: json['code'] ?? "",
+      countryCode: json['countryCode'] ?? "",
+      countryName: json['countryName'] ?? "",
+      describesBusiness: json['describesBusiness'] ?? "",
+      describesSpecialty: json['describesSpecialty'] ?? "",
+      descriptionCompany: json['descriptionCompany'] ?? "",
+      firstname: json['firstname'] ?? "",
+      id: json['id'] ?? 0,
+      lastname: json['lastname'] ?? "",
+      paypalAccount: json['paypalAccount'] ?? "",
+      phone: json['phone'] ?? "",
+      phoneCode: json['phoneCode'] ?? "",
+      registrationId: json['registrationId'] ?? "",
+      registrationImages:
+          (json['registrationImages'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      role: json['role'] ?? "",
+      status: json['status'] ?? "",
+      statusVerify: json['statusVerify'] ?? "",
+      teamSize: json['teamSize'] ?? 0,
+      timezone: json['timezone'] ?? "",
+      type: json['type'] ?? "",
+      userWorkings:
+          (json['userWorkings'] as List<dynamic>?)
+              ?.map((e) => UserWorking.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 
@@ -112,14 +108,12 @@ class User {
       'code': code,
       'countryCode': countryCode,
       'countryName': countryName,
-      'createdTime': createdTime,
       'describesBusiness': describesBusiness,
       'describesSpecialty': describesSpecialty,
       'descriptionCompany': descriptionCompany,
       'firstname': firstname,
       'id': id,
       'lastname': lastname,
-      'modifiedTime': modifiedTime,
       'paypalAccount': paypalAccount,
       'phone': phone,
       'phoneCode': phoneCode,
@@ -130,11 +124,14 @@ class User {
       'statusVerify': statusVerify,
       'teamSize': teamSize,
       'timezone': timezone,
-      'token': token,
       'type': type,
       'userWorkings': userWorkings?.map((e) => e.toJson()).toList(),
-      'username': username,
     };
+  }
+
+  @override
+  String toString() {
+    return 'User{id: $id, firstname: $firstname, lastname: $lastname, email: $username, role: $role}';
   }
 }
 

@@ -4,12 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
+import 'package:picpee_mobile/models/skill_of_vendor_model.dart';
+import 'package:picpee_mobile/providers/skill_provider.dart';
+import 'package:provider/provider.dart';
 
 class BeforeAfterCard extends StatefulWidget {
   final double? width;
   final double? height;
+  final int? designerId;
+  final int? skillId;
+  final SkillOfVendorModel? skillOfVendor;
 
-  const BeforeAfterCard({super.key, this.width, this.height});
+  const BeforeAfterCard({
+    super.key,
+    this.width,
+    this.height,
+    this.designerId,
+    this.skillId,
+    this.skillOfVendor,
+  });
 
   @override
   State<BeforeAfterCard> createState() => _BeforeAfterCardState();
@@ -19,27 +32,60 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
   final PageController _pageController = PageController(initialPage: 0);
   int currentIndex = 0;
 
-  final List<Map<String, String>> pairs = [
-    {
-      'before': 'https://picsum.photos/seed/apt1/1000/700',
-      'after': 'https://picsum.photos/seed/apt1_after/1000/700',
-    },
-    {
-      'before': 'https://picsum.photos/seed/apt2/1000/700',
-      'after': 'https://picsum.photos/seed/apt2_after/1000/700',
-    },
-    {
-      'before': 'https://picsum.photos/seed/apt3/1000/700',
-      'after': 'https://picsum.photos/seed/apt3_after/1000/700',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    if (widget.skillOfVendor == null &&
+        widget.designerId != null &&
+        widget.skillId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        fetchDetailSkill();
+      });
+    }
+  }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    for (final p in pairs) {
-      precacheImage(NetworkImage(p['before']!), context);
-      precacheImage(NetworkImage(p['after']!), context);
+  void didUpdateWidget(BeforeAfterCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.skillOfVendor == null &&
+        (oldWidget.designerId != widget.designerId ||
+            oldWidget.skillId != widget.skillId) &&
+        widget.designerId != null &&
+        widget.skillId != null) {
+      currentIndex = 0;
+      if (_pageController.hasClients) {
+        _pageController.jumpToPage(0);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        fetchDetailSkill();
+      });
+    }
+  }
+
+  Future<void> fetchDetailSkill() async {
+    if (widget.skillOfVendor != null) return;
+    if (widget.designerId == null || widget.skillId == null) return;
+    print(
+      "Fetching skill details for designerId: ${widget.designerId}, skillId: ${widget.skillId}",
+    );
+    final SkillProvider skillProvider = Provider.of<SkillProvider>(
+      context,
+      listen: false,
+    );
+    skillProvider.skillOfVendor = null;
+    final res = await skillProvider.fetchSkillOfVendor(
+      widget.designerId!,
+      widget.skillId!,
+    );
+    if (!res && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to load skill details.'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -51,16 +97,104 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
     );
   }
 
-  void _next() => _goTo((currentIndex + 1) % pairs.length);
-  void _prev() => _goTo((currentIndex - 1 + pairs.length) % pairs.length);
+  void _next() => _goTo(
+    currentIndex + 1 <
+            (_pageController.positions.isNotEmpty
+                ? _pageController.position.maxScrollExtent ~/
+                          _pageController.position.viewportDimension +
+                      1
+                : 1)
+        ? currentIndex + 1
+        : 0,
+  );
+  void _prev() => _goTo(
+    currentIndex - 1 >= 0
+        ? currentIndex - 1
+        : (_pageController.positions.isNotEmpty
+              ? _pageController.position.maxScrollExtent ~/
+                    _pageController.position.viewportDimension
+              : 0),
+  );
 
   @override
   Widget build(BuildContext context) {
+    if (widget.skillOfVendor != null) {
+      return _buildSkillContent(widget.skillOfVendor!);
+    }
+    return Consumer<SkillProvider>(
+      builder: (context, skillProvider, child) {
+        if (skillProvider.isLoading || skillProvider.skillOfVendor == null) {
+          return Container(
+            width: widget.width ?? double.infinity,
+            height: widget.height ?? 300.h,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 40.w,
+                    height: 40.h,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12.h),
+                  Text(
+                    'Loading images...',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 14.h,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return _buildSkillContent(skillProvider.skillOfVendor!);
+      },
+    );
+  }
+
+  Widget _buildSkillContent(SkillOfVendorModel skill) {
+    final List<SkillImage> images = skill.images;
+
+    if (images.isEmpty) {
+      return Container(
+        width: widget.width ?? double.infinity,
+        height: widget.height ?? 300.h,
+        decoration: BoxDecoration(
+          color: Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image_not_supported_outlined,
+              size: 64.h,
+              color: Colors.grey.shade400,
+            ),
+            SizedBox(height: 8.h),
+            Text(
+              'No images available',
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14.h),
+            ),
+          ],
+        ),
+      );
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Sử dụng width từ parameter hoặc mặc định từ constraints
         final double containerWidth = widget.width ?? constraints.maxWidth;
-        // Sử dụng height từ parameter hoặc mặc định 300.h
         final double height = widget.height ?? 300.h;
         final double imageWidth = containerWidth;
 
@@ -79,123 +213,252 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                     bottom: 0,
                     child: PageView.builder(
                       controller: _pageController,
-                      physics:
-                          const NeverScrollableScrollPhysics(), // Tắt swipe
-                      itemCount: pairs.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: images.length,
                       onPageChanged: (i) => setState(() => currentIndex = i),
                       itemBuilder: (context, index) {
-                        final before = pairs[index]['before']!;
-                        final after = pairs[index]['after']!;
+                        final before = images[index].imageBefore ?? "";
+                        final after = images[index].imageAfter ?? "";
+                        final singleImage = images[index].imageLink ?? "";
+
                         return ClipRRect(
                           borderRadius: BorderRadius.circular(12),
-                          child: CustomBeforeAfterSlider(
-                            beforeImage: before,
-                            afterImage: after,
-                            width: imageWidth,
-                            height: height,
-                          ),
+                          child: images[index].typeUpload == "BEFORE_AFTER"
+                              ? CustomBeforeAfterSlider(
+                                  beforeImage: before,
+                                  afterImage: after,
+                                  width: imageWidth,
+                                  height: height,
+                                )
+                              : ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: singleImage.isNotEmpty
+                                      ? Image.network(
+                                          singleImage,
+                                          width: imageWidth,
+                                          height: height,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) {
+                                              return child;
+                                            }
+                                            return Container(
+                                              width: imageWidth,
+                                              height: height,
+                                              color: Colors.grey.shade200,
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 40.w,
+                                                      height: 40.h,
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 3,
+                                                        valueColor:
+                                                            AlwaysStoppedAnimation<
+                                                              Color
+                                                            >(
+                                                              Colors
+                                                                  .grey
+                                                                  .shade600,
+                                                            ),
+                                                        value:
+                                                            loadingProgress
+                                                                    .expectedTotalBytes !=
+                                                                null
+                                                            ? loadingProgress
+                                                                      .cumulativeBytesLoaded /
+                                                                  loadingProgress
+                                                                      .expectedTotalBytes!
+                                                            : null,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 12.h),
+                                                    Text(
+                                                      'Loading image...',
+                                                      style: TextStyle(
+                                                        color: Colors
+                                                            .grey
+                                                            .shade600,
+                                                        fontSize: 14.h,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return Container(
+                                                  width: imageWidth,
+                                                  height: height,
+                                                  color: Colors.grey.shade300,
+                                                  child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.error_outline,
+                                                        size: 48.h,
+                                                        color: Colors
+                                                            .grey
+                                                            .shade500,
+                                                      ),
+                                                      SizedBox(height: 8.h),
+                                                      Text(
+                                                        'Failed to load image',
+                                                        style: TextStyle(
+                                                          color: Colors
+                                                              .grey
+                                                              .shade600,
+                                                          fontSize: 12.h,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                        )
+                                      : Container(
+                                          width: imageWidth,
+                                          height: height,
+                                          color: Colors.grey.shade200,
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons
+                                                    .image_not_supported_outlined,
+                                                size: 64.h,
+                                                color: Colors.grey.shade400,
+                                              ),
+                                              SizedBox(height: 8.h),
+                                              Text(
+                                                'No image available',
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade600,
+                                                  fontSize: 12.h,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                ),
                         );
                       },
                     ),
                   ),
-
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Before',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black54,
-                          fontSize: 12.h,
+                  if (images.isNotEmpty &&
+                      images[currentIndex].typeUpload == "BEFORE_AFTER") ...[
+                    Positioned(
+                      top: 10,
+                      left: 10,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 3,
                         ),
-                      ),
-                    ),
-                  ),
-
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.h,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white70,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 6,
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'After',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black54,
-                          fontSize: 12.h,
+                        decoration: BoxDecoration(
+                          color: Colors.white70,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 6,
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ),
-
-                  // Left arrow
-                  Positioned(
-                    left: 0.h,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: _prev,
-                        child: Container(
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: Icon(
-                            Icons.chevron_left,
-                            size: 32.h,
-                            color: Colors.white,
+                        child: Text(
+                          'Before',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
+                            fontSize: 12.h,
                           ),
                         ),
                       ),
                     ),
-                  ),
-
-                  // Right arrow
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: _next,
-                        child: Container(
-                          decoration: BoxDecoration(shape: BoxShape.circle),
-                          child: Icon(
-                            Icons.chevron_right,
-                            size: 32.h,
-                            color: Colors.white,
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.h,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white70,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.08),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          'After',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
+                            fontSize: 12.h,
                           ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
+
+                  if (images.length > 1) ...[
+                    Positioned(
+                      left: 5.h,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: _prev,
+                          child: Container(
+                            padding: EdgeInsets.all(3.h),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.black.withOpacity(0.3),
+                            ),
+                            child: Icon(
+                              Icons.chevron_left,
+                              size: 24.h,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 5.h,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: _next,
+                          child: Container(
+                            padding: EdgeInsets.all(3.h),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.black.withOpacity(0.3),
+                            ),
+                            child: Icon(
+                              Icons.chevron_right,
+                              size: 24.h,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -212,6 +475,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
   }
 }
 
+// Keep the CustomBeforeAfterSlider class unchanged
 class CustomBeforeAfterSlider extends StatefulWidget {
   final String? beforeImage;
   final String? afterImage;
@@ -236,7 +500,9 @@ class CustomBeforeAfterSlider extends StatefulWidget {
 }
 
 class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
-  double _sliderPosition = 0.5; // Vị trí slider từ 0.0 đến 1.0
+  double _sliderPosition = 0.5;
+  bool _beforeImageLoaded = false;
+  bool _afterImageLoaded = false;
 
   void _updateSliderPosition(double localX) {
     setState(() {
@@ -260,77 +526,214 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
         child: Stack(
           clipBehavior: Clip.hardEdge,
           children: [
-            // Background image (After)
-            Positioned(
-              left: 0,
-              top: 0,
-              width: widget.width,
-              height: widget.height,
-              child: widget.afterImage != null
+            // Loading background for both images
+            if (!_beforeImageLoaded || !_afterImageLoaded)
+              Positioned(
+                left: 0,
+                top: 0,
+                width: widget.width,
+                height: widget.height,
+                child: Container(
+                  color: Colors.grey.shade200,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 40.w,
+                          height: 40.h,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.grey.shade600,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 12.h),
+                        Text(
+                          'Loading images...',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 14.h,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            Positioned.fill(
+              child: widget.afterImage != null && widget.afterImage!.isNotEmpty
                   ? Image.network(
                       widget.afterImage!,
-                      width: widget.width,
-                      height: widget.height,
                       fit: BoxFit.cover,
+                      alignment: Alignment.center,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted && !_afterImageLoaded) {
+                              setState(() {
+                                _afterImageLoaded = true;
+                              });
+                            }
+                          });
+                          return child;
+                        }
+                        return Container(color: Colors.transparent);
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey.shade300,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 32.h,
+                                color: Colors.grey.shade500,
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                'After image failed',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 10.h,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     )
-                  : Image.file(
+                  : widget.afterImageFile != null
+                  ? Image.file(
                       File(widget.afterImageFile!.path),
-                      width: widget.width,
-                      height: widget.height,
                       fit: BoxFit.cover,
-                    ),
+                      alignment: Alignment.center,
+                    )
+                  : Container(color: Colors.grey.shade300),
             ),
 
-            // Foreground image (Before)
             Positioned(
               left: 0,
               top: 0,
               width: widget.width * _sliderPosition,
               height: widget.height,
               child: ClipRect(
-                child: widget.beforeImage != null
-                    ? Image.network(
-                        widget.beforeImage!,
-                        width: widget.width,
-                        height: widget.height,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.centerLeft,
+                child:
+                    widget.beforeImage != null && widget.beforeImage!.isNotEmpty
+                    ? Stack(
+                        children: [
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            width: widget.width,
+                            height: widget.height,
+                            child: Image.network(
+                              widget.beforeImage!,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                              loadingBuilder:
+                                  (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            if (mounted &&
+                                                !_beforeImageLoaded) {
+                                              setState(() {
+                                                _beforeImageLoaded = true;
+                                              });
+                                            }
+                                          });
+                                      return child;
+                                    }
+                                    return Container(color: Colors.transparent);
+                                  },
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  width: widget.width,
+                                  height: widget.height,
+                                  color: Colors.grey.shade400,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.error_outline,
+                                        size: 24.h,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      Text(
+                                        'Before image failed',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 8.h,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       )
                     : widget.beforeImageFile != null
-                    ? Image.file(
-                        File(widget.beforeImageFile!.path),
-                        width: widget.width,
-                        height: widget.height,
-                        fit: BoxFit.cover,
-                        alignment: Alignment.centerLeft,
+                    ? Stack(
+                        children: [
+                          Positioned(
+                            left: 0,
+                            top: 0,
+                            width: widget.width,
+                            height: widget.height,
+                            child: Image.file(
+                              File(widget.beforeImageFile!.path),
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                            ),
+                          ),
+                        ],
                       )
                     : Container(),
               ),
             ),
 
-            // Divider line
-            Positioned(
-              left: (widget.width * _sliderPosition) - 1.25,
-              top: 0,
-              child: Container(
-                width: 2.5,
-                height: widget.height,
-                color: Colors.white70,
+            if (_beforeImageLoaded && _afterImageLoaded)
+              Positioned(
+                left: (widget.width * _sliderPosition) - 1.25,
+                top: 0,
+                child: Container(
+                  width: 1.5,
+                  height: widget.height,
+                  color: Colors.white,
+                  child: Container(
+                    margin: EdgeInsets.symmetric(vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 2,
+                          offset: Offset(0, 0),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
-            ),
 
-            // Handle
-            Positioned(
-              left: (widget.width * _sliderPosition) - 18.h,
-              top: (widget.height / 2) - 18.h,
-              child: Container(
-                width: 32.h,
-                height: 32.h,
-                padding: EdgeInsets.only(left: 4),
-                decoration: BoxDecoration(shape: BoxShape.circle),
-                child: Image.asset(AppImages.ArrowIcon),
+            if (_beforeImageLoaded && _afterImageLoaded)
+              Positioned(
+                left: (widget.width * _sliderPosition) - 15.h,
+                top: (widget.height / 2) - 15.h,
+                child: Center(
+                  child: Image.asset(
+                    AppImages.ArrowIcon,
+                    width: 28.h,
+                    height: 28.h,
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),

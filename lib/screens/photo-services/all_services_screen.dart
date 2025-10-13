@@ -5,8 +5,9 @@ import 'package:picpee_mobile/widgets/customer_drawer.dart';
 import 'package:picpee_mobile/widgets/header.dart';
 
 class AllServicesScreen extends StatefulWidget {
-  const AllServicesScreen({super.key, required this.title});
+  const AllServicesScreen({super.key, required this.title, required this.skillId});
   final String title;
+  final int skillId;
 
   @override
   State<AllServicesScreen> createState() => _AllServicesScreenState();
@@ -26,7 +27,7 @@ class _AllServicesScreenState extends State<AllServicesScreen> {
             left: 0,
             right: 0,
             bottom: 0,
-            child: AllServicesBody(title: widget.title),
+            child: AllServicesBody(title: widget.title, skillId: widget.skillId),
           ),
           // Header
           Positioned(top: 30.h, left: 16.w, right: 16.w, child: Header()),

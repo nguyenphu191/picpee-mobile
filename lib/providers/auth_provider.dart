@@ -1,34 +1,57 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:picpee_mobile/models/user_model.dart';
 import 'package:picpee_mobile/services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  final firebase_auth.FirebaseAuth _firebaseAuth =
+      firebase_auth.FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   User? _user;
   String? _token;
   bool _isLoading = false;
+
+  // Google user info from Firebase
+  String? _googleEmail;
+  String? _googleDisplayName;
+  String? _googlePhotoUrl;
+  String? _googleIdToken;
 
   User? get user => _user;
   String? get token => _token;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _token != null && _user != null;
 
-  /// Khởi tạo: load token + user từ storage
+  // Google user getters
+  String? get googleEmail => _googleEmail;
+  String? get googleDisplayName => _googleDisplayName;
+  String? get googlePhotoUrl => _googlePhotoUrl;
+
+  /// Initialize auth
   Future<void> initAuth() async {
     _token = await _authService.getToken();
     _user = await _authService.getUser();
     notifyListeners();
   }
 
-  /// Login
+  /// Regular login
   Future<void> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-
     try {
-      final user = await _authService.login(email, password);
-      _user = user;
+      final res = await _authService.login(email, password);
+      final status = res["status"];
+      if (status != "200") {
+        if (status == "401") {
+          throw Exception("Unauthorized: Incorrect email or password.");
+        } else {
+          throw Exception("Login failed with status code: $status");
+        }
+      }
+      _user = res["user"];
       _token = await _authService.getToken();
     } finally {
       _isLoading = false;
@@ -36,23 +59,88 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Login SSO
-  Future<void> loginSSO(String googleToken) async {
+  Future<bool> signInWithGoogleForRegistration() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final user = await _authService.loginSSO(googleToken);
+      // Google Sign-In
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
+      if (googleUser == null) {
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Lấy Google authentication
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      // Lưu thông tin từ Google
+      _googleEmail = googleUser.email;
+      _googleDisplayName = googleUser.displayName;
+      _googlePhotoUrl = googleUser.photoUrl;
+      _googleIdToken = googleAuth.idToken;
+
+      // In thông tin để debug
+      print("Google Email: $_googleEmail");
+      print("Google Name: $_googleDisplayName");
+      print("Google ID Token: ${_googleIdToken?.substring(0, 20)}...");
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print("Google sign-in error: $e");
+      _isLoading = false;
+      notifyListeners();
+      throw Exception("Google sign-in failed: $e");
+    }
+  }
+
+  /// Complete registration with Google + additional info
+  Future<void> registerWithGoogle({
+    required String firstname,
+    required String lastname,
+    required String businessName,
+    required String phone,
+    required String country,
+    required String timezone,
+  }) async {
+    if (_googleEmail == null || _googleIdToken == null) {
+      throw Exception("No Google authentication data available");
+    }
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Register with your backend using Google token + additional info
+      final user = await _authService.registerWithGoogle(
+        googleToken: _googleIdToken!,
+        email: _googleEmail!,
+        firstname: firstname,
+        lastname: lastname,
+        businessName: businessName,
+        phone: phone,
+        country: country,
+        timezone: timezone,
+      );
+
       _user = user;
       _token = await _authService.getToken();
+
+      // Clear Google temporary data
+      _clearGoogleData();
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Register
-  Future<void> register({
+  /// Regular registration
+  Future<String> register({
     required String email,
     required String password,
     required String firstname,
@@ -61,12 +149,16 @@ class AuthProvider with ChangeNotifier {
     required String phone,
     required String country,
     required String timezone,
+    required bool isReceiveNews,
+    required bool isTermService,
+    required String phoneCode,
+    required String countryCode,
   }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final user = await _authService.register(
+      final res = await _authService.register(
         email: email,
         password: password,
         firstname: firstname,
@@ -75,9 +167,39 @@ class AuthProvider with ChangeNotifier {
         phone: phone,
         country: country,
         timezone: timezone,
+        isReceiveNews: isReceiveNews,
+        isTermService: isTermService,
+        phoneCode: phoneCode,
+        countryCode: countryCode,
       );
-      _user = user;
+      final status = res["status"];
+      _user = res["user"];
       _token = await _authService.getToken();
+      return status;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> checkExistEmail(String email) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final exists = await _authService.checkEmailExists(email);
+      return exists;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> checkExistBusinessName(String businessName) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final exists = await _authService.checkBusinessNameExists(businessName);
+      return exists;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -87,8 +209,18 @@ class AuthProvider with ChangeNotifier {
   /// Logout
   Future<void> logout() async {
     await _authService.logout();
+    await _googleSignIn.signOut();
+    await _firebaseAuth.signOut();
     _user = null;
     _token = null;
+    _clearGoogleData();
     notifyListeners();
+  }
+
+  void _clearGoogleData() {
+    _googleEmail = null;
+    _googleDisplayName = null;
+    _googlePhotoUrl = null;
+    _googleIdToken = null;
   }
 }

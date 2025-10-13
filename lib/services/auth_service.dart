@@ -2,60 +2,47 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:picpee_mobile/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:picpee_mobile/core/utils/url.dart' show Url;
+import 'package:picpee_mobile/core/utils/encryption.dart' show EncryptionUtil;
 
 class AuthService {
-  final String baseUrl = "https://yourapi.com"; // đổi thành API backend của bạn
-
   /// Login với email + password
-  Future<User?> login(String email, String password) async {
-    final url = Uri.parse("$baseUrl/login");
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"email": email, "password": password}),
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final Map<String, dynamic> loginData = {
+      "username": email,
+      "password": password,
+    };
+    // Mã hóa
+    final jsonString = jsonEncode(
+      Map.fromEntries(
+        loginData.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
+      ),
     );
-
+    final encryptedPayload = EncryptionUtil.encryptString(jsonString);
+    final response = await http.post(
+      Uri.parse(Url.login),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"data": encryptedPayload}),
+    );
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final res = jsonDecode(response.body);
+      final data = res['data'];
       final token = data['token'];
-      final user = User.fromJson(data['data']);
-
+      final user = User.fromJson(data);
       await _saveToken(token);
       await _saveUser(user);
+      print("Token: ${token}");
 
-      return user;
+      return {"status": response.statusCode.toString(), "user": user};
     } else {
       throw Exception("Login failed: ${response.body}");
     }
   }
 
-  /// Login với Google SSO
-  Future<User?> loginSSO(String googleToken) async {
-    final url = Uri.parse("$baseUrl/login-sso");
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"googleToken": googleToken}),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final token = data['token'];
-      final user = User.fromJson(data['data']);
-
-      await _saveToken(token);
-      await _saveUser(user);
-
-      return user;
-    } else {
-      throw Exception("Login SSO failed: ${response.body}");
-    }
-  }
-
-  /// Register
-  Future<User?> register({
+  /// Đăng ký bằng Google và thông tin bổ sung
+  Future<User?> registerWithGoogle({
+    required String googleToken,
     required String email,
-    required String password,
     required String firstname,
     required String lastname,
     required String businessName,
@@ -63,13 +50,13 @@ class AuthService {
     required String country,
     required String timezone,
   }) async {
-    final url = Uri.parse("$baseUrl/register");
+    final url = Uri.parse("$Url/register-google");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
+        "googleToken": googleToken,
         "email": email,
-        "password": password,
         "firstname": firstname,
         "lastname": lastname,
         "businessName": businessName,
@@ -89,7 +76,96 @@ class AuthService {
 
       return user;
     } else {
+      throw Exception("Google registration failed: ${response.body}");
+    }
+  }
+
+  /// Register
+  Future<Map<String, dynamic>> register({
+    required String email,
+    required String password,
+    required String firstname,
+    required String lastname,
+    required String businessName,
+    required String phone,
+    required String phoneCode,
+    required String country,
+    required String timezone,
+    required String countryCode,
+    required bool isReceiveNews,
+    required bool isTermService,
+  }) async {
+    Map<String, dynamic> registerData = {
+      "username": email,
+      "password": password,
+      "firstname": firstname,
+      "lastname": lastname,
+      "businessName": businessName,
+      "phone": phone,
+      "phoneCode": phoneCode,
+      "countryName": country,
+      "timezone": timezone,
+      "isReceiveNews": isReceiveNews,
+      "isTermService": isTermService,
+      "role": "CUSTOMER",
+      "describesBusiness": "",
+      "describesSpecialty": "",
+      "descriptionCompany": "",
+      "avatar": "",
+      "registrationImages": [],
+      "teamSize": 1,
+      "type": "INDIVIDUAL",
+      "tokenWeb": "",
+      "countryCode": countryCode,
+    };
+    print("Register Data: $registerData");
+    final response = await http.post(
+      Uri.parse(Url.register),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(registerData),
+    );
+
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data'];
+      print("Register Response Data: $data");
+      final token = data['token'];
+      final user = User.fromJson(data);
+      await _saveToken(token);
+      await _saveUser(user);
+      return {"status": response.statusCode.toString(), "user": user};
+    } else if (response.statusCode == 201) {
+      return {
+        "status": response.statusCode.toString(),
+        "message": "Please verify your email",
+      };
+    } else {
       throw Exception("Register failed: ${response.body}");
+    }
+  }
+
+  Future<bool> checkEmailExists(String email) async {
+    final response = await http.post(
+      Uri.parse("${Url.checkExistEmail}/$email"),
+      headers: {"Content-Type": "application/json"},
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> checkBusinessNameExists(String businessName) async {
+    final response = await http.post(
+      Uri.parse(Url.checkExistBusinessName),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"businessName": businessName}),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 

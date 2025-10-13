@@ -4,6 +4,7 @@ import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/designer_model.dart';
 import 'package:picpee_mobile/models/skill_model.dart';
 import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
+import 'package:picpee_mobile/screens/photo-services/all_services_screen.dart';
 import 'package:picpee_mobile/widgets/before_after_card.dart';
 
 class FeaturedCard extends StatefulWidget {
@@ -439,7 +440,15 @@ class _FeaturedCardState extends State<FeaturedCard> {
                       ),
                       child: TextButton(
                         onPressed: () {
-                          // Navigate to projects list
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AllServicesScreen(
+                                skillId: currentSkill.skill!.id,
+                                title: currentSkill.skill!.name,
+                              ),
+                            ),
+                          );
                         },
                         child: Text(
                           'View More Projects',

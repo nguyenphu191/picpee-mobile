@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/designer_model.dart';
 import 'package:picpee_mobile/models/service_model.dart';
-import 'package:picpee_mobile/screens/photo-services/vendor_service_screen.dart';
+import 'package:picpee_mobile/screens/photo-services/portfolio_screen.dart';
 import 'package:picpee_mobile/widgets/one_service_card.dart';
 
 class TopServiceCard extends StatefulWidget {
@@ -107,7 +107,8 @@ class _TopServiceCardState extends State<TopServiceCard> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => VendorServiceScreen(),
+                          builder: (context) =>
+                              PortfolioScreen(vendorId: designer.userId),
                         ),
                       );
                     },

@@ -236,6 +236,8 @@ class _HomeBodyState extends State<HomeBody> {
                         MaterialPageRoute(
                           builder: (context) => AllServicesScreen(
                             title: "Blanded Brackets (HDR)",
+                            skillId:
+                                skillProvider.hdrTopDesigner!.skill?.id ?? 0,
                           ),
                         ),
                       );
@@ -249,8 +251,11 @@ class _HomeBodyState extends State<HomeBody> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              AllServicesScreen(title: "Virtual Staging"),
+                          builder: (context) => AllServicesScreen(
+                            title: "Virtual Staging",
+                            skillId:
+                                skillProvider.vhsTopDesigner!.skill?.id ?? 0,
+                          ),
                         ),
                       );
                     },
@@ -263,8 +268,12 @@ class _HomeBodyState extends State<HomeBody> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              AllServicesScreen(title: "Property Video"),
+                          builder: (context) => AllServicesScreen(
+                            title: "Property Video",
+                            skillId:
+                                skillProvider.propertyTopDesigner!.skill?.id ??
+                                0,
+                          ),
                         ),
                       );
                     },
@@ -279,8 +288,12 @@ class _HomeBodyState extends State<HomeBody> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              AllServicesScreen(title: "Room Cleaning"),
+                          builder: (context) => AllServicesScreen(
+                            title: "Room Cleaning",
+                            skillId:
+                                skillProvider.cleaningTopDesigner!.skill?.id ??
+                                0,
+                          ),
                         ),
                       );
                     },
@@ -293,8 +306,11 @@ class _HomeBodyState extends State<HomeBody> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              AllServicesScreen(title: "Day To Duck"),
+                          builder: (context) => AllServicesScreen(
+                            title: "Day To Duck",
+                            skillId:
+                                skillProvider.dtdTopDesigner!.skill?.id ?? 0,
+                          ),
                         ),
                       );
                     },

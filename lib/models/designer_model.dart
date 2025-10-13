@@ -11,6 +11,7 @@ class DesignerModel {
   final String businessName;
   final String avatar;
   final String countryCode;
+  final String countryName;
   final String statusUser;
   final String statusReceiveOrder;
   final String imageFlag;
@@ -27,6 +28,7 @@ class DesignerModel {
   final int totalFavorite;
   final bool statusFavorite;
   final bool verified;
+  final String timezone;
 
   DesignerModel({
     required this.userId,
@@ -53,6 +55,8 @@ class DesignerModel {
     required this.totalFavorite,
     required this.statusFavorite,
     required this.verified,
+    required this.timezone,
+    required this.countryName,
   });
 
   factory DesignerModel.fromJson(Map<String, dynamic> json) {
@@ -75,12 +79,17 @@ class DesignerModel {
       turnaroundTime: json['turnaroundTime'] ?? 0,
       cost: (json['cost'] as num?)?.toDouble() ?? 0.0,
       imageSkill: json['imageSkill'] ?? '',
-      ratingPoint: (json['ratingPoint'] as num?)?.toDouble() ?? 0.0,
-      totalReview: json['totalReview'] ?? 0,
+      ratingPoint:
+          (json['ratingPoint'] as num?)?.toDouble() ??
+          (json['rating'] as num?)?.toDouble() ??
+          0.0,
+      totalReview: json['totalReview'] ?? json['numberReview'] ?? 0,
       userSkillId: json['userSkillId'] ?? 0,
-      totalFavorite: json['totalFavorite'] ?? 0,
+      totalFavorite: json['totalFavorite'] ?? json['numberLike'] ?? 0,
       statusFavorite: json['statusFavorite'] ?? false,
       verified: json['verified'] ?? false,
+      timezone: json['timezone'] ?? '',
+      countryName: json['countryName'] ?? '',
     );
   }
 
@@ -111,6 +120,65 @@ class DesignerModel {
       'statusFavorite': statusFavorite,
       'verified': verified,
     };
+  }
+
+  //copy model
+  DesignerModel copyWith({
+    int? userId,
+    String? code,
+    String? lastname,
+    String? firstname,
+    String? email,
+    String? businessName,
+    String? avatar,
+    String? countryCode,
+    String? statusUser,
+    String? statusReceiveOrder,
+    String? imageFlag,
+    String? imageCover,
+    int? skillId,
+    String? skillName,
+    String? category,
+    int? turnaroundTime,
+    double? cost,
+    String? imageSkill,
+    double? ratingPoint,
+    int? totalReview,
+    int? userSkillId,
+    int? totalFavorite,
+    bool? statusFavorite,
+    bool? verified,
+    String? timezone,
+    String? countryName,
+  }) {
+    return DesignerModel(
+      userId: userId ?? this.userId,
+      code: code ?? this.code,
+      lastname: lastname ?? this.lastname,
+      firstname: firstname ?? this.firstname,
+      email: email ?? this.email,
+      businessName: businessName ?? this.businessName,
+      avatar: avatar ?? this.avatar,
+      countryCode: countryCode ?? this.countryCode,
+      statusUser: statusUser ?? this.statusUser,
+      statusReceiveOrder: statusReceiveOrder ?? this.statusReceiveOrder,
+      imageFlag: imageFlag ?? this.imageFlag,
+      imageCover: imageCover ?? this.imageCover,
+      skillId: skillId ?? this.skillId,
+      skillName: skillName ?? this.skillName,
+      category: category ?? this.category,
+      turnaroundTime: turnaroundTime ?? this.turnaroundTime,
+      cost: cost ?? this.cost,
+      imageSkill: imageSkill ?? this.imageSkill,
+      ratingPoint: ratingPoint ?? this.ratingPoint,
+      totalReview: totalReview ?? this.totalReview,
+      userSkillId: userSkillId ?? this.userSkillId,
+      totalFavorite: totalFavorite ?? this.totalFavorite,
+      statusFavorite: statusFavorite ?? this.statusFavorite,
+      verified: verified ?? this.verified,
+      timezone: timezone ?? this.timezone,
+      countryName: countryName ?? this.countryName,
+    );
   }
 
   String getStatusReceiveOrder() {

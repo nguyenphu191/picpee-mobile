@@ -9,6 +9,11 @@ class Url {
       "$baseUrl/login/check-exist-business";
   static const String getTopDesignBySkill =
       "$baseUrl/user/get-top-designer-by-skill-category";
+  static const String getAllVendorForSkill =
+      "$baseUrl/user/filter-designer-in-market";
   static const String getAllSkillOfVendor = "$baseUrl/user/portfolio";
   static const String getTopBusiness = "$baseUrl/user/get-verified-designer";
+  static const String getReviewOfVendor = "$baseUrl/user-review/filter";
+  static const String addFavoriteDesigner =
+      "$baseUrl/user-favorite/add-designer-favorite";
 }

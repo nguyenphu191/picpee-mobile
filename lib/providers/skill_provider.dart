@@ -125,6 +125,7 @@ class SkillProvider with ChangeNotifier {
   Future<bool> fetchTopDesignersBySkill() async {
     print("Fetching top designers by skill...");
     setLoading(true);
+
     try {
       final result = await _skillService.getTopDesignersBySkillCategory();
       HDRTopDesigner = result["HDR"];
@@ -171,6 +172,7 @@ class SkillProvider with ChangeNotifier {
   Future<bool> fetchSkillsOfVendor(int vendorId) async {
     print("Fetching skills of vendor with ID: $vendorId");
     setLoading(true);
+    skillsOfVendor = [];
     try {
       final result = await _skillService.getSkillsOfVendor(vendorId);
       skillsOfVendor = result;

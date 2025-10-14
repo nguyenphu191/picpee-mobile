@@ -16,6 +16,17 @@ class OneServiceCard extends StatelessWidget {
     this.isDuck = false,
   });
 
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -42,7 +53,7 @@ class OneServiceCard extends StatelessWidget {
                 height: 240.h,
                 width: double.infinity,
                 child: Image.network(
-                  designer.imageCover,
+                  designer.imageCover.trim(),
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) {
@@ -158,7 +169,7 @@ class OneServiceCard extends StatelessWidget {
                                     if (designer.avatar.isNotEmpty)
                                       ClipOval(
                                         child: Image.network(
-                                          designer.avatar,
+                                          designer.avatar.trim(),
                                           width: 45.h,
                                           height: 45.h,
                                           fit: BoxFit.cover,
@@ -220,9 +231,7 @@ class OneServiceCard extends StatelessWidget {
                                   ],
                                 ),
                               ),
-
                               SizedBox(width: 12.w),
-
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +253,7 @@ class OneServiceCard extends StatelessWidget {
                                         ),
                                         SizedBox(width: 16.h),
                                         Image.network(
-                                          designer.imageFlag,
+                                          designer.imageFlag.trim(),
                                           height: 16.h,
                                           fit: BoxFit.cover,
                                           errorBuilder:
@@ -266,9 +275,7 @@ class OneServiceCard extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-
                                     SizedBox(height: 4.w),
-
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -344,9 +351,7 @@ class OneServiceCard extends StatelessWidget {
                             ],
                           ),
                         ),
-
                         SizedBox(height: 10.h),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -382,7 +387,6 @@ class OneServiceCard extends StatelessWidget {
                               width: 1,
                               color: !this.isDuck ? Colors.white : Colors.black,
                             ),
-
                             Container(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -398,7 +402,7 @@ class OneServiceCard extends StatelessWidget {
                                   ),
                                   SizedBox(height: 2.h),
                                   Text(
-                                    designer.cost.toString(),
+                                    "\$${_formatPrice(designer.cost)}",
                                     style: TextStyle(
                                       color: !this.isDuck
                                           ? Colors.white

@@ -25,28 +25,28 @@ class SkillService {
     if (response.statusCode == 200) {
       final res = jsonDecode(response.body);
       final data = res['data'];
-
-      SkillModel HDRTopDesigner = SkillModel.fromJson(data[1]);
-      SkillModel VHSTopDesigner = SkillModel.fromJson(data[4]);
-      SkillModel PropertyTopDesigner = SkillModel.fromJson(data[18]);
-      SkillModel CleaningTopDesigner = SkillModel.fromJson(data[10]);
-      SkillModel DTDTopDesigner = SkillModel.fromJson(data[7]);
+      print("Top Designers Data: ${data.length} items");
       SkillModel SingleTopDesigner = SkillModel.fromJson(data[0]);
+      SkillModel HDRTopDesigner = SkillModel.fromJson(data[1]);
       SkillModel FlamTopDesigner = SkillModel.fromJson(data[2]);
       SkillModel I360ETopDesigner = SkillModel.fromJson(data[3]);
+      SkillModel VHSTopDesigner = SkillModel.fromJson(data[4]);
       SkillModel RemoveTopDesigner = SkillModel.fromJson(data[5]);
       SkillModel I360TopDesigner = SkillModel.fromJson(data[6]);
+      SkillModel DTDTopDesigner = SkillModel.fromJson(data[7]);
       SkillModel TWTopDesigner = SkillModel.fromJson(data[8]);
       SkillModel RemoveItemTopDesigner = SkillModel.fromJson(data[9]);
+      SkillModel CleaningTopDesigner = SkillModel.fromJson(data[10]);
       SkillModel ChangeSeasonTopDesigner = SkillModel.fromJson(data[11]);
       SkillModel WaterTopDesigner = SkillModel.fromJson(data[12]);
       SkillModel LawnTopDesigner = SkillModel.fromJson(data[13]);
-      SkillModel RainTopDesigner = SkillModel.fromJson(data[15]);
-      SkillModel Cus2DTopDesigner = SkillModel.fromJson(data[16]);
-      SkillModel Cus3DTopDesigner = SkillModel.fromJson(data[17]);
+      SkillModel RainTopDesigner = SkillModel.fromJson(data[14]);
+      SkillModel Cus2DTopDesigner = SkillModel.fromJson(data[15]);
+      SkillModel Cus3DTopDesigner = SkillModel.fromJson(data[16]);
+      SkillModel PropertyTopDesigner = SkillModel.fromJson(data[17]);
       SkillModel WalkthroughTopDesigner = SkillModel.fromJson(data[18]);
       SkillModel ReelsTopDesigner = SkillModel.fromJson(data[19]);
-      SkillModel SlideTopDesigner = SkillModel.fromJson(data[21]);
+      SkillModel SlideTopDesigner = SkillModel.fromJson(data[20]);
       SkillModel IndividualTopDesigner = SkillModel.fromJson(data[21]);
       SkillModel TeamTopDesigner = SkillModel.fromJson(data[22]);
       SkillModel AddPersonTopDesigner = SkillModel.fromJson(data[23]);
@@ -142,6 +142,4 @@ class SkillService {
       );
     }
   }
-
-  
 }

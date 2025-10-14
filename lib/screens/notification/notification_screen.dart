@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picpee_mobile/core/utils/noti_data.dart';
+import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/notification_model.dart';
+import 'package:picpee_mobile/providers/notification_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class NotificationScreen extends StatefulWidget {
@@ -14,12 +16,14 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<NotificationModel> notifications = List.from(notificationsData);
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      fetchNotifications();
+    });
   }
 
   @override
@@ -28,94 +32,193 @@ class _NotificationScreenState extends State<NotificationScreen>
     super.dispose();
   }
 
-  int get unreadCount => notifications.where((n) => !n.isRead).length;
+  Future<void> fetchNotifications() async {
+    final _notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    );
+    final success = await _notificationProvider.fetchNotifications();
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load notifications'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
-  void markAllAsRead() {
-    setState(() {
-      for (var notification in notifications) {
-        notification.isRead = true;
-      }
-    });
+  Future<void> markAllAsRead() async {
+    final _notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    );
+    final success = await _notificationProvider.markAllAsRead();
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to mark all as read'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> markAsRead(int notificationId) async {
+    final _notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    );
+    final success = await _notificationProvider.markAsRead(notificationId);
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to mark as read'),
+          duration: Duration(seconds: 2),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          'Notifications',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20.h,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: markAllAsRead,
-            child: Row(
-              children: [
-                Text(
-                  'Mark all as read',
-                  style: TextStyle(color: Colors.grey[600], fontSize: 14.h),
+    return Consumer<NotificationProvider>(
+      builder: (context, notiProvider, child) {
+        List<NotificationModel> notifications = notiProvider.notifications;
+        int unreadCount = notiProvider.unReadCount;
+
+        return Scaffold(
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            title: Text(
+              'Notifications',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 20.h,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: markAllAsRead,
+                child: Row(
+                  children: [
+                    Text(
+                      'Mark all',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 14.h),
+                    ),
+                    SizedBox(width: 4.w),
+                    Icon(
+                      Icons.check_circle_outline,
+                      color: Colors.grey[600],
+                      size: 16.h,
+                    ),
+                  ],
                 ),
-                SizedBox(width: 4.w),
-                Icon(
-                  Icons.check_circle_outline,
-                  color: Colors.grey[600],
-                  size: 16.h,
-                ),
+              ),
+            ],
+            bottom: TabBar(
+              controller: _tabController,
+              indicatorColor: Colors.black,
+              labelColor: Colors.black,
+              unselectedLabelColor: Colors.grey,
+              labelStyle: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14.h,
+              ),
+              tabs: [
+                Tab(text: 'All'),
+                Tab(text: 'Unread ($unreadCount)'),
               ],
             ),
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.black,
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.grey,
-          labelStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.h),
-          tabs: [
-            Tab(text: 'All'),
-            Tab(text: 'Unread ($unreadCount)'),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // All notifications
-          _buildNotificationList(notifications),
+          body: RefreshIndicator(
+            onRefresh: () => fetchNotifications(),
+            child: Stack(
+              children: [
+                TabBarView(
+                  controller: _tabController,
+                  children: [
+                    // All notifications
+                    _buildNotificationList(notifications),
 
-          // Unread notifications
-          _buildNotificationList(
-            notifications.where((n) => !n.isRead).toList(),
+                    // Unread notifications
+                    _buildNotificationList(
+                      notifications.where((n) => !n.isRead).toList(),
+                    ),
+                  ],
+                ),
+                if (notiProvider.isLoading)
+                  Container(color: Colors.black.withOpacity(0.3)),
+                if (notiProvider.isLoading)
+                  Center(
+                    child: Container(
+                      padding: EdgeInsets.all(20.h),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 10.r,
+                            offset: Offset(0, 5.h),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(
+                            color: AppColors.buttonGreen,
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            "Loading...",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
   Widget _buildNotificationList(List<NotificationModel> notificationList) {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      itemCount: notificationList.length,
-      itemBuilder: (context, index) {
-        final notification = notificationList[index];
-        return NotificationItem(
-          notification: notification,
-          onTap: () {
-            setState(() {
-              notification.isRead = true;
-            });
-            // Navigate to order details or relevant screen
-          },
-        );
-      },
-    );
+    return notificationList.isEmpty
+        ? Center(
+            child: Text(
+              "No notifications",
+              style: TextStyle(fontSize: 16.h, color: Colors.grey),
+            ),
+          )
+        : ListView.builder(
+            padding: EdgeInsets.symmetric(vertical: 8.h),
+            itemCount: notificationList.length,
+            itemBuilder: (context, index) {
+              final notification = notificationList[index];
+              return NotificationItem(
+                notification: notification,
+                onTap: () {
+                  if (!notification.isRead) {
+                    markAsRead(notification.id);
+                  }
+                },
+              );
+            },
+          );
   }
 }
 
@@ -147,7 +250,7 @@ class NotificationItem extends StatelessWidget {
             // Avatar
             CircleAvatar(
               radius: 20.h,
-              backgroundImage: NetworkImage(notification.avatarUrl),
+              backgroundImage: NetworkImage(notification.sender.avatar.trim()),
             ),
             SizedBox(width: 12.w),
 
@@ -183,7 +286,7 @@ class NotificationItem extends StatelessWidget {
                   ),
                   SizedBox(height: 6.h),
                   Text(
-                    notification.message,
+                    notification.text,
                     style: TextStyle(
                       fontSize: 13.h,
                       color: Colors.grey[700],
@@ -192,7 +295,7 @@ class NotificationItem extends StatelessWidget {
                   ),
                   SizedBox(height: 8.h),
                   Text(
-                    timeago.format(notification.timestamp),
+                    timeago.format(notification.createdTime).substring(6),
                     style: TextStyle(fontSize: 12.h, color: Colors.grey),
                   ),
                 ],

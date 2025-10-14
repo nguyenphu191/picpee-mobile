@@ -234,7 +234,7 @@ class _BeforeAfterCardState extends State<BeforeAfterCard> {
                                   borderRadius: BorderRadius.circular(12),
                                   child: singleImage.isNotEmpty
                                       ? Image.network(
-                                          singleImage,
+                                          singleImage.trim(),
                                           width: imageWidth,
                                           height: height,
                                           fit: BoxFit.cover,
@@ -566,7 +566,7 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
             Positioned.fill(
               child: widget.afterImage != null && widget.afterImage!.isNotEmpty
                   ? Image.network(
-                      widget.afterImage!,
+                      widget.afterImage!.trim(),
                       fit: BoxFit.cover,
                       alignment: Alignment.center,
                       loadingBuilder: (context, child, loadingProgress) {
@@ -631,7 +631,7 @@ class _CustomBeforeAfterSliderState extends State<CustomBeforeAfterSlider> {
                             width: widget.width,
                             height: widget.height,
                             child: Image.network(
-                              widget.beforeImage!,
+                              widget.beforeImage!.trim(),
                               fit: BoxFit.cover,
                               alignment: Alignment.center,
                               loadingBuilder:

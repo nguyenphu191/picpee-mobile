@@ -4,17 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/models/user_model.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
+import 'package:provider/provider.dart';
 import 'profile_widget/avatar_section_widget.dart';
 import 'profile_widget/custom_text_field.dart';
 import 'profile_widget/password_field_widget.dart';
-import 'profile_widget/custom_dropdown_field.dart';
 import 'profile_widget/image_picker_options_dialog.dart';
 import 'profile_widget/delete_account_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
-  ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -24,22 +26,23 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ImagePicker _picker = ImagePicker();
+
+  // Country objects for different purposes
+  Country? selectedPhoneCountry;
   Country? selectedCountry;
+  Country? selectedTimezoneCountry;
 
   // Avatar image
   File? _avatarImage;
-  String _avatarInitial = 'L'; // Default initial
 
   // Form controllers
-  final _firstNameController = TextEditingController(text: 'Lucas');
-  final _lastNameController = TextEditingController(text: 'Taylor');
-  final _businessNameController = TextEditingController(text: 'Lucas Taylor');
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _businessNameController = TextEditingController();
   final _companyDescriptionController = TextEditingController();
-  final _teamSizeController = TextEditingController(text: '0');
-  final _emailController = TextEditingController(
-    text: 'lucastaylor23@gmail.com',
-  );
-  final _phoneController = TextEditingController(text: '547539853');
+  final _teamSizeController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
 
   // Password controllers
   final _oldPasswordController = TextEditingController();
@@ -51,23 +54,52 @@ class _ProfileScreenState extends State<ProfileScreen>
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
 
-  String _selectedCountry = 'American';
-  String _selectedTimezone = 'America/Adak';
-
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-
-    // Listen to first name changes to update avatar initial
-    _firstNameController.addListener(_updateAvatarInitial);
+    setData();
   }
 
-  void _updateAvatarInitial() {
+  void setData() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    User user = authProvider.user!;
+
     setState(() {
-      _avatarInitial = _firstNameController.text.isNotEmpty
-          ? _firstNameController.text[0].toUpperCase()
-          : 'L';
+      _firstNameController.text = user.firstname ?? '';
+      _lastNameController.text = user.lastname ?? '';
+      _businessNameController.text = user.businessName ?? '';
+      _companyDescriptionController.text = user.descriptionCompany ?? '';
+      _teamSizeController.text = (user.teamSize ?? 0).toString();
+      _emailController.text = user.email ?? '';
+      _phoneController.text = user.phone ?? '';
+
+      // Set phone country from countryCode
+      if (user.countryCode != null && user.countryCode!.isNotEmpty) {
+        try {
+          selectedPhoneCountry = Country.tryParse(user.countryCode!);
+        } catch (e) {
+          selectedPhoneCountry = null;
+        }
+      }
+
+      // Set country from countryName
+      if (user.countryName != null && user.countryName!.isNotEmpty) {
+        try {
+          selectedCountry = Country.tryParse(user.countryName!);
+        } catch (e) {
+          selectedCountry = null;
+        }
+      }
+
+      // Set timezone country from timezone string
+      if (user.timezone != null && user.timezone!.isNotEmpty) {
+        try {
+          selectedTimezoneCountry = Country.tryParse(user.timezone!);
+        } catch (e) {
+          selectedTimezoneCountry = null;
+        }
+      }
     });
   }
 
@@ -112,7 +144,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           _avatarImage = File(image.path);
         });
 
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Profile picture updated successfully!'),
@@ -126,7 +157,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
       }
     } catch (e) {
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to select image. Please try again.'),
@@ -158,172 +188,191 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xffFE8ECEF),
-      drawer: const SideBar(selectedIndex: 1),
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              margin: EdgeInsets.only(
-                top: 95.h,
-                left: 16.h,
-                right: 16.h,
-                bottom: 16.h,
-              ),
-              padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.all(Radius.circular(16)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        final user = authProvider.user;
+        return Scaffold(
+          backgroundColor: Color(0xffFE8ECEF),
+          drawer: const SideBar(selectedIndex: 1),
+          body: Stack(
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  margin: EdgeInsets.only(
+                    top: 95.h,
+                    left: 16.h,
+                    right: 16.h,
+                    bottom: 16.h,
                   ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  // Tab Bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Container(
-                      decoration: const BoxDecoration(color: Colors.white),
-                      child: TabBar(
-                        controller: _tabController,
-                        indicator: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: AppColors.buttonGreen,
-                            width: 1.5,
-                          ),
-                        ),
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        dividerColor: Colors.transparent,
-                        labelColor: Colors.black,
-                        unselectedLabelColor: Colors.grey[600],
-                        labelStyle: TextStyle(
-                          fontSize: 14.h,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        tabs: [
-                          Tab(
-                            child: Container(
-                              decoration: BoxDecoration(),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.person_outline, size: 20.h),
-                                  SizedBox(width: 6.w),
-                                  Text(
-                                    "Profile",
-                                    style: TextStyle(
-                                      fontSize: 14.h,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ],
+                  padding: EdgeInsets.symmetric(
+                    vertical: 16.h,
+                    horizontal: 12.w,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Tab Bar
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          decoration: const BoxDecoration(color: Colors.white),
+                          child: TabBar(
+                            controller: _tabController,
+                            indicator: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.buttonGreen,
+                                width: 1.5,
                               ),
                             ),
-                          ),
-                          Tab(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.lock_outline, size: 20.h),
-                                SizedBox(width: 6.w),
-                                Text(
-                                  "Password",
-                                  style: TextStyle(
-                                    fontSize: 14.h,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            dividerColor: Colors.transparent,
+                            labelColor: Colors.black,
+                            unselectedLabelColor: Colors.grey[600],
+                            labelStyle: TextStyle(
+                              fontSize: 14.h,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            tabs: [
+                              Tab(
+                                child: Container(
+                                  decoration: BoxDecoration(),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.person_outline, size: 20.h),
+                                      SizedBox(width: 6.w),
+                                      Text(
+                                        "Profile",
+                                        style: TextStyle(
+                                          fontSize: 14.h,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 10.h),
-
-                  // Delete account button
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: InkWell(
-                        onTap: () {
-                          _showDeleteAccountDialog();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 8.h,
-                            horizontal: 12.w,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: Colors.red, width: 1.5),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.close, color: Colors.red, size: 20.h),
-                              SizedBox(width: 6.w),
-                              Text(
-                                "Delete account",
-                                style: TextStyle(
-                                  fontSize: 14.h,
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500,
+                              ),
+                              Tab(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.lock_outline, size: 20.h),
+                                    SizedBox(width: 6.w),
+                                    Text(
+                                      "Password",
+                                      style: TextStyle(
+                                        fontSize: 14.h,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 16.h),
-                  Container(
-                    height: MediaQuery.of(context).size.height - 285.h,
-                    color: Colors.white,
-                    child: TabBarView(
-                      controller: _tabController,
-                      children: [_buildProfileTab(), _buildPasswordTab()],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
 
-          Positioned(top: 0, left: 0, right: 0, child: ProfileHeader()),
-        ],
-      ),
+                      SizedBox(height: 10.h),
+
+                      // Delete account button
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: InkWell(
+                            onTap: () {
+                              _showDeleteAccountDialog();
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 8.h,
+                                horizontal: 12.w,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: Colors.red,
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.close,
+                                    color: Colors.red,
+                                    size: 20.h,
+                                  ),
+                                  SizedBox(width: 6.w),
+                                  Text(
+                                    "Delete account",
+                                    style: TextStyle(
+                                      fontSize: 14.h,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      Container(
+                        height: MediaQuery.of(context).size.height - 285.h,
+                        color: Colors.white,
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            _buildProfileTab(user!),
+                            _buildPasswordTab(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Positioned(top: 0, left: 0, right: 0, child: ProfileHeader()),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildProfileTab() {
+  Widget _buildProfileTab(User user) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Avatar Section
           AvatarSectionWidget(
+            avatar: user.avatar ?? '',
             avatarImage: _avatarImage,
-            avatarInitial: _avatarInitial,
             onImagePickerTap: _showImagePickerOptions,
+            name: user.businessName ?? "",
           ),
 
           SizedBox(height: 32.h),
@@ -366,6 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SizedBox(height: 16.h),
 
+          // Phone number with country picker
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -392,8 +442,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           onSelect: (Country country) {
                             setState(() {
-                              selectedCountry = country;
-                              _phoneController.text = '+${country.phoneCode}';
+                              selectedPhoneCountry = country;
+                              // Option: auto-fill phone code
+                              // _phoneController.text = '+${country.phoneCode}';
                             });
                           },
                         );
@@ -406,8 +457,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                         child: Row(
                           children: [
                             Text(
-                              selectedCountry?.flagEmoji ?? '🌐',
+                              selectedPhoneCountry?.flagEmoji ?? '🌐',
                               style: TextStyle(fontSize: 20.h),
+                            ),
+                            SizedBox(width: 4.w),
+                            Text(
+                              selectedPhoneCountry != null
+                                  ? '+${selectedPhoneCountry!.phoneCode}'
+                                  : '',
+                              style: TextStyle(
+                                fontSize: 14.h,
+                                color: Colors.black87,
+                              ),
                             ),
                             SizedBox(width: 4.w),
                             Icon(
@@ -424,7 +485,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       child: TextField(
                         controller: _phoneController,
                         decoration: InputDecoration(
-                          hintText: '+1 547539853',
+                          hintText: 'Phone number',
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.symmetric(vertical: 8.h),
                         ),
@@ -435,29 +496,143 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ],
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 16.h),
 
-          CustomDropdownField(
-            label: 'Country',
-            value: _selectedCountry,
-            items: ['American', 'Canadian', 'British'],
-            onChanged: (String? newValue) {
-              setState(() {
-                _selectedCountry = newValue!;
-              });
-            },
+          // Country picker
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Country',
+                style: TextStyle(
+                  fontSize: 14.h,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              InkWell(
+                onTap: () {
+                  showCountryPicker(
+                    context: context,
+                    showPhoneCode: false,
+                    countryListTheme: CountryListThemeData(
+                      bottomSheetHeight: 500,
+                    ),
+                    onSelect: (Country country) {
+                      setState(() {
+                        selectedCountry = country;
+                      });
+                    },
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 14.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey, width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            selectedCountry?.flagEmoji ?? '🌐',
+                            style: TextStyle(fontSize: 20.h),
+                          ),
+                          SizedBox(width: 12.w),
+                          Text(
+                            selectedCountry?.name ?? 'Select country',
+                            style: TextStyle(
+                              fontSize: 14.h,
+                              color: selectedCountry != null
+                                  ? Colors.black
+                                  : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 16.h),
 
-          CustomDropdownField(
-            label: 'Timezone',
-            value: _selectedTimezone,
-            items: ['America/Adak', 'America/New_York', 'America/Chicago'],
-            onChanged: (String? newValue) {
-              setState(() {
-                _selectedTimezone = newValue!;
-              });
-            },
+          // Timezone picker (stored as countryCode, displayed as timezone)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Timezone',
+                style: TextStyle(
+                  fontSize: 14.h,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(height: 8.h),
+              InkWell(
+                onTap: () {
+                  showCountryPicker(
+                    context: context,
+                    showPhoneCode: false,
+                    countryListTheme: CountryListThemeData(
+                      bottomSheetHeight: 500,
+                    ),
+                    onSelect: (Country country) {
+                      setState(() {
+                        selectedTimezoneCountry = country;
+                      });
+                    },
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 14.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey, width: 1.5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            selectedTimezoneCountry?.flagEmoji ?? '🌐',
+                            style: TextStyle(fontSize: 20.h),
+                          ),
+                          SizedBox(width: 12.w),
+                          Text(
+                            selectedTimezoneCountry != null
+                                ? '${selectedTimezoneCountry!.name} (${selectedTimezoneCountry!.countryCode})'
+                                : 'Select timezone',
+                            style: TextStyle(
+                              fontSize: 14.h,
+                              color: selectedTimezoneCountry != null
+                                  ? Colors.black
+                                  : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 32.h),
 
@@ -465,10 +640,21 @@ class _ProfileScreenState extends State<ProfileScreen>
             children: [
               Expanded(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // TODO: Implement save logic
+                    // Save countryCode from selectedTimezoneCountry
+                    String? timezoneCode = selectedTimezoneCountry?.countryCode;
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Profile saved successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[300],
-                    foregroundColor: Colors.white,
+                    backgroundColor: AppColors.buttonGreen,
+                    foregroundColor: Colors.black,
                     padding: EdgeInsets.symmetric(
                       vertical: 16.h,
                       horizontal: 16.w,
@@ -482,7 +668,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                     style: TextStyle(
                       fontSize: 14.h,
                       fontWeight: FontWeight.w600,
-                      color: Colors.grey[800],
                     ),
                   ),
                 ),
@@ -490,7 +675,15 @@ class _ProfileScreenState extends State<ProfileScreen>
               SizedBox(width: 16),
               Expanded(
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setData();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Changes cancelled'),
+                        backgroundColor: Colors.grey,
+                      ),
+                    );
+                  },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.grey[300]!, width: 1.5),
                     padding: EdgeInsets.symmetric(
@@ -576,7 +769,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SizedBox(height: 16.h),
 
-          // Confirm New Password
           Text(
             'Confirm new password',
             style: TextStyle(
@@ -601,14 +793,58 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           SizedBox(height: 32.h),
 
-          // Buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
                 width: 126.w,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    String oldPassword = _oldPasswordController.text;
+                    String newPassword = _newPasswordController.text;
+                    String confirmPassword = _confirmPasswordController.text;
+
+                    if (oldPassword.isEmpty ||
+                        newPassword.isEmpty ||
+                        confirmPassword.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please fill all fields'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (newPassword != confirmPassword) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Passwords do not match'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (newPassword.length < 8) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Password must be at least 8 characters',
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Password changed successfully!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonGreen,
                     foregroundColor: Colors.white,
@@ -634,7 +870,18 @@ class _ProfileScreenState extends State<ProfileScreen>
                 width: 126.w,
                 color: Colors.grey[200],
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _oldPasswordController.clear();
+                    _newPasswordController.clear();
+                    _confirmPasswordController.clear();
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Changes cancelled'),
+                        backgroundColor: Colors.grey,
+                      ),
+                    );
+                  },
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(color: Colors.grey[300]!, width: 1.5),
                     padding: EdgeInsets.symmetric(
@@ -662,12 +909,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Show delete account confirmation dialog
   void _showDeleteAccountDialog() {
     DeleteAccountDialog.show(
       context: context,
       onConfirmDelete: () {
-        // Handle delete account logic here
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Account deletion requested'),

@@ -4,14 +4,16 @@ import 'dart:io';
 
 class AvatarSectionWidget extends StatelessWidget {
   final File? avatarImage;
-  final String avatarInitial;
+  final String avatar;
   final VoidCallback onImagePickerTap;
+  final String name;
 
   const AvatarSectionWidget({
     Key? key,
+    required this.avatar,
     required this.avatarImage,
-    required this.avatarInitial,
     required this.onImagePickerTap,
+    required this.name,
   }) : super(key: key);
 
   @override
@@ -36,7 +38,9 @@ class AvatarSectionWidget extends StatelessWidget {
               height: 80.h,
               width: 80.h,
               decoration: BoxDecoration(
-                color: avatarImage == null ? Colors.lightGreen : null,
+                color: (avatarImage == null && avatar == "")
+                    ? Colors.lightGreen
+                    : null,
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(color: Colors.grey.shade300, width: 2),
               ),
@@ -50,9 +54,34 @@ class AvatarSectionWidget extends StatelessWidget {
                         height: 80.h,
                       ),
                     )
+                  : avatar != ""
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.network(
+                        avatar.trim(),
+                        fit: BoxFit.cover,
+                        width: 80.h,
+                        height: 80.h,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) {
+                            return child;
+                          } else {
+                            return Center(
+                              child: CircularProgressIndicator(
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    )
                   : Center(
                       child: Text(
-                        avatarInitial,
+                        name.substring(0, 1).toUpperCase(),
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 28.h,

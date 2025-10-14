@@ -16,4 +16,12 @@ class Url {
   static const String getReviewOfVendor = "$baseUrl/user-review/filter";
   static const String addFavoriteDesigner =
       "$baseUrl/user-favorite/add-designer-favorite";
+  static const String getListNotifications =
+      "$baseUrl/notification/list-notifications";
+  static const String markNotificationAsRead =
+      "$baseUrl/notification/mark-as-read-by-id";
+  static const String markAllNotificationsAsRead =
+      "$baseUrl/notification/mark-as-read";
+  static const String getCountUnreadNotifications =
+      "$baseUrl/notification/count-notification-unread";
 }

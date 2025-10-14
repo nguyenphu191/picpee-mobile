@@ -35,6 +35,7 @@ class SkillProvider with ChangeNotifier {
   SkillModel? CutOutChangeColorTopDesigner;
   SkillModel? ChangeColorTopDesigner;
   List<SkillModel> haveTopDesigners = [];
+  List<SkillModel> allTopDesigners = [];
   SkillOfVendorModel? skillOfVendor;
   List<SkillOfVendorModel> skillsOfVendor = [];
 
@@ -69,6 +70,7 @@ class SkillProvider with ChangeNotifier {
   SkillModel? get cutOutChangeColorTopDesigner => CutOutChangeColorTopDesigner;
   SkillModel? get changeColorTopDesigner => ChangeColorTopDesigner;
   List<SkillModel> get getHaveTopDesigners => haveTopDesigners;
+  List<SkillModel> get getAllTopDesigners => allTopDesigners;
 
   List<SkillOfVendorModel> get getSkillsOfVendor => skillsOfVendor;
   SkillOfVendorModel? get getSkillOfVendor => skillOfVendor;
@@ -78,21 +80,55 @@ class SkillProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void setAllTopDesigners() {
+    allTopDesigners = [
+      if (SingleTopDesigner != null) SingleTopDesigner!,
+      if (HDRTopDesigner != null) HDRTopDesigner!,
+      if (FlamTopDesigner != null) FlamTopDesigner!,
+      if (I360ETopDesigner != null) I360ETopDesigner!,
+      if (VHSTopDesigner != null) VHSTopDesigner!,
+      if (RemoveItemTopDesigner != null) RemoveItemTopDesigner!,
+      if (RemoveTopDesigner != null) RemoveTopDesigner!,
+      if (CleaningTopDesigner != null) CleaningTopDesigner!,
+      if (DTDTopDesigner != null) DTDTopDesigner!,
+      if (TWTopDesigner != null) TWTopDesigner!,
+      if (I360TopDesigner != null) I360TopDesigner!,
+      if (ChangeSeasonTopDesigner != null) ChangeSeasonTopDesigner!,
+      if (WaterTopDesigner != null) WaterTopDesigner!,
+      if (LawnTopDesigner != null) LawnTopDesigner!,
+      if (RainTopDesigner != null) RainTopDesigner!,
+      if (Cus2DTopDesigner != null) Cus2DTopDesigner!,
+      if (Cus3DTopDesigner != null) Cus3DTopDesigner!,
+      if (PropertyTopDesigner != null) PropertyTopDesigner!,
+      if (WalkthroughTopDesigner != null) WalkthroughTopDesigner!,
+      if (ReelsVideoEditTopDesigner != null) ReelsVideoEditTopDesigner!,
+      if (SlideTopDesigner != null) SlideTopDesigner!,
+      if (IndividualTopDesigner != null) IndividualTopDesigner!,
+      if (TeamTopDesigner != null) TeamTopDesigner!,
+      if (AddPersonTopDesigner != null) AddPersonTopDesigner!,
+      if (RemovePersonTopDesigner != null) RemovePersonTopDesigner!,
+      if (BackgroundReplacementTopDesigner != null)
+        BackgroundReplacementTopDesigner!,
+      if (CutOutChangeColorTopDesigner != null) CutOutChangeColorTopDesigner!,
+      if (ChangeColorTopDesigner != null) ChangeColorTopDesigner!,
+    ];
+    notifyListeners();
+  }
+
   void setHaveTopDesigners() {
     haveTopDesigners = [
-      if (HDRTopDesigner!.topDesigners.isNotEmpty) HDRTopDesigner!,
-      if (VHSTopDesigner!.topDesigners.isNotEmpty) VHSTopDesigner!,
-      if (PropertyTopDesigner!.topDesigners.isNotEmpty) PropertyTopDesigner!,
-      if (CleaningTopDesigner!.topDesigners.isNotEmpty) CleaningTopDesigner!,
-      if (DTDTopDesigner!.topDesigners.isNotEmpty) DTDTopDesigner!,
       if (SingleTopDesigner!.topDesigners.isNotEmpty) SingleTopDesigner!,
+      if (HDRTopDesigner!.topDesigners.isNotEmpty) HDRTopDesigner!,
       if (FlamTopDesigner!.topDesigners.isNotEmpty) FlamTopDesigner!,
       if (I360ETopDesigner!.topDesigners.isNotEmpty) I360ETopDesigner!,
-      if (RemoveTopDesigner!.topDesigners.isNotEmpty) RemoveTopDesigner!,
-      if (I360TopDesigner!.topDesigners.isNotEmpty) I360TopDesigner!,
-      if (TWTopDesigner!.topDesigners.isNotEmpty) TWTopDesigner!,
+      if (VHSTopDesigner!.topDesigners.isNotEmpty) VHSTopDesigner!,
       if (RemoveItemTopDesigner!.topDesigners.isNotEmpty)
         RemoveItemTopDesigner!,
+      if (RemoveTopDesigner!.topDesigners.isNotEmpty) RemoveTopDesigner!,
+      if (CleaningTopDesigner!.topDesigners.isNotEmpty) CleaningTopDesigner!,
+      if (DTDTopDesigner!.topDesigners.isNotEmpty) DTDTopDesigner!,
+      if (TWTopDesigner!.topDesigners.isNotEmpty) TWTopDesigner!,
+      if (I360TopDesigner!.topDesigners.isNotEmpty) I360TopDesigner!,
       if (ChangeSeasonTopDesigner!.topDesigners.isNotEmpty)
         ChangeSeasonTopDesigner!,
       if (WaterTopDesigner!.topDesigners.isNotEmpty) WaterTopDesigner!,
@@ -100,6 +136,7 @@ class SkillProvider with ChangeNotifier {
       if (RainTopDesigner!.topDesigners.isNotEmpty) RainTopDesigner!,
       if (Cus2DTopDesigner!.topDesigners.isNotEmpty) Cus2DTopDesigner!,
       if (Cus3DTopDesigner!.topDesigners.isNotEmpty) Cus3DTopDesigner!,
+      if (PropertyTopDesigner!.topDesigners.isNotEmpty) PropertyTopDesigner!,
       if (WalkthroughTopDesigner!.topDesigners.isNotEmpty)
         WalkthroughTopDesigner!,
       if (ReelsVideoEditTopDesigner!.topDesigners.isNotEmpty)
@@ -129,7 +166,6 @@ class SkillProvider with ChangeNotifier {
     try {
       final result = await _skillService.getTopDesignersBySkillCategory();
       HDRTopDesigner = result["HDR"];
-      print("HDR Top Designer: ${HDRTopDesigner?.topDesigners.length}");
       VHSTopDesigner = result["VHS"];
       PropertyTopDesigner = result["Property"];
       CleaningTopDesigner = result["Cleaning"];
@@ -157,6 +193,8 @@ class SkillProvider with ChangeNotifier {
       BackgroundReplacementTopDesigner = result["BackgroundReplacement"];
       CutOutChangeColorTopDesigner = result["CutOutChangeColor"];
       ChangeColorTopDesigner = result["ChangeColor"];
+
+      setAllTopDesigners();
       setHaveTopDesigners();
       print("Have Top Designers Count: ${haveTopDesigners.length}");
       return true;

@@ -17,7 +17,6 @@ class _ChecklistSideState extends State<ChecklistSide> {
     "Item 3",
     "Item 4",
   ];
-  final order = MockOrderData.getAllOrders()[8];
   @override
   void initState() {
     super.initState();

@@ -8,7 +8,7 @@ import 'package:picpee_mobile/screens/payment/payment_screen.dart';
 
 class TopUpDialog extends StatefulWidget {
   const TopUpDialog({super.key, this.onProjectsUpdated});
-  final void Function(List<Project>)? onProjectsUpdated;
+  final void Function(List<ProjectModel>)? onProjectsUpdated;
   @override
   State<TopUpDialog> createState() => _TopUpDialogState();
 }

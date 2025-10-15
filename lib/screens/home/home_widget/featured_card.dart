@@ -220,40 +220,29 @@ class _FeaturedCardState extends State<FeaturedCard> {
                                       child: ClipOval(
                                         child: currentDesigner.avatar.isNotEmpty
                                             ? Image.network(
-                                                currentDesigner.avatar,
+                                                currentDesigner.avatar.trim(),
                                                 width: 36.h,
                                                 height: 36.h,
                                                 fit: BoxFit.cover,
-                                                loadingBuilder:
-                                                    (
-                                                      context,
-                                                      child,
-                                                      loadingProgress,
-                                                    ) {
-                                                      if (loadingProgress ==
-                                                          null)
-                                                        return child;
-                                                      return Container(
-                                                        color:
-                                                            skillBackgroundColor,
-                                                        child: Center(
-                                                          child: SizedBox(
-                                                            width: 16.w,
-                                                            height: 16.h,
-                                                            child: CircularProgressIndicator(
-                                                              strokeWidth: 2,
-                                                              valueColor:
-                                                                  AlwaysStoppedAnimation<
-                                                                    Color
-                                                                  >(
-                                                                    Colors
-                                                                        .white,
-                                                                  ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
+                                                loadingBuilder: (context, child, loadingProgress) {
+                                                  if (loadingProgress == null)
+                                                    return child;
+                                                  return Center(
+                                                    child: CircularProgressIndicator(
+                                                      color:
+                                                          AppColors.buttonGreen,
+                                                      value:
+                                                          loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                    .cumulativeBytesLoaded /
+                                                                loadingProgress
+                                                                    .expectedTotalBytes!
+                                                          : null,
+                                                    ),
+                                                  );
+                                                },
                                                 errorBuilder:
                                                     (
                                                       context,
@@ -519,25 +508,19 @@ class _FeaturedCardState extends State<FeaturedCard> {
       child: ClipOval(
         child: designer.avatar.isNotEmpty
             ? Image.network(
-                designer.avatar,
+                designer.avatar.trim(),
                 width: 40,
                 height: 40,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return Container(
-                    color: Colors.grey[300],
-                    child: Center(
-                      child: SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.grey[600]!,
-                          ),
-                        ),
-                      ),
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.buttonGreen,
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   );
                 },

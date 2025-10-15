@@ -25,7 +25,7 @@ class User {
   final String? timezone;
   final String? type;
   final List<UserWorking>? userWorkings;
-  final String? username;
+  final String? email;
 
   User({
     this.avatar,
@@ -54,7 +54,7 @@ class User {
     this.timezone,
     this.type,
     this.userWorkings,
-    this.username,
+    this.email,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -95,6 +95,7 @@ class User {
               ?.map((e) => UserWorking.fromJson(e))
               .toList() ??
           [],
+      email: json['username'] ?? "",
     );
   }
 
@@ -131,7 +132,7 @@ class User {
 
   @override
   String toString() {
-    return 'User{id: $id, firstname: $firstname, lastname: $lastname, email: $username, role: $role}';
+    return 'User{id: $id, firstname: $firstname, lastname: $lastname, email: $email, role: $role}';
   }
 }
 

@@ -12,7 +12,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final List<Order> cartItems = MockOrderData.getAllOrders();
+  final List<OrderModel> cartItems = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +49,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  _buildItemCard(Order item) {
+  _buildItemCard(OrderModel item) {
     return Container(
       height: 168.h,
       margin: EdgeInsets.only(top: 10.h),
@@ -83,7 +83,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
               Text(
-                '\$${item.total.toStringAsFixed(2)}',
+                '\$${item.cost.toStringAsFixed(2)}',
                 style: TextStyle(
                   color: Colors.black87,
                   fontSize: 16.h,
@@ -98,15 +98,15 @@ class _CartScreenState extends State<CartScreen> {
             children: [
               Row(
                 children: [
-                  Image.asset(
-                    item.getServiceImg(),
+                  Image.network(
+                    item.skill!.urlImage.trim(),
                     width: 30.h,
                     height: 30.h,
                     fit: BoxFit.cover,
                   ),
                   SizedBox(width: 4.w),
                   Text(
-                    item.serviceName,
+                    item.skill!.name,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 14.h,
@@ -118,7 +118,7 @@ class _CartScreenState extends State<CartScreen> {
               ),
 
               Text(
-                'Qty: ${item.amount.round()}',
+                'Qty: ${item.quantity.round()}',
                 style: TextStyle(
                   color: Colors.black54,
                   fontSize: 14.h,
@@ -147,7 +147,7 @@ class _CartScreenState extends State<CartScreen> {
                 ),
                 SizedBox(width: 8.w),
                 Text(
-                  item.designerName,
+                  item.vendor?.businessName ?? 'Unknown Vendor',
                   style: TextStyle(
                     color: Colors.black87,
                     fontSize: 14.h,

@@ -7,6 +7,16 @@ class OneVideoCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   const OneVideoCard({super.key, required this.designer, this.onTap});
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +30,7 @@ class OneVideoCard extends StatelessWidget {
               height: 220.h,
               width: double.infinity,
               child: Image.network(
-                designer.imageCover,
+                designer.imageCover.trim(),
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) {
@@ -109,7 +119,7 @@ class OneVideoCard extends StatelessWidget {
                                     backgroundColor: Colors.transparent,
                                     child: ClipOval(
                                       child: Image.network(
-                                        designer.avatar,
+                                        designer.avatar.trim(),
                                         width: 45.h,
                                         height: 45.h,
                                         fit: BoxFit.cover,
@@ -178,7 +188,7 @@ class OneVideoCard extends StatelessWidget {
                                     ),
                                     SizedBox(width: 16.h),
                                     Image.network(
-                                      designer.imageFlag,
+                                      designer.imageFlag.trim(),
                                       height: 16.h,
                                       fit: BoxFit.cover,
                                       errorBuilder:
@@ -237,7 +247,7 @@ class OneVideoCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            "\$ ${designer.cost.toString()}",
+                            "\$${_formatPrice(designer.cost)}",
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 18.h,

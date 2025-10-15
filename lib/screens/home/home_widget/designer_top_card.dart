@@ -6,6 +6,8 @@ import 'package:picpee_mobile/providers/designer_provider.dart';
 import 'package:provider/provider.dart';
 
 class DesignerTopCardCard extends StatefulWidget {
+  const DesignerTopCardCard({super.key});
+
   @override
   _DesignerTopCardCardState createState() => _DesignerTopCardCardState();
 }
@@ -84,6 +86,17 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
     return _selectedTab == 0
         ? designerProvider.businessDesigners
         : designerProvider.individualDesigners;
+  }
+
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
   }
 
   @override
@@ -330,12 +343,36 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      if (designer.imageFlag?.isNotEmpty == true) ...[
+                      if (designer.imageFlag.isNotEmpty == true) ...[
                         SizedBox(width: 8),
                         Image.network(
-                          designer.imageFlag!,
+                          designer.imageFlag.trim(),
                           width: 20.w,
                           height: 15.h,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return Center(
+                                child: SizedBox(
+                                  width: 15.w,
+                                  height: 15.h,
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.buttonGreen,
+                                    strokeWidth: 2,
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                           errorBuilder: (context, error, stackTrace) {
                             return SizedBox.shrink();
                           },
@@ -359,8 +396,32 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Image.network(
-                          designer.imageSkill,
+                          designer.imageSkill.trim(),
                           height: 20.h,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            } else {
+                              return Center(
+                                child: SizedBox(
+                                  width: 20.w,
+                                  height: 20.h,
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.buttonGreen,
+                                    strokeWidth: 2,
+                                    value:
+                                        loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                        : null,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                           errorBuilder: (context, error, stackTrace) {
                             return Icon(Icons.broken_image, size: 16.h);
                           },
@@ -421,7 +482,7 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                               ),
                             ),
                             Text(
-                              "\$${designer.cost.toStringAsFixed(2)}",
+                              "\$${_formatPrice(designer.cost)}",
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 18.h,
@@ -449,7 +510,7 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
               borderRadius: BorderRadius.all(Radius.circular(20)),
               child: designer.imageCover.isNotEmpty
                   ? Image.network(
-                      designer.imageCover,
+                      designer.imageCover.trim(),
                       fit: BoxFit.cover,
                       loadingBuilder: (context, child, loadingProgress) {
                         if (loadingProgress == null) return child;
@@ -458,9 +519,11 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                           child: Center(
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.grey,
-                              ),
+                              color: AppColors.buttonGreen,
+                              value: loadingProgress.expectedTotalBytes != null
+                                  ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                  : null,
                             ),
                           ),
                         );
@@ -507,7 +570,7 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                   child: ClipOval(
                     child: designer.avatar.isNotEmpty
                         ? Image.network(
-                            designer.avatar,
+                            designer.avatar.trim(),
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) return child;
@@ -519,9 +582,15 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                                     height: 20.h,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        AppColors.buttonGreen,
-                                      ),
+                                      color: AppColors.buttonGreen,
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                          : null,
                                     ),
                                   ),
                                 ),

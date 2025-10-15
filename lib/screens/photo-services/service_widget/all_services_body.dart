@@ -25,53 +25,35 @@ class _AllServicesBodyState extends State<AllServicesBody> {
   int perPage = 10;
   String filterOption = "All";
 
-  // Show the filter popup
-  void _showFilterOptions(BuildContext context, RenderBox button) {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        button.localToGlobal(Offset(0, button.size.height), ancestor: overlay),
-        button.localToGlobal(
-          button.size.bottomRight(Offset.zero),
-          ancestor: overlay,
-        ),
-      ),
-      Offset.zero & overlay.size,
-    );
-
-    showMenu<String>(
+  // Show the filter dialog in the center
+  void _showFilterOptions(BuildContext context) {
+    showDialog<String>(
       context: context,
-      position: position,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      elevation: 4,
-      items: [
-        PopupMenuItem<String>(
-          value: "All",
-          child: _buildFilterItem("All", "All Services"),
-        ),
-        PopupMenuItem<String>(
-          value: "Release date",
-          child: _buildFilterItem("Release date", "Newest first"),
-        ),
-        PopupMenuItem<String>(
-          value: "Featured",
-          child: _buildFilterItem("Featured", "Most popular"),
-        ),
-        PopupMenuItem<String>(
-          value: "Highest price",
-          child: _buildFilterItem("Highest price", "Price high to low"),
-        ),
-        PopupMenuItem<String>(
-          value: "Lowest price",
-          child: _buildFilterItem("Lowest price", "Price low to high"),
-        ),
-      ],
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 4,
+          title: Text(
+            'Filter Options',
+            style: TextStyle(fontSize: 18.h, fontWeight: FontWeight.bold),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildFilterItem("All", "All Services"),
+              _buildFilterItem("Release date", "Newest first"),
+              _buildFilterItem("Featured", "Most popular"),
+              _buildFilterItem("Highest price", "Price high to low"),
+              _buildFilterItem("Lowest price", "Price low to high"),
+            ],
+          ),
+        );
+      },
     ).then((value) {
       if (value != null) {
         setState(() {
           filterOption = value;
-          currentPage = 1; // Reset về trang 1 khi thay đổi filter
+          currentPage = 1; // Reset to page 1 when changing filter
         });
       }
     });
@@ -103,7 +85,7 @@ class _AllServicesBodyState extends State<AllServicesBody> {
     }
   }
 
-  // Hàm sắp xếp danh sách designers theo filter
+  // Sort the list of designers based on filter
   List<DesignerModel> _getSortedDesigners(List<DesignerModel> designers) {
     List<DesignerModel> sortedList = List.from(designers);
 
@@ -115,24 +97,25 @@ class _AllServicesBodyState extends State<AllServicesBody> {
         sortedList.sort((a, b) => a.cost.compareTo(b.cost));
         break;
       case "Featured":
-        // Sắp xếp theo rating point (cao nhất trước)
-        sortedList.sort((a, b) => b.ratingPoint.compareTo(a.ratingPoint));
+        sortedList.sort(
+          (a, b) => (b.ratingPoint * b.ratingPoint * b.totalReview).compareTo(
+            a.ratingPoint * a.ratingPoint * a.totalReview,
+          ),
+        );
         break;
       case "Release date":
-        // Giả sử có trường createdAt hoặc id (id lớn hơn = mới hơn)
-        // Nếu không có, bạn có thể bỏ qua hoặc thêm trường này vào model
         sortedList.sort((a, b) => b.userId.compareTo(a.userId));
         break;
       case "All":
       default:
-        // Giữ nguyên thứ tự mặc định
+        // Keep default order
         break;
     }
 
     return sortedList;
   }
 
-  // Hàm lấy danh sách designers cho trang hiện tại
+  // Get paginated list of designers
   List<DesignerModel> _getPaginatedDesigners(List<DesignerModel> designers) {
     final sortedDesigners = _getSortedDesigners(designers);
     final startIndex = (currentPage - 1) * perPage;
@@ -148,7 +131,7 @@ class _AllServicesBodyState extends State<AllServicesBody> {
     );
   }
 
-  // Tính tổng số trang
+  // Calculate total pages
   int _getTotalPages(int totalItems) {
     return (totalItems / perPage).ceil();
   }
@@ -196,196 +179,224 @@ class _AllServicesBodyState extends State<AllServicesBody> {
                         ),
                       ),
                       // TopServiceCard(title: widget.title, isHome: false),
-                      Container(
-                        color: Colors.white,
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10.h,
-                                vertical: 8.h,
+                      (paginatedDesigners.isEmpty)
+                          ? Container(
+                              color: Colors.white,
+                              height:
+                                  MediaQuery.of(context).size.height - 680.h,
+                              alignment: Alignment.center,
+                              child: Text(
+                                designerProvider.isLoading
+                                    ? "Loading..."
+                                    : "No services",
+                                style: TextStyle(
+                                  fontSize: 16.h,
+                                  color: Colors.black,
+                                ),
                               ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                            )
+                          : Container(
+                              color: Colors.white,
+                              child: Column(
                                 children: [
-                                  InkWell(
-                                    onTap: () {
-                                      final RenderBox button =
-                                          context.findRenderObject()
-                                              as RenderBox;
-                                      _showFilterOptions(context, button);
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                        vertical: 5.h,
-                                        horizontal: 12.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                          color: AppColors.textGreen
-                                              .withOpacity(0.5),
-                                          width: 1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(50),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.1),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10.h,
+                                      vertical: 8.h,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        InkWell(
+                                          onTap: () {
+                                            _showFilterOptions(context);
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                              vertical: 5.h,
+                                              horizontal: 12.h,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              border: Border.all(
+                                                color: AppColors.textGreen
+                                                    .withOpacity(0.5),
+                                                width: 1,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.1),
+                                                  blurRadius: 4,
+                                                  offset: const Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.filter_list,
+                                                  size: 18.h,
+                                                  color: AppColors.textGreen,
+                                                ),
+                                                SizedBox(width: 6.w),
+                                                Text(
+                                                  filterOption == "All"
+                                                      ? "Filter"
+                                                      : filterOption,
+                                                  style: TextStyle(
+                                                    fontSize: 14.h,
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
+                                        ),
+                                        // Display total results
+                                        Text(
+                                          '${topDesigners.length} results',
+                                          style: TextStyle(
+                                            fontSize: 14.h,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Display paginated designers list
+                                  Column(
+                                    children: paginatedDesigners
+                                        .map(
+                                          (service) => Container(
+                                            margin: EdgeInsets.only(
+                                              bottom: 5.h,
+                                              left: 10.h,
+                                              right: 10.h,
+                                            ),
+                                            child: _buildServiceCard(service),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+
+                                  // Pagination controls
+                                  if (totalPages > 1)
+                                    Container(
+                                      margin: EdgeInsets.symmetric(
+                                        vertical: 16.h,
                                       ),
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          Icon(
-                                            Icons.filter_list,
-                                            size: 18.h,
-                                            color: AppColors.textGreen,
+                                          // Previous page button
+                                          Material(
+                                            color: currentPage > 1
+                                                ? const Color(0xFFF5F9F5)
+                                                : Colors.grey.shade200,
+                                            borderRadius: BorderRadius.circular(
+                                              50,
+                                            ),
+                                            child: InkWell(
+                                              onTap: currentPage > 1
+                                                  ? () => setState(
+                                                      () => currentPage--,
+                                                    )
+                                                  : null,
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8.h,
+                                                  vertical: 8.h,
+                                                ),
+                                                child: Icon(
+                                                  Icons.arrow_back_ios,
+                                                  size: 16.h,
+                                                  color: currentPage > 1
+                                                      ? const Color(0xFF2E7D32)
+                                                      : Colors.grey,
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                          SizedBox(width: 6.w),
-                                          Text(
-                                            filterOption == "All"
-                                                ? "Filter"
-                                                : filterOption,
-                                            style: TextStyle(
-                                              fontSize: 14.h,
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.w500,
+
+                                          // Current page indicator
+                                          Container(
+                                            margin: EdgeInsets.symmetric(
+                                              horizontal: 16.w,
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 16.w,
+                                              vertical: 5.h,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: const Color(
+                                                0xFF4CAF50,
+                                              ).withOpacity(0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              border: Border.all(
+                                                color: const Color(
+                                                  0xFF4CAF50,
+                                                ).withOpacity(0.3),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              "$currentPage / $totalPages",
+                                              style: TextStyle(
+                                                fontSize: 14.h,
+                                                fontWeight: FontWeight.w600,
+                                                color: const Color(0xFF2E7D32),
+                                              ),
+                                            ),
+                                          ),
+
+                                          // Next page button
+                                          Material(
+                                            color: currentPage < totalPages
+                                                ? const Color(0xFFF5F9F5)
+                                                : Colors.grey.shade200,
+                                            borderRadius: BorderRadius.circular(
+                                              50,
+                                            ),
+                                            child: InkWell(
+                                              onTap: currentPage < totalPages
+                                                  ? () => setState(
+                                                      () => currentPage++,
+                                                    )
+                                                  : null,
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8.h,
+                                                  vertical: 8.h,
+                                                ),
+                                                child: Icon(
+                                                  Icons.arrow_forward_ios,
+                                                  size: 16.h,
+                                                  color:
+                                                      currentPage < totalPages
+                                                      ? const Color(0xFF2E7D32)
+                                                      : Colors.grey,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                  // Hiển thị tổng số kết quả
-                                  Text(
-                                    '${topDesigners.length} results',
-                                    style: TextStyle(
-                                      fontSize: 14.h,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
-
-                            // Hiển thị danh sách designers đã phân trang
-                            Column(
-                              children: paginatedDesigners
-                                  .map(
-                                    (service) => Container(
-                                      margin: EdgeInsets.only(
-                                        bottom: 5.h,
-                                        left: 10.h,
-                                        right: 10.h,
-                                      ),
-                                      child: _buildServiceCard(service),
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-
-                            // Pagination controls
-                            if (totalPages > 1)
-                              Container(
-                                margin: EdgeInsets.symmetric(vertical: 16.h),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // Previous page button
-                                    Material(
-                                      color: currentPage > 1
-                                          ? const Color(0xFFF5F9F5)
-                                          : Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(50),
-                                      child: InkWell(
-                                        onTap: currentPage > 1
-                                            ? () =>
-                                                  setState(() => currentPage--)
-                                            : null,
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 8.h,
-                                            vertical: 8.h,
-                                          ),
-                                          child: Icon(
-                                            Icons.arrow_back_ios,
-                                            size: 16.h,
-                                            color: currentPage > 1
-                                                ? const Color(0xFF2E7D32)
-                                                : Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Current page indicator
-                                    Container(
-                                      margin: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                      ),
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                        vertical: 5.h,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xFF4CAF50,
-                                        ).withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(50),
-                                        border: Border.all(
-                                          color: const Color(
-                                            0xFF4CAF50,
-                                          ).withOpacity(0.3),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        "$currentPage / $totalPages",
-                                        style: TextStyle(
-                                          fontSize: 14.h,
-                                          fontWeight: FontWeight.w600,
-                                          color: const Color(0xFF2E7D32),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Next page button
-                                    Material(
-                                      color: currentPage < totalPages
-                                          ? const Color(0xFFF5F9F5)
-                                          : Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(50),
-                                      child: InkWell(
-                                        onTap: currentPage < totalPages
-                                            ? () =>
-                                                  setState(() => currentPage++)
-                                            : null,
-                                        borderRadius: BorderRadius.circular(50),
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 8.h,
-                                            vertical: 8.h,
-                                          ),
-                                          child: Icon(
-                                            Icons.arrow_forward_ios,
-                                            size: 16.h,
-                                            color: currentPage < totalPages
-                                                ? const Color(0xFF2E7D32)
-                                                : Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
                       Footer(),
                     ],
                   ),
@@ -429,45 +440,55 @@ class _AllServicesBodyState extends State<AllServicesBody> {
   }
 
   Widget _buildFilterItem(String title, String subtitle) {
-    return Row(
-      children: [
-        Container(
-          width: 24.h,
-          height: 24.h,
-          decoration: BoxDecoration(
-            color: filterOption == title
-                ? AppColors.textGreen
-                : Colors.transparent,
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: filterOption == title ? AppColors.textGreen : Colors.grey,
-              width: 1.5,
-            ),
-          ),
-          child: filterOption == title
-              ? Icon(Icons.check, color: Colors.white, size: 16.h)
-              : null,
-        ),
-        SizedBox(width: 12.w),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onTap: () {
+        Navigator.pop(context, title);
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 8.h),
+        child: Row(
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14.h,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
+            Container(
+              width: 24.h,
+              height: 24.h,
+              decoration: BoxDecoration(
+                color: filterOption == title
+                    ? AppColors.textGreen
+                    : Colors.transparent,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: filterOption == title
+                      ? AppColors.textGreen
+                      : Colors.grey,
+                  width: 1.5,
+                ),
               ),
+              child: filterOption == title
+                  ? Icon(Icons.check, color: Colors.white, size: 16.h)
+                  : null,
             ),
-            SizedBox(height: 2.h),
-            Text(
-              subtitle,
-              style: TextStyle(fontSize: 12.h, color: Colors.grey[600]),
+            SizedBox(width: 12.w),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14.h,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 2.h),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 12.h, color: Colors.grey[600]),
+                ),
+              ],
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 
@@ -506,7 +527,25 @@ class _AllServicesBodyState extends State<AllServicesBody> {
                   topLeft: Radius.circular(8),
                   bottomLeft: Radius.circular(8),
                 ),
-                child: Image.network(service.imageSkill, fit: BoxFit.cover),
+                child: Image.network(
+                  service.imageSkill.trim(),
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child;
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.buttonGreen,
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                    loadingProgress.expectedTotalBytes!
+                              : null,
+                        ),
+                      );
+                    }
+                  },
+                ),
               ),
             ),
             SizedBox(width: 5.w),

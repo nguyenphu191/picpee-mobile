@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picpee_mobile/models/order_model.dart';
+import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/screens/order/order_widget/checklist_side.dart';
 import 'package:picpee_mobile/screens/order/order_widget/comment_side.dart';
 import 'package:picpee_mobile/screens/order/order_widget/order_infor.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
+import 'package:provider/provider.dart';
 
 class OrderScreen extends StatefulWidget {
-  const OrderScreen({super.key});
+  const OrderScreen({super.key, required this.order});
+  final OrderModel order;
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
@@ -23,6 +27,9 @@ class _OrderScreenState extends State<OrderScreen>
   void initState() {
     super.initState();
     _drawerTabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchOrderDetails();
+    });
   }
 
   @override
@@ -42,33 +49,52 @@ class _OrderScreenState extends State<OrderScreen>
     _scaffoldKey.currentState?.openEndDrawer();
   }
 
+  Future<void> _fetchOrderDetails() async {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final succes = await orderProvider.fetchOrderDetails(widget.order.id);
+    if (!succes) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load order details'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      endDrawer: _buildEndDrawer(),
-      drawer: const SideBar(selectedIndex: 0),
-      body: Stack(
-        children: [
-          Positioned(
-            top: 80.h,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: OrderInfo(
-              onCommentPressed: _openCommentTab,
-              onChecklistPressed: _openChecklistTab,
-            ),
+    return Consumer<OrderProvider>(
+      builder: (context, orderProvider, child) {
+        final currentOrder = orderProvider.currentOrder;
+        return Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: Colors.white,
+          endDrawer: _buildEndDrawer(),
+          drawer: const SideBar(selectedIndex: 0),
+          body: Stack(
+            children: [
+              Positioned(
+                top: 80.h,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: OrderInfo(
+                  onCommentPressed: _openCommentTab,
+                  onChecklistPressed: _openChecklistTab,
+                  order: currentOrder ?? widget.order,
+                ),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: ProfileHeader(title: "Overview"),
+              ),
+            ],
           ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: ProfileHeader(title: "Overview"),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

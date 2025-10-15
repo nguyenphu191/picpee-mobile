@@ -4,48 +4,59 @@ import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/screens/project/project_widget/one_project_card.dart';
 
 class TrashCard extends StatefulWidget {
-  const TrashCard({super.key, required this.deletedProjects, this.onRestore});
-  final List<Project> deletedProjects;
-  final void Function(Project)? onRestore;
+  final List<ProjectModel> deletedProjects;
+  final Function(ProjectModel)? onRestore;
+  final Function(ProjectModel)? onPermanentDelete;
+
+  const TrashCard({
+    super.key,
+    required this.deletedProjects,
+    this.onRestore,
+    this.onPermanentDelete,
+  });
+
   @override
   State<TrashCard> createState() => _TrashCardState();
 }
 
 class _TrashCardState extends State<TrashCard> {
-  void _restoreProject(Project project) {
-    setState(() {
-      project.isDeleted = false;
-    });
-    widget.deletedProjects.remove(project);
-  }
-
-  void _permanentlyDeleteProject(Project project) {
-    setState(() {
-      widget.deletedProjects.remove(project);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Expanded(
           child: widget.deletedProjects.isEmpty
-              ? const Center(
+              ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.delete_outline, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
+                      Icon(
+                        Icons.delete_outline,
+                        size: 64.h,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 16.h),
                       Text(
                         'The trash is empty.',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 18.h,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        'Deleted projects will appear here',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14.h,
+                        ),
                       ),
                     ],
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16.w),
                   itemCount: widget.deletedProjects.length,
                   itemBuilder: (context, index) {
                     final project = widget.deletedProjects[index];
@@ -53,40 +64,52 @@ class _TrashCardState extends State<TrashCard> {
                       project: project,
                       menuItems: (context) => [
                         PopupMenuItem(
-                          onTap: () => _restoreProject(project),
+                          onTap: () {
+                            // Use Future.delayed to avoid calling during build
+                            Future.delayed(Duration.zero, () {
+                              widget.onRestore?.call(project);
+                            });
+                          },
                           child: Row(
                             children: [
                               Icon(
                                 Icons.restore,
-                                color: Colors.grey[700],
+                                color: Colors.green[700],
                                 size: 20.h,
                               ),
-                              SizedBox(width: 8),
+                              SizedBox(width: 8.w),
                               Text(
                                 'Restore',
                                 style: TextStyle(
                                   fontSize: 14.h,
-                                  color: Colors.grey[700],
+                                  color: Colors.green[700],
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         PopupMenuItem(
-                          onTap: () => _permanentlyDeleteProject(project),
+                          onTap: () {
+                            // Use Future.delayed to avoid calling during build
+                            Future.delayed(Duration.zero, () {
+                              widget.onPermanentDelete?.call(project);
+                            });
+                          },
                           child: Row(
                             children: [
                               Icon(
                                 Icons.delete_forever,
-                                color: Colors.grey[700],
-                                size: 20,
+                                color: Colors.red[700],
+                                size: 20.h,
                               ),
-                              SizedBox(width: 8),
+                              SizedBox(width: 8.w),
                               Text(
                                 'Delete Forever',
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
+                                  fontSize: 14.h,
+                                  color: Colors.red[700],
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],

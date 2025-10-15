@@ -1,219 +1,284 @@
 import 'package:flutter/material.dart';
-import 'package:picpee_mobile/core/images/app_image.dart';
+import 'package:intl/intl.dart';
+import 'package:picpee_mobile/models/skill_model.dart';
+import 'package:picpee_mobile/models/user_model.dart';
 
-enum OrderStatus {
-  inCart('In Cart'),
-  inProgress('In progress'),
-  delivered('Delivered'),
-  pendingVendorConfirm('Pending Vendor Confirm'),
-  completed('Completed'),
-  awaitingRevision('Awaiting revision'),
-  dispute('Dispute'),
-  resolve('Resolve');
+class OrderModel {
+  int id;
+  String code;
+  int projectId;
+  int customerId;
+  int vendorId;
+  String status;
+  String type;
+  int quantity;
+  String dueTime;
+  String guideline;
+  String sourceFilesLink;
+  int countComments = 0;
+  String deliverableFilesLink;
+  int skillId;
+  double cost;
+  double subTotal;
+  double taxAmount;
+  String startedTime;
+  String deliveredTime;
+  String completedTime;
+  String createdTime;
+  User? customer;
+  User? vendor;
+  Skill? skill;
+  String projectName;
+  OrderTransactionModel? orderTransaction;
+  String orientationType;
+  String aspectRatio;
+  String resolution;
+  String framerate;
+  String fileType;
 
-  const OrderStatus(this.displayName);
-  final String displayName;
-}
-
-class Order {
-  final String id;
-  final String serviceName;
-  final double amount;
-  final double total;
-  final String designerName;
-  final String designerAvatar;
-  final DateTime submitted;
-  final DateTime dueDate;
-  final OrderStatus status;
-  final List<String> checklist;
-  bool isChecked;
-
-  Order({
+  OrderModel({
     required this.id,
-    required this.serviceName,
-    required this.amount,
-    required this.total,
-    required this.designerName,
-    required this.designerAvatar,
-    required this.submitted,
-    required this.dueDate,
+    required this.code,
+    required this.projectId,
+    required this.customerId,
+    required this.vendorId,
     required this.status,
-    required this.checklist,
-    this.isChecked = false,
+    required this.type,
+    required this.quantity,
+    required this.dueTime,
+    required this.guideline,
+    required this.sourceFilesLink,
+    required this.deliverableFilesLink,
+    required this.skillId,
+    required this.cost,
+    required this.subTotal,
+    required this.taxAmount,
+    required this.startedTime,
+    required this.deliveredTime,
+    required this.completedTime,
+    required this.createdTime,
+    this.customer,
+    this.vendor,
+    this.skill,
+    required this.projectName,
+    this.orderTransaction,
+    required this.orientationType,
+    required this.aspectRatio,
+    required this.resolution,
+    required this.framerate,
+    required this.fileType,
+    required this.countComments,
   });
 
-  // Factory constructor to create Order from JSON
-  factory Order.fromJson(Map<String, dynamic> json) {
-    return Order(
-      id: json['id'] ?? '',
-      serviceName: json['serviceName'] ?? '',
-      amount: (json['amount'] ?? 0.0).toDouble(),
-      total: (json['total'] ?? 0.0).toDouble(),
-      designerName: json['designerName'] ?? '',
-      designerAvatar: json['designerAvatar'] ?? '',
-      submitted: DateTime.parse(
-        json['submitted'] ?? DateTime.now().toIso8601String(),
-      ),
-      dueDate: DateTime.parse(
-        json['dueDate'] ?? DateTime.now().toIso8601String(),
-      ),
-      status: OrderStatus.values.firstWhere(
-        (status) => status.name == json['status'],
-        orElse: () => OrderStatus.inProgress,
-      ),
-      checklist: List<String>.from(json['checklist'] ?? []),
-      isChecked: json['isChecked'] ?? false,
+  factory OrderModel.fromJson(Map<String, dynamic> json) {
+    return OrderModel(
+      id: json['id'],
+      code: json['code'] ?? '',
+      projectId: json['projectId'] ?? 0,
+      customerId: json['customerId'] ?? 0,
+      vendorId: json['vendorId'] ?? 0,
+      status: json['status'] ?? '',
+      type: json['type'] ?? '',
+      quantity: json['quantity'] ?? 0,
+      dueTime: _timestampToDate(json['dueTime'] ?? 0),
+      guideline: json['guideline'] ?? '',
+      sourceFilesLink: json['sourceFilesLink'] ?? '',
+      deliverableFilesLink: json['deliverableFilesLink'] ?? '',
+      skillId: json['skillId'] ?? 0,
+      cost: (json['cost'] ?? 0).toDouble(),
+      subTotal: (json['subTotal'] ?? 0).toDouble(),
+      taxAmount: (json['taxAmount'] ?? 0).toDouble(),
+      startedTime: _timestampToDate(json['startedTime']),
+      deliveredTime: _timestampToDate(json['deliveredTime']),
+      completedTime: _timestampToDate(json['completedTime']),
+      createdTime: _timestampToDate(json['createdTime']),
+      customer: json['customer'] != null
+          ? User.fromJson(json['customer'])
+          : null,
+      vendor: json['vendor'] != null ? User.fromJson(json['vendor']) : null,
+      skill: json['skill'] != null ? Skill.fromJson(json['skill']) : null,
+      projectName: json['projectName'] ?? '',
+      orderTransaction: json['orderTransactionRes'] != null
+          ? OrderTransactionModel.fromJson(json['orderTransactionRes'])
+          : null,
+      orientationType: json['orientationType'] ?? '',
+      aspectRatio: json['aspectRatio'] ?? '',
+      resolution: json['resolution'] ?? '',
+      framerate: json['framerate'] ?? '',
+      fileType: json['fileType'] ?? '',
+      countComments: json['countComment'] ?? 0,
     );
   }
 
-  // Convert Order to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'serviceName': serviceName,
-      'amount': amount,
-      'total': total,
-      'designerName': designerName,
-      'designerAvatar': designerAvatar,
-      'submitted': submitted.toIso8601String(),
-      'dueDate': dueDate.toIso8601String(),
-      'status': status.name,
-      'checklist': checklist,
-      'isChecked': isChecked,
+      'code': code,
+      'projectId': projectId,
+      'customerId': customerId,
+      'vendorId': vendorId,
+      'status': status,
+      'type': type,
+      'quantity': quantity,
+      'dueTime': dueTime,
+      'guideline': guideline,
+      'sourceFilesLink': sourceFilesLink,
+      'deliverableFilesLink': deliverableFilesLink,
+      'skillId': skillId,
+      'cost': cost,
+      'subTotal': subTotal,
+      'taxAmount': taxAmount,
+      'startedTime': startedTime,
+      'deliveredTime': deliveredTime,
+      'completedTime': completedTime,
+      'createdTime': createdTime,
+      'customer': customer?.toJson(),
+      'vendor': vendor?.toJson(),
+      'skill': skill?.toJson(),
+      'projectName': projectName,
+      'orderTransactionRes': orderTransaction?.toJson(),
+      'orientationType': orientationType,
+      'aspectRatio': aspectRatio,
+      'resolution': resolution,
+      'framerate': framerate,
+      'fileType': fileType,
     };
-  }
-
-  // Copy with method for updating fields
-  Order copyWith({
-    String? id,
-    String? serviceName,
-    double? amount,
-    double? total,
-    String? designerName,
-    String? designerAvatar,
-    DateTime? submitted,
-    DateTime? dueDate,
-    OrderStatus? status,
-    List<String>? checklist,
-    bool? isChecked,
-  }) {
-    return Order(
-      id: id ?? this.id,
-      serviceName: serviceName ?? this.serviceName,
-      amount: amount ?? this.amount,
-      total: total ?? this.total,
-      designerName: designerName ?? this.designerName,
-      designerAvatar: designerAvatar ?? this.designerAvatar,
-      submitted: submitted ?? this.submitted,
-      dueDate: dueDate ?? this.dueDate,
-      status: status ?? this.status,
-      checklist: checklist ?? this.checklist,
-      isChecked: isChecked ?? this.isChecked,
-    );
   }
 
   Color getStatusColor() {
     switch (status) {
-      case OrderStatus.inProgress:
+      case "IN_PROGRESS":
         return Colors.grey;
-      case OrderStatus.delivered:
+      case "DELIVERED":
         return Colors.green;
-      case OrderStatus.pendingVendorConfirm:
+      case "PENDING_VENDOR_CONFIRM":
         return Colors.purple;
-      case OrderStatus.completed:
+      case 'PENDING_ORDER':
+        return Colors.grey;
+      case "COMPLETED":
         return Colors.green;
-      case OrderStatus.awaitingRevision:
+      case "AWAITING_REVISION":
         return Colors.orange;
-      case OrderStatus.dispute:
+      case "DISPUTED":
         return Colors.redAccent;
-      case OrderStatus.resolve:
-        return Colors.teal;
-      case OrderStatus.inCart:
+      case "RESOLVED":
+        return Colors.red;
+      case 'CANCELLED':
+        return Colors.red;
+      case "IN_CART":
         return Colors.blue;
+      default:
+        return Colors.grey;
     }
   }
 
   IconData getStatusIcon() {
     switch (status) {
-      case OrderStatus.inProgress:
+      case 'IN_PROGRESS':
         return Icons.calendar_month;
-      case OrderStatus.delivered:
+      case 'DELIVERED':
         return Icons.check_circle;
-      case OrderStatus.pendingVendorConfirm:
+      case 'PENDING_VENDOR_CONFIRM':
         return Icons.hourglass_top;
-      case OrderStatus.completed:
+      case 'PENDING_ORDER':
+        return Icons.hourglass_top;
+      case 'COMPLETED':
         return Icons.check_circle;
-      case OrderStatus.awaitingRevision:
+      case 'AWAITING_REVISION':
         return Icons.edit;
-      case OrderStatus.dispute:
+      case 'DISPUTED':
         return Icons.error;
-      case OrderStatus.resolve:
+      case 'RESOLVED':
         return Icons.check_circle_outline;
-      case OrderStatus.inCart:
+      case 'CANCELLED':
+        return Icons.check_circle_outline;
+      case 'IN_CART':
         return Icons.shopping_cart;
+      default:
+        return Icons.help_outline;
     }
   }
 
-  String getServiceImg() {
-    switch (serviceName) {
-      case 'Single Exposure':
-        return AppImages.SingleExportIcon;
-      case 'Blended Brackets (HDR)':
-        return AppImages.HDRIcon;
-      case 'Flambient':
-        return AppImages.FlambientIcon;
-      case '360° Image Enhancement':
-        return AppImages.Image360EnhanceIcon;
-      case 'Virtual Staging':
-        return AppImages.VirtualStaggingIcon;
-      case 'Remodel':
-        return AppImages.RemodelIcon;
-      case '360° Image':
-        return AppImages.Image360Icon;
-      case 'Day to Dusk':
-        return AppImages.DayToDuckIcon;
-      case 'Day to Twilight':
-        return AppImages.DayToTwilightIcon;
-      case '1-4 Items':
-        return AppImages.CleanIcon;
-      case 'Room Cleaning':
-        return AppImages.CleanIcon;
-      case 'Changing Seasons':
-        return AppImages.ChangeSessionIcon;
-      case 'Water In Pool':
-        return AppImages.WaterInPoolIcon;
-      case 'Lawn Replacement':
-        return AppImages.LawnReplacementIcon;
-      case 'Rain to Shine':
-        return AppImages.RainToShineIcon;
-      case 'Custom 2D':
-        return AppImages.Custom2dIcon;
-      case 'Custom 3D':
-        return AppImages.Custom3dIcon;
-      case 'Property Videos':
-        return AppImages.PropertyIcon;
-      case 'Walkthrough Video':
-        return AppImages.WalkthroughIcon;
-      case 'Reels':
-        return AppImages.ReelsIcon;
-      case 'Slideshows':
-        return AppImages.SlideShowIcon;
-      case 'Individual':
-        return AppImages.IndividualIcon;
-      case 'Team':
-        return AppImages.TeamIcon;
-      case 'Add Person':
-        return AppImages.AddPersonIcon;
-      case 'Remove Person':
-        return AppImages.RemovePersonIcon;
-      case 'Background Replacement':
-        return AppImages.BackgroundReplaceIcon;
-      case 'Cut Outs':
-        return AppImages.CutsOutIcon;
-      case 'Change Color':
-        return AppImages.ChangeColorIcon;
+  String getStatusText() {
+    switch (status) {
+      case 'IN_PROGRESS':
+        return 'In Progress';
+      case 'DELIVERED':
+        return 'Delivered';
+      case 'PENDING_VENDOR_CONFIRM':
+        return 'Pending Vendor Confirm';
+      case 'PENDING_ORDER':
+        return 'In Progress';
+      case 'COMPLETED':
+        return 'Completed';
+      case 'AWAITING_REVISION':
+        return 'Awaiting Revision';
+      case 'DISPUTED':
+        return 'Disputed';
+      case 'RESOLVED':
+        return 'Resolved';
+      case 'IN_CART':
+        return 'In Cart';
+      case 'CANCELLED':
+        return 'Resolved';
       default:
-        return AppImages.FolderIcon;
+        return status;
     }
+  }
+
+  /// Chuyển timestamp UTC -> giờ local của thiết bị và format
+  static String _timestampToDate(dynamic value) {
+    if (value == null || value == 0) {
+      return "";
+    }
+    // Convert từ UTC sang giờ local
+    final utcDate = DateTime.fromMillisecondsSinceEpoch(value, isUtc: true);
+    final localDate = utcDate.toLocal();
+
+    return DateFormat('dd/MM/yyyy hh:mm a').format(localDate);
+  }
+}
+
+class OrderTransactionModel {
+  int orderId;
+  int payerId;
+  double priceSkill;
+  double priceAddons;
+  double priceTax;
+  double priceTotal;
+  String status;
+
+  OrderTransactionModel({
+    required this.orderId,
+    required this.payerId,
+    required this.priceSkill,
+    required this.priceAddons,
+    required this.priceTax,
+    required this.priceTotal,
+    required this.status,
+  });
+
+  factory OrderTransactionModel.fromJson(Map<String, dynamic> json) {
+    return OrderTransactionModel(
+      orderId: json['orderId'],
+      payerId: json['payerId'],
+      priceSkill: (json['priceSkill'] ?? 0).toDouble(),
+      priceAddons: (json['priceAddons'] ?? 0).toDouble(),
+      priceTax: (json['priceTax'] ?? 0).toDouble(),
+      priceTotal: (json['priceTotal'] ?? 0).toDouble(),
+      status: json['status'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'orderId': orderId,
+      'payerId': payerId,
+      'priceSkill': priceSkill,
+      'priceAddons': priceAddons,
+      'priceTax': priceTax,
+      'priceTotal': priceTotal,
+      'status': status,
+    };
   }
 }

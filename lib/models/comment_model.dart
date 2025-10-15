@@ -1,9 +1,10 @@
 class CommentModel {
-  String id;
-  String userId;
+  int id;
+  int userId;
   String userName;
   String userAvatar;
   String content;
+  int level;
   List<String> images;
   List<CommentModel> replies;
   DateTime createdAt;
@@ -15,6 +16,7 @@ class CommentModel {
     required this.userName,
     required this.userAvatar,
     required this.content,
+    this.level = 1,
     this.images = const [],
     this.replies = const [],
     required this.createdAt,
@@ -24,24 +26,26 @@ class CommentModel {
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       id: json['id'],
-      userId: json['userId'],
-      userName: json['userName'],
-      userAvatar: json['userAvatar'],
-      content: json['content'],
-      images: List<String>.from(json['images'] ?? []),
-      replies: (json['replies'] as List<dynamic>?)
-          ?.map((reply) => CommentModel.fromJson(reply))
-          .toList() ??
+      userId: json['commenter']['id'] ?? 0,
+      level: json['level'] ?? 1,
+      userName: json['commenter']['businessName'] ?? "",
+      userAvatar: json['commenter']['avatar'] ?? "",
+      content: json['content'] ?? "",
+      images: List<String>.from(json['attachments'] ?? []),
+      replies:
+          (json['subComments'] as List<dynamic>?)
+              ?.map((reply) => CommentModel.fromJson(reply))
+              .toList() ??
           [],
-      createdAt: DateTime.parse(json['createdAt']),
-      updatedAt: DateTime.parse(json['updatedAt']),
+      createdAt: DateTime.parse(json['createdTime']),
+      updatedAt: DateTime.parse(json['modifiedTime']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'userId': userId,
+      'level': level,
       'userName': userName,
       'userAvatar': userAvatar,
       'content': content,
@@ -51,23 +55,4 @@ class CommentModel {
       'updatedAt': updatedAt.toIso8601String(),
     };
   }
-
-  // Helper methods
-  bool get isOwnComment => userId == 'current_user_id'; 
-  String get displayTime {
-    final now = DateTime.now();
-    final difference = now.difference(updatedAt);
-    
-    if (difference.inMinutes < 1) {
-      return 'now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h';
-    } else {
-      return '${difference.inDays}d';
-    }
-  }
-
-  bool get isEdited => updatedAt.isAfter(createdAt);
 }

@@ -155,7 +155,7 @@ class AllServicesCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.network(
-              icon,
+              icon.trim(),
               height: 40.h,
               width: 40.h,
               errorBuilder: (context, error, stackTrace) {

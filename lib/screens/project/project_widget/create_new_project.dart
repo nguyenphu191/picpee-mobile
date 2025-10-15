@@ -4,27 +4,91 @@ import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/models/top_notch_clipper.dart';
+import 'package:picpee_mobile/providers/project_provider.dart';
+import 'package:provider/provider.dart';
 
 class CreateNewProject extends StatefulWidget {
-  const CreateNewProject({super.key, this.onProjectsUpdated});
-  final void Function(List<Project>)? onProjectsUpdated;
+  const CreateNewProject({super.key, this.project, this.onProjectCreated});
+  final ProjectModel? project;
+  final VoidCallback? onProjectCreated;
   @override
   State<CreateNewProject> createState() => _CreateNewProjectState();
 }
 
 class _CreateNewProjectState extends State<CreateNewProject> {
-  final TextEditingController _projectNameController = TextEditingController();
-  void _addNewProject(String name) {
-    final newProject = Project(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      name: name,
-      lastOrdered: DateTime.now(),
-      description: 'New project created',
-      iconColor: Colors.tealAccent,
-    );
+  final TextEditingController _nameController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
 
-    if (widget.onProjectsUpdated != null) {
-      widget.onProjectsUpdated!([newProject]);
+  bool get isEditing => widget.project != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEditing) {
+      _nameController.text = widget.project!.name;
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final projectProvider = Provider.of<ProjectProvider>(
+      context,
+      listen: false,
+    );
+    bool success;
+
+    if (isEditing) {
+      success = await projectProvider.updateProject(
+        _nameController.text.trim(),
+        widget.project!.id,
+      );
+    } else {
+      success = await projectProvider.createProject(
+        _nameController.text.trim(),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (success) {
+      Navigator.of(context).pop();
+      widget.onProjectCreated?.call();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEditing
+                ? 'Project updated successfully'
+                : 'Project created successfully',
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEditing ? 'Failed to update project' : 'Failed to create project',
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -66,7 +130,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                       left: 16.w,
                       top: 20.h,
                       child: Text(
-                        'New Project',
+                        isEditing ? 'Edit Project' : 'New Project',
                         style: TextStyle(
                           fontSize: 14.h,
                           fontWeight: FontWeight.bold,
@@ -126,7 +190,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                       ),
                       SizedBox(height: 12.h),
                       TextField(
-                        controller: _projectNameController,
+                        controller: _nameController,
                         decoration: InputDecoration(
                           hintText: 'Input your project name',
                           hintStyle: TextStyle(
@@ -150,9 +214,8 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                       SizedBox(height: 16.h),
                       InkWell(
                         onTap: () {
-                          if (_projectNameController.text.trim().isNotEmpty) {
-                            _addNewProject(_projectNameController.text.trim());
-                            Navigator.of(context).pop();
+                          if (!_isLoading) {
+                            _handleSubmit();
                           }
                         },
                         child: Container(
@@ -165,15 +228,25 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                             color: AppColors.buttonGreen,
                             borderRadius: BorderRadius.all(Radius.circular(6)),
                           ),
-                          child: Text(
-                            'Save',
-                            style: TextStyle(
-                              fontSize: 16.h,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                          child: _isLoading
+                              ? SizedBox(
+                                  width: 20.w,
+                                  height: 20.h,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.buttonGreen,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  isEditing ? 'Save' : 'Create',
+                                  style: TextStyle(
+                                    fontSize: 14.h,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
                         ),
                       ),
                     ],

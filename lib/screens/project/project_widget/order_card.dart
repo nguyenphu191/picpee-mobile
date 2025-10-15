@@ -7,10 +7,16 @@ import 'package:picpee_mobile/screens/order/order_screen.dart';
 class OrderCard extends StatelessWidget {
   const OrderCard({super.key, required this.order});
 
-  final Order order;
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')} ${date.hour >= 12 ? 'PM' : 'AM'}';
+  final OrderModel order;
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
   }
 
   @override
@@ -19,7 +25,7 @@ class OrderCard extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => OrderScreen()),
+          MaterialPageRoute(builder: (context) => OrderScreen(order: order)),
         );
       },
       child: Container(
@@ -62,7 +68,7 @@ class OrderCard extends StatelessWidget {
                       ),
                       SizedBox(width: 8.w),
                       Text(
-                        order.status.displayName,
+                        order.getStatusText(),
                         style: TextStyle(
                           color: order.getStatusColor(),
                           fontSize: 14.h,
@@ -77,18 +83,27 @@ class OrderCard extends StatelessWidget {
             SizedBox(height: 12.h),
             Row(
               children: [
-                Image.asset(
-                  order.getServiceImg(),
-                  width: 32.h,
-                  height: 32.h,
+                Image.network(
+                  order.skill!.urlImage.trim(),
+                  height: 28.h,
+                  width: 28.h,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 28.h,
+                      width: 28.h,
+                      color: Colors.grey[300],
+                      alignment: Alignment.center,
+                      child: Icon(Icons.broken_image, size: 16.h),
+                    );
+                  },
                 ),
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    order.serviceName,
+                    order.skill!.name,
                     style: TextStyle(
-                      fontSize: 16.h,
+                      fontSize: 18.h,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
@@ -97,29 +112,29 @@ class OrderCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 8.h),
-            Row(
-              children: [
-                Text(
-                  'ID Order: ',
-                  style: TextStyle(
-                    fontSize: 14.h,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Text(
-                  '${order.id}',
-                  style: TextStyle(
-                    fontSize: 14.h,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 4.h),
+            // Row(
+            //   children: [
+            //     Text(
+            //       'ID Order: ',
+            //       style: TextStyle(
+            //         fontSize: 14.h,
+            //         color: Colors.grey[600],
+            //         fontWeight: FontWeight.w500,
+            //       ),
+            //     ),
+            //     Text(
+            //       '${order.id}',
+            //       style: TextStyle(
+            //         fontSize: 14.h,
+            //         color: Colors.black,
+            //         fontWeight: FontWeight.w500,
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // SizedBox(height: 4.h),
             Text(
-              'Submitted: ${_formatDate(order.submitted)}',
+              'Submitted: ${order.createdTime}',
               style: TextStyle(
                 fontSize: 14.h,
                 color: Colors.grey[600],
@@ -128,7 +143,7 @@ class OrderCard extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Due date: ${_formatDate(order.dueDate)}',
+              'Due date: ${order.dueTime}',
               style: TextStyle(
                 fontSize: 14.h,
                 color: Colors.grey[600],
@@ -143,34 +158,45 @@ class OrderCard extends StatelessWidget {
                   height: 28.h,
                   width: 28.h,
                   alignment: Alignment.center,
-                  padding: EdgeInsets.all(4.w),
                   decoration: BoxDecoration(
                     color: AppColors.buttonGreen,
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: order.designerAvatar != ""
-                      ? Image.network(order.designerAvatar, fit: BoxFit.cover)
-                      : Text(
-                          'N',
-                          style: TextStyle(
-                            fontSize: 12.h,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                  child: ClipOval(
+                    child: Image.network(
+                      order.vendor!.avatar?.trim() ??
+                          'https://placeholder.com/avatar.png',
+                      height: 28.h,
+                      width: 28.h,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Center(
+                          child: Text(
+                            order.vendor!.businessName!.isNotEmpty
+                                ? order.vendor!.businessName![0].toUpperCase()
+                                : '?',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.h,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 SizedBox(width: 12.w),
                 Row(
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.image, size: 18.h, color: Colors.grey[500]),
+                        Icon(Icons.image, size: 20.h, color: Colors.red),
                         SizedBox(width: 4.w),
                         Text(
-                          order.amount.toString(),
+                          order.quantity.toString(),
                           style: TextStyle(
-                            fontSize: 14.h,
+                            fontSize: 16.h,
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -180,12 +206,12 @@ class OrderCard extends StatelessWidget {
                     SizedBox(width: 12.w),
                     Row(
                       children: [
-                        Icon(Icons.chat, size: 18.h, color: Colors.grey[500]),
+                        Icon(Icons.chat, size: 20.h, color: Colors.blue),
                         SizedBox(width: 4.w),
                         Text(
-                          "0",
+                          order.countComments.toString(),
                           style: TextStyle(
-                            fontSize: 14.h,
+                            fontSize: 16.h,
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),
@@ -197,14 +223,13 @@ class OrderCard extends StatelessWidget {
                       children: [
                         Icon(
                           Icons.attach_money,
-                          size: 18.h,
-                          color: Colors.grey[500],
+                          size: 20.h,
+                          color: Colors.orange,
                         ),
-                        SizedBox(width: 4.w),
                         Text(
-                          order.total.toStringAsFixed(2),
+                          _formatPrice(order.cost),
                           style: TextStyle(
-                            fontSize: 14.h,
+                            fontSize: 16.h,
                             color: Colors.grey[600],
                             fontWeight: FontWeight.w500,
                           ),

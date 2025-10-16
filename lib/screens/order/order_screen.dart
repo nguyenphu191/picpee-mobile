@@ -114,15 +114,15 @@ class _OrderScreenState extends State<OrderScreen>
               controller: _drawerTabController,
               tabAlignment: TabAlignment.start,
               isScrollable: true,
-              indicatorColor: Colors.blue,
-              labelColor: Colors.blue,
+              indicatorColor: Colors.black,
+              labelColor: Colors.black,
               unselectedLabelColor: Colors.grey,
               labelStyle: TextStyle(
-                fontSize: 14.h,
+                fontSize: 16.h,
                 fontWeight: FontWeight.w600,
               ),
               unselectedLabelStyle: TextStyle(
-                fontSize: 14.h,
+                fontSize: 16.h,
                 fontWeight: FontWeight.w600,
               ),
               onTap: (index) => setState(() {}),
@@ -146,12 +146,12 @@ class _OrderScreenState extends State<OrderScreen>
                 // Comments Tab
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: CommentSide(),
+                  child: CommentSide(orderId: widget.order.id),
                 ),
                 // Checklist Tab
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: ChecklistSide(),
+                  child: ChecklistSide(orderId: widget.order.id),
                 ),
               ],
             ),

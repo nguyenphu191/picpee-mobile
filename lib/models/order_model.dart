@@ -282,3 +282,43 @@ class OrderTransactionModel {
     };
   }
 }
+
+class OrderAddOn {
+  final int id;
+  final int orderId;
+  final String skillAddonsName;
+  final String skillAddonsDescription;
+  final String attachment;
+  final bool tick;
+
+  OrderAddOn({
+    required this.id,
+    required this.orderId,
+    required this.skillAddonsName,
+    required this.skillAddonsDescription,
+    required this.attachment,
+    required this.tick,
+  });
+
+  factory OrderAddOn.fromJson(Map<String, dynamic> json) {
+    return OrderAddOn(
+      id: json['id'] ?? 0,
+      orderId: json['orderId'] ?? 0,
+      skillAddonsName: json['skillAddonsName'] ?? '',
+      skillAddonsDescription: json['skillAddonsDescription'] ?? '',
+      attachment: json['attachment'] ?? '',
+      tick: json['tick'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'orderId': orderId,
+      'skillAddonsName': skillAddonsName,
+      'skillAddonsDescription': skillAddonsDescription,
+      'attachment': attachment,
+      'tick': tick,
+    };
+  }
+}

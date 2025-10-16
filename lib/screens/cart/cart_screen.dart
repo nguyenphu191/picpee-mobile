@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/core/utils/mock_order_data.dart';
 import 'package:picpee_mobile/models/order_model.dart';
 
 class CartScreen extends StatefulWidget {
@@ -36,16 +35,27 @@ class _CartScreenState extends State<CartScreen> {
           textAlign: TextAlign.center,
         ),
       ),
-      body: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.w),
-        child: ListView.builder(
-          itemCount: cartItems.length,
-          itemBuilder: (context, index) {
-            final item = cartItems[index];
-            return _buildItemCard(item);
-          },
-        ),
-      ),
+      body: cartItems.isEmpty
+          ? Center(
+              child: Text(
+                'Your cart is empty',
+                style: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 16.h,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            )
+          : Container(
+              margin: EdgeInsets.symmetric(horizontal: 16.w),
+              child: ListView.builder(
+                itemCount: cartItems.length,
+                itemBuilder: (context, index) {
+                  final item = cartItems[index];
+                  return _buildItemCard(item);
+                },
+              ),
+            ),
     );
   }
 

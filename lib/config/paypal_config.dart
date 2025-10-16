@@ -1,9 +1,9 @@
 class PayPalConfig {
   // PayPal Sandbox credentials - Thay bằng credentials thật khi production
   static const String clientId =
-      "AeWnhSMvGB4yb1SY_I9MlhRKgKKjM9lNqbxe_GlSLyLCG5RYKnhrTVMYy7A6j7TM6FRQ8sAuI5PgY8XS";
+      "Ab4e9XyhStoO1vpkF8-Fepk_2YONooK8Fq-RJnCfL9c0RgDu4erEZsTcMN9ifGh8KuuarYgjUGEWdZcg";
   static const String secretKey =
-      "ELNZ0vNY-DcXNKW_UJ1SXDL1vfgKl5z9yGQ8v8Bq6nVVa8dKj9w4U8V3SoE3rVUa7q1B1fX1Z1qV1w";
+      "EOAqc7QVsJGvz3AITKTbW8D9mw3hjtHpyxcjL_DYLyNvvl2DQ_uCn0Hn_i2xLoWXrQT4qt0B-BC6Z9hY";
 
   // Environment - true for sandbox, false for production
   static const bool sandboxMode = true;
@@ -17,5 +17,5 @@ class PayPalConfig {
 
   // PayPal URLs
   static String get baseUrl =>
-      sandboxMode ? "https://api.sandbox.paypal.com" : "https://api.paypal.com";
+      sandboxMode ? "https://sandbox.paypal.com" : "https://api.paypal.com";
 }

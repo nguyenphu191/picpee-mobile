@@ -3,11 +3,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/core/utils/service_hard_data.dart';
+import 'package:picpee_mobile/models/designer_model.dart';
+import 'package:picpee_mobile/models/skill_of_vendor_model.dart';
 import 'package:picpee_mobile/models/top_notch_clipper.dart';
+import 'package:picpee_mobile/providers/project_provider.dart';
 import 'package:picpee_mobile/screens/order/order_widget/find_designer_dia.dart';
+import 'package:provider/provider.dart';
 
 class AddOrderCard extends StatefulWidget {
-  const AddOrderCard({super.key});
+  const AddOrderCard({super.key, this.designer, this.skill});
+  final DesignerModel? designer;
+  final SkillOfVendorModel? skill;
 
   @override
   State<AddOrderCard> createState() => _AddOrderCardState();
@@ -26,16 +32,56 @@ class _AddOrderCardState extends State<AddOrderCard> {
     {"id": "2", "name": "Designer 2", "image": AppImages.LawnReplacementIcon},
     {"id": "3", "name": "Designer 3", "image": AppImages.DiscountIcon},
   ];
-
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
+  }
   @override
   void initState() {
     super.initState();
-    selectedService = null;
-    selectedDesigner = null;
+    // Khởi tạo với giá trị được truyền vào
+    if (widget.designer != null) {
+      selectedDesigner = widget.designer!.businessName;
+    }
+    if (widget.skill != null) {
+      selectedService = widget.skill!.skillName;
+    }
     selectedDateTime = null;
     _guidelinesController = TextEditingController();
     _sourceFilesController = TextEditingController();
     _finishLinksController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchProjects();
+    });
+  }
+  
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> _fetchProjects() async {
+    final projectProvider = Provider.of<ProjectProvider>(
+      context,
+      listen: false,
+    );
+    final success = await projectProvider.fetchProjects();
+    if (!success && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to load projects'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
@@ -151,71 +197,94 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                underline: SizedBox(),
-                                hint: Text(
-                                  selectedService ?? 'Select a service',
-                                  style: TextStyle(
-                                    color: selectedService != null
-                                        ? Colors.black
-                                        : Colors.grey,
-                                    fontSize: 14.h,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-
-                                style: TextStyle(
-                                  fontSize: 14.h,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                menuMaxHeight: 200.h,
-                                items: services
-                                    .map(
-                                      (ServiceItem service) =>
-                                          DropdownMenuItem<String>(
-                                            value: service.title,
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  width: 30.w,
-                                                  height: 30.h,
-                                                  margin: EdgeInsets.only(
-                                                    right: 8.w,
-                                                  ),
-                                                  decoration: BoxDecoration(
-                                                    image: DecorationImage(
-                                                      image: AssetImage(
-                                                        service.image,
-                                                      ),
-                                                      fit: BoxFit.cover,
+                            // Kiểm tra nếu skill đã được truyền vào
+                            widget.skill != null
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 12.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(6),
+                                      color: Colors.grey[100],
+                                    ),
+                                    child: Text(
+                                      selectedService ?? '',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14.h,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: DropdownButton<String>(
+                                      isExpanded: true,
+                                      underline: SizedBox(),
+                                      hint: Text(
+                                        selectedService ?? 'Select a service',
+                                        style: TextStyle(
+                                          color: selectedService != null
+                                              ? Colors.black
+                                              : Colors.grey,
+                                          fontSize: 14.h,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 14.h,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      menuMaxHeight: 200.h,
+                                      items: services
+                                          .map(
+                                            (
+                                              ServiceItem service,
+                                            ) => DropdownMenuItem<String>(
+                                              value: service.title,
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 30.w,
+                                                    height: 30.h,
+                                                    margin: EdgeInsets.only(
+                                                      right: 8.w,
                                                     ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          4,
+                                                    decoration: BoxDecoration(
+                                                      image: DecorationImage(
+                                                        image: AssetImage(
+                                                          service.image,
                                                         ),
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            4,
+                                                          ),
+                                                    ),
                                                   ),
-                                                ),
-                                                Text(service.title),
-                                              ],
+                                                  Text(service.title),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                    )
-                                    .toList(),
-                                onChanged: (String? value) {
-                                  setState(() {
-                                    selectedService = value;
-                                  });
-                                },
-                              ),
-                            ),
+                                          )
+                                          .toList(),
+                                      onChanged: (String? value) {
+                                        setState(() {
+                                          selectedService = value;
+                                        });
+                                      },
+                                    ),
+                                  ),
                           ],
                         ),
                         SizedBox(height: 10.h),
@@ -230,36 +299,90 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12.w),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: DropdownButton<String>(
-                                isExpanded: true,
-                                underline: SizedBox(),
-                                hint: Text(
-                                  selectedDesigner ?? 'Choose a designer',
-                                  style: TextStyle(
-                                    fontSize: 14.h,
-                                    color: selectedDesigner != null
-                                        ? Colors.black87
-                                        : Colors.grey,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                style: TextStyle(
-                                  fontSize: 14.h,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                menuMaxHeight: 200.h,
-                                items: [
-                                  ...designerInProject
-                                      .map(
-                                        (designer) => DropdownMenuItem<String>(
-                                          value: designer['name'],
+                            // Kiểm tra nếu designer đã được truyền vào
+                            widget.designer != null
+                                ? Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 12.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(6),
+                                      color: Colors.grey[100],
+                                    ),
+                                    child: Text(
+                                      selectedDesigner ?? '',
+                                      style: TextStyle(
+                                        fontSize: 14.h,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: DropdownButton<String>(
+                                      isExpanded: true,
+                                      underline: SizedBox(),
+                                      hint: Text(
+                                        selectedDesigner ?? 'Choose a designer',
+                                        style: TextStyle(
+                                          fontSize: 14.h,
+                                          color: selectedDesigner != null
+                                              ? Colors.black87
+                                              : Colors.grey,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 14.h,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      menuMaxHeight: 200.h,
+                                      items: [
+                                        ...designerInProject
+                                            .map(
+                                              (
+                                                designer,
+                                              ) => DropdownMenuItem<String>(
+                                                value: designer['name'],
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      width: 30.w,
+                                                      height: 30.h,
+                                                      margin: EdgeInsets.only(
+                                                        right: 8.w,
+                                                      ),
+                                                      decoration: BoxDecoration(
+                                                        image: DecorationImage(
+                                                          image: AssetImage(
+                                                            designer['image']!,
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                    Text(designer['name']!),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                            .toList(),
+                                        DropdownMenuItem<String>(
+                                          value: "see_all",
                                           child: Row(
                                             children: [
                                               Container(
@@ -269,78 +392,54 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                                   right: 8.w,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  image: DecorationImage(
-                                                    image: AssetImage(
-                                                      designer['image']!,
-                                                    ),
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                                  color: Colors.black
+                                                      .withOpacity(0.1),
                                                   borderRadius:
-                                                      BorderRadius.circular(4),
+                                                      BorderRadius.circular(50),
+                                                ),
+                                                child: Icon(
+                                                  Icons.more_horiz,
+                                                  color: Colors.black,
+                                                  size: 20.h,
                                                 ),
                                               ),
-                                              Text(designer['name']!),
+                                              Text(
+                                                "See All Designers",
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
                                             ],
                                           ),
                                         ),
-                                      )
-                                      .toList(),
-                                  DropdownMenuItem<String>(
-                                    value: "see_all",
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 30.w,
-                                          height: 30.h,
-                                          margin: EdgeInsets.only(right: 8.w),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(
-                                              0.1,
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                              50,
-                                            ),
-                                          ),
-                                          child: Icon(
-                                            Icons.more_horiz,
-                                            color: Colors.black,
-                                            size: 20.h,
-                                          ),
-                                        ),
-                                        Text(
-                                          "See All Designers",
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
                                       ],
+                                      onChanged: (value) async {
+                                        if (value == "see_all") {
+                                          final selectedDesignerData =
+                                              await showDialog<
+                                                Map<String, String>
+                                              >(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        FindDesigner(),
+                                              );
+
+                                          if (selectedDesignerData != null) {
+                                            setState(() {
+                                              selectedDesigner =
+                                                  selectedDesignerData['name'];
+                                            });
+                                          }
+                                        } else {
+                                          setState(() {
+                                            selectedDesigner = value;
+                                          });
+                                        }
+                                      },
                                     ),
                                   ),
-                                ],
-                                onChanged: (value) async {
-                                  if (value == "see_all") {
-                                    final selectedDesignerData =
-                                        await showDialog<Map<String, String>>(
-                                          context: context,
-                                          builder: (BuildContext context) =>
-                                              FindDesigner(),
-                                        );
-
-                                    if (selectedDesignerData != null) {
-                                      setState(() {
-                                        selectedDesigner =
-                                            selectedDesignerData['name'];
-                                      });
-                                    }
-                                  } else {
-                                    setState(() {
-                                      selectedDesigner = value;
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
                           ],
                         ),
 

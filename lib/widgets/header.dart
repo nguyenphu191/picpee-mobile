@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/providers/notification_provider.dart';
 import 'package:picpee_mobile/screens/cart/cart_screen.dart';
 import 'package:picpee_mobile/screens/favorite/favorite_screen.dart';
@@ -44,8 +45,8 @@ class _HeaderState extends State<Header> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<NotificationProvider>(
-      builder: (context, notificationProvider, child) {
+    return Consumer2<NotificationProvider, AuthProvider>(
+      builder: (context, notificationProvider, authProvider, child) {
         final unreadCount = notificationProvider.unReadCount;
         return Container(
           height: 68.h,

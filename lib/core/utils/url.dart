@@ -39,4 +39,6 @@ class Url {
   static const String getActivity = "$baseUrl/order-activity/get-by-order-id";
   static const String getComment = "$baseUrl/order/comment/filter";
   static const String addComment = "$baseUrl/order/comment";
+  static const String getCheckList = "$baseUrl/order";
+  static const String getAddOn = "$baseUrl/user-skill/vendor";
 }

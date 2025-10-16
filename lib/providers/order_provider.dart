@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picpee_mobile/models/comment_model.dart';
 import 'package:picpee_mobile/models/order_activity_model.dart';
 import 'package:picpee_mobile/models/order_model.dart';
 import 'package:picpee_mobile/services/order_service.dart';
@@ -9,11 +10,15 @@ class OrderProvider with ChangeNotifier {
   List<OrderModel> _orders = [];
   OrderModel? _currentOrder;
   List<OrderActivityModel> _activities = [];
+  List<CommentModel> _comments = [];
+  List<OrderAddOn> _checklist = [];
 
   bool get loading => _isloading;
   List<OrderModel> get orders => _orders;
   OrderModel? get currentOrder => _currentOrder;
   List<OrderActivityModel> get activities => _activities;
+  List<CommentModel> get comments => _comments;
+  List<OrderAddOn> get checklist => _checklist;
 
   void setLoading(bool value) {
     _isloading = value;
@@ -237,6 +242,98 @@ class OrderProvider with ChangeNotifier {
     try {
       _activities = await _orderService.fetchOrderActivities(orderId);
       print("Fetched activities: ${_activities.length}");
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Fetch order comments
+  Future<bool> fetchOrderComments(int orderId) async {
+    setLoading(true);
+    try {
+      _comments = await _orderService.fetchOrderComments(orderId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Add a new comment
+  Future<bool> addComment(Map<String, dynamic> commentData) async {
+    setLoading(true);
+    try {
+      final success = await _orderService.addComment(commentData);
+      if (success) {
+        if (commentData.containsKey('orderId')) {
+          int orderId = commentData['orderId'];
+          await fetchOrderComments(orderId);
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //Edit a comment
+  Future<bool> editComment(
+    int commentId,
+    Map<String, dynamic> commentData,
+  ) async {
+    setLoading(true);
+    try {
+      final success = await _orderService.updateComment(commentId, commentData);
+      if (success) {
+        if (commentData.containsKey('orderId')) {
+          int orderId = commentData['orderId'];
+          await fetchOrderComments(orderId);
+        }
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Delete a comment
+  Future<bool> deleteComment(int commentId) async {
+    setLoading(true);
+    try {
+      final success = await _orderService.deleteComment(commentId);
+      if (success) {
+        _comments.removeWhere((comment) => comment.id == commentId);
+        notifyListeners();
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //get checklist
+  Future<bool> fetchChecklist(int orderId) async {
+    setLoading(true);
+    try {
+      _checklist = await _orderService.fetchChecklist(orderId);
       notifyListeners();
       return true;
     } catch (e) {

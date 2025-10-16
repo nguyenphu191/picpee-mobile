@@ -95,6 +95,12 @@ class _NotificationScreenState extends State<NotificationScreen>
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
             title: Text(
               'Notifications',
               style: TextStyle(

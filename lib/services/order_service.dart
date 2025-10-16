@@ -149,6 +149,7 @@ class OrderService {
 
   //Lấy comments
   Future<List<CommentModel>> fetchOrderComments(int orderId) async {
+    print("Fetching comments for orderId: $orderId");
     final token = await AuthService().getToken();
     final response = await http.post(
       Uri.parse(Url.getComment),
@@ -160,10 +161,12 @@ class OrderService {
     );
     if (response.statusCode == 200) {
       final res = jsonDecode(response.body);
-      final data = res['data'];
+      final data = res['data']['list'];
+      print(data.length);
       List<CommentModel> comments = (data as List)
           .map((commentJson) => CommentModel.fromJson(commentJson))
           .toList();
+      print(comments.length);
       return comments;
     } else {
       throw Exception('Failed to load order comments');
@@ -184,6 +187,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print("Failed to add comment: ${response.body}");
       return false;
     }
   }
@@ -207,6 +211,8 @@ class OrderService {
 
   // Cập nhật comment
   Future<bool> updateComment(int id, Map<String, dynamic> commentData) async {
+    print("Updating comment with id: $id");
+    print("Comment data: $commentData");
     final token = await AuthService().getToken();
     final response = await http.put(
       Uri.parse("${Url.addComment}/$id"),
@@ -219,7 +225,30 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print("Failed to update comment: ${response.body}");
       return false;
+    }
+  }
+
+  //lấy checklist
+  Future<List<OrderAddOn>> fetchChecklist(int orderId) async {
+    final token = await AuthService().getToken();
+    final response = await http.get(
+      Uri.parse("${Url.getCheckList}/$orderId/get-check-list"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data'];
+      List<OrderAddOn> checklist = (data as List)
+          .map((checklistJson) => OrderAddOn.fromJson(checklistJson))
+          .toList();
+      return checklist;
+    } else {
+      throw Exception('Failed to load checklist');
     }
   }
 }

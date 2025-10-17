@@ -22,7 +22,11 @@ class ProjectService {
       final projects = (data['list'] as List)
           .map((projectJson) => ProjectModel.fromJson(projectJson))
           .toList();
-      return projects;
+      //filter status
+      final filteredProjects = projects
+          .where((project) => project.status == 'ACTIVE')
+          .toList();
+      return filteredProjects;
     } else {
       throw Exception('Failed to load projects');
     }

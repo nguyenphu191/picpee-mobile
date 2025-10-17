@@ -34,7 +34,25 @@ class OrderProvider with ChangeNotifier {
     setLoading(true);
     _orders = [];
     try {
-      _orders = await _orderService.fetchOrders(projectId);
+      final orders = await _orderService.fetchOrders(projectId: projectId);
+      _orders = orders
+          .where((order) => order.status != 'PENDING_ORDER')
+          .toList();
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<bool> fetchOrdersByStaus(String status) async {
+    setLoading(true);
+    _orders = [];
+    try {
+      final orders = await _orderService.fetchOrders();
+      _orders = orders.where((order) => order.status == status).toList();
       notifyListeners();
       return true;
     } catch (e) {
@@ -46,6 +64,7 @@ class OrderProvider with ChangeNotifier {
 
   Future<bool> fetchOrderDetails(int orderId) async {
     setLoading(true);
+    _currentOrder = null;
     try {
       final order = await _orderService.fetchOrderDetails(orderId);
       if (order != null) {
@@ -66,8 +85,44 @@ class OrderProvider with ChangeNotifier {
     try {
       final newOrder = await _orderService.createOrder(orderData);
       _orders.add(newOrder);
+      setCurrentOrder(newOrder);
       notifyListeners();
       return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  Future<bool> purchaseOrder({required int orderId, String? code}) async {
+    setLoading(true);
+    try {
+      final order = await _orderService.payOrder(orderId, code);
+      final index = _orders.indexWhere((o) => o.id == order.id);
+      if (index != -1) {
+        _orders[index] = order;
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+  // Xóa order
+  Future<bool> deleteOrder(int orderId) async {
+    setLoading(true);
+    try {
+      final success = await _orderService.deleteOrder(orderId);
+      if (success) {
+        _orders.removeWhere((order) => order.id == orderId);
+        notifyListeners();
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       return false;
     } finally {

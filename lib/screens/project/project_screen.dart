@@ -97,15 +97,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
     );
     final success = await projectProvider.moveToTrash(project.id);
 
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${project.name} moved to trash'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } else {
+    if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed to move project to trash'),
@@ -175,7 +167,6 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
       final success = await projectProvider.deleteProject(project.id);
 
       if (!success) {
-        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Failed to delete project'),

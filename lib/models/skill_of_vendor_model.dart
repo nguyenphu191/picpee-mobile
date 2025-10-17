@@ -136,15 +136,17 @@ class SkillImage {
 }
 
 class AddOnModel {
-  final int skillAddOnsId;
-  final double cost;
-  final bool isActive;
-  final String name;
-  final String unit;
-  final String description;
+  int id;
+  int userAddonsId;
+  double cost;
+  bool isActive;
+  String name;
+  String unit;
+  String description;
 
   AddOnModel({
-    required this.skillAddOnsId,
+    required this.id,
+    required this.userAddonsId,
     required this.cost,
     required this.isActive,
     required this.name,
@@ -154,7 +156,8 @@ class AddOnModel {
 
   factory AddOnModel.fromJson(Map<String, dynamic> json) {
     return AddOnModel(
-      skillAddOnsId: json['skillAddOnsId'] ?? 0,
+      id: json['id'] ?? 0,
+      userAddonsId: json['userAddonsId'] ?? 0,
       cost: (json['cost'] ?? 0).toDouble(),
       isActive: json['isActive'] ?? false,
       name: json['name'] ?? '',
@@ -165,7 +168,7 @@ class AddOnModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'skillAddOnsId': skillAddOnsId,
+      'skillAddOnsId': id,
       'cost': cost,
       'isActive': isActive,
       'name': name,

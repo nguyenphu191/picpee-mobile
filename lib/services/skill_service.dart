@@ -141,6 +141,7 @@ class SkillService {
       );
     }
   }
+
   //lấy list addon
   Future<List<AddOnModel>> getAddOns(int skillId, int vendorId) async {
     final token = await AuthService().getToken();
@@ -148,7 +149,6 @@ class SkillService {
       throw Exception("No token found");
     }
     print("Fetching add-ons with token: $token");
-    
 
     final response = await http.get(
       Uri.parse("${Url.getAddOn}?skillId=$skillId&userId=$vendorId"),
@@ -159,7 +159,7 @@ class SkillService {
     );
     if (response.statusCode == 200) {
       final res = jsonDecode(response.body);
-      final data = res['data']['addOns'] as List<dynamic>;
+      final data = res['data']['skillAddOnsRes'] as List<dynamic>;
       return data.map((e) => AddOnModel.fromJson(e)).toList();
     } else {
       throw Exception("Failed to load add-ons: ${response.body}");

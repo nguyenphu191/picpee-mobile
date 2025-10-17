@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/providers/designer_provider.dart';
+import 'package:picpee_mobile/providers/discount_provider.dart';
 import 'package:picpee_mobile/providers/notification_provider.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/providers/project_provider.dart';
@@ -24,6 +25,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
         ChangeNotifierProvider(create: (_) => OrderProvider()),
+        ChangeNotifierProvider(create: (_) => DiscountProvider()),
       ],
       child: const MyApp(),
     ),

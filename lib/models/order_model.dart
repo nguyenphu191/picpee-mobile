@@ -184,7 +184,7 @@ class OrderModel {
       case 'AWAITING_REVISION':
         return Icons.edit;
       case 'DISPUTED':
-        return Icons.error;
+        return Icons.gavel;
       case 'RESOLVED':
         return Icons.check_circle_outline;
       case 'CANCELLED':
@@ -216,7 +216,7 @@ class OrderModel {
         return 'Resolved';
 
       case 'CANCELLED':
-        return 'Resolved';
+        return 'Cancelled';
       default:
         return status;
     }

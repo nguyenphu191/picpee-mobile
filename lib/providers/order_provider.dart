@@ -36,7 +36,11 @@ class OrderProvider with ChangeNotifier {
     try {
       final orders = await _orderService.fetchOrders(projectId: projectId);
       _orders = orders
-          .where((order) => order.status != 'PENDING_ORDER')
+          .where(
+            (order) =>
+                (order.status != 'PENDING_ORDER' &&
+                order.status != 'CANCELLED'),
+          )
           .toList();
       notifyListeners();
       return true;
@@ -111,6 +115,7 @@ class OrderProvider with ChangeNotifier {
       setLoading(false);
     }
   }
+
   // Xóa order
   Future<bool> deleteOrder(int orderId) async {
     setLoading(true);

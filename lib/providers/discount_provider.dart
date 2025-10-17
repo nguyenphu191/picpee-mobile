@@ -20,6 +20,7 @@ class DiscountProvider with ChangeNotifier {
   Future<bool> fetchAllDiscounts() async {
     setLoading(true);
     _discounts = [];
+    _appliedDiscount = null;
     try {
       _discounts = await _discountService.fetchUserDiscounts();
       setLoading(false);
@@ -44,5 +45,10 @@ class DiscountProvider with ChangeNotifier {
       setLoading(false);
       return false;
     }
+  }
+
+  void clearAppliedDiscount() {
+    _appliedDiscount = null;
+    notifyListeners();
   }
 }

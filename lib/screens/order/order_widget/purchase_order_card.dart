@@ -31,6 +31,10 @@ class _PurchaseOrderCardState extends State<PurchaseOrderCard> {
   void dispose() {
     _nameController.dispose();
     super.dispose();
+    Provider.of<DiscountProvider>(
+      context,
+      listen: false,
+    ).clearAppliedDiscount();
   }
 
   void _calculateTax() {
@@ -44,7 +48,38 @@ class _PurchaseOrderCardState extends State<PurchaseOrderCard> {
   double get _currentBalance => 729.02;
   double get _balanceAfterPurchase => _currentBalance - _total;
 
-  Future<void> _handleSubmit() async {}
+  Future<void> _handleSubmit() async {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final discountProvider = Provider.of<DiscountProvider>(
+      context,
+      listen: false,
+    );
+
+    final success = await orderProvider.purchaseOrder(
+      orderId: widget.order.id,
+      code: discountProvider.appliedDiscount?.code,
+    );
+
+    if (success && mounted) {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order submitted successfully'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      discountProvider.clearAppliedDiscount();
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to submit order'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
 
   Future<void> _applyPromotionCode(String code, int vendorId) async {
     final discountProvider = Provider.of<DiscountProvider>(

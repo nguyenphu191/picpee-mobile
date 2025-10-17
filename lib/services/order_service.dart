@@ -92,9 +92,9 @@ class OrderService {
     }
     Map<String, dynamic> body = {};
     if (code != null && code.isNotEmpty) {
-      body['code'] = code;
+      body['promotionCode'] = code;
     }
-    final response = await http.put(
+    final response = await http.post(
       Uri.parse("${Url.payOrder}/$orderId"),
       headers: {
         'Authorization': 'Bearer $token',
@@ -107,6 +107,7 @@ class OrderService {
       final data = res['data'];
       return OrderModel.fromJson(data);
     } else {
+      print('Failed to pay order: ${response.body}');
       throw Exception('Failed to pay order');
     }
   }

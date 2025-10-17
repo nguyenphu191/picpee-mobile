@@ -37,7 +37,20 @@ class _CreateNewProjectState extends State<CreateNewProject> {
   }
 
   Future<void> _handleSubmit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState != null) {
+      if (!_formKey.currentState!.validate()) return;
+    } else {
+      if (_nameController.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please enter a project name'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+    }
 
     setState(() {
       _isLoading = true;
@@ -60,6 +73,8 @@ class _CreateNewProjectState extends State<CreateNewProject> {
       );
     }
 
+    if (!mounted) return;
+
     setState(() {
       _isLoading = false;
     });
@@ -76,7 +91,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                 : 'Project created successfully',
           ),
           backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     } else {
@@ -86,7 +101,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
             isEditing ? 'Failed to update project' : 'Failed to create project',
           ),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     }
@@ -99,7 +114,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
       child: Container(
         height: 280.h,
         width: double.infinity,
-        decoration: BoxDecoration(color: Colors.transparent),
+        decoration: const BoxDecoration(color: Colors.transparent),
         child: Stack(
           children: [
             Positioned(
@@ -115,7 +130,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                     image: AssetImage(AppImages.background3),
                     fit: BoxFit.cover,
                   ),
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
                   ),
@@ -146,7 +161,7 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                         child: Container(
                           width: 24.h,
                           height: 24.h,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
@@ -173,83 +188,104 @@ class _CreateNewProjectState extends State<CreateNewProject> {
                     horizontal: 16.w,
                     vertical: 20.h,
                   ),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Project name',
-                        style: TextStyle(
-                          fontSize: 14.h,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                      SizedBox(height: 12.h),
-                      TextField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          hintText: 'Input your project name',
-                          hintStyle: TextStyle(
-                            color: Colors.grey,
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Project name',
+                          style: TextStyle(
                             fontSize: 14.h,
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(6),
-                            borderSide: BorderSide(color: Colors.grey),
-                          ),
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 8.h,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
                           ),
                         ),
-                      ),
-                      SizedBox(height: 16.h),
-                      InkWell(
-                        onTap: () {
-                          if (!_isLoading) {
-                            _handleSubmit();
-                          }
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
-                            vertical: 8.h,
+                        SizedBox(height: 12.h),
+                        TextFormField(
+                          controller: _nameController,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter a project name';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Input your project name',
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14.h,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(color: Colors.grey),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(color: Colors.grey),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(color: Colors.red),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(6),
+                              borderSide: const BorderSide(color: Colors.red),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 8.h,
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: AppColors.buttonGreen,
-                            borderRadius: BorderRadius.all(Radius.circular(6)),
-                          ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  width: 20.w,
-                                  height: 20.h,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.buttonGreen,
+                        ),
+                        SizedBox(height: 16.h),
+                        InkWell(
+                          onTap: _isLoading ? null : _handleSubmit,
+                          child: Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w,
+                              vertical: 8.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _isLoading
+                                  ? AppColors.buttonGreen.withOpacity(0.6)
+                                  : AppColors.buttonGreen,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(6),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? Center(
+                                    child: SizedBox(
+                                      width: 20.w,
+                                      height: 20.h,
+                                      child: const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                              Colors.white,
+                                            ),
+                                      ),
                                     ),
+                                  )
+                                : Text(
+                                    isEditing ? 'Save' : 'Create',
+                                    style: TextStyle(
+                                      fontSize: 14.h,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                )
-                              : Text(
-                                  isEditing ? 'Save' : 'Create',
-                                  style: TextStyle(
-                                    fontSize: 14.h,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

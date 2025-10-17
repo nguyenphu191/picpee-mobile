@@ -165,8 +165,7 @@ class OrderModel {
         return Colors.red;
       case 'CANCELLED':
         return Colors.red;
-      case "IN_CART":
-        return Colors.blue;
+
       default:
         return Colors.grey;
     }
@@ -180,8 +179,6 @@ class OrderModel {
         return Icons.check_circle;
       case 'PENDING_VENDOR_CONFIRM':
         return Icons.hourglass_top;
-      case 'PENDING_ORDER':
-        return Icons.hourglass_top;
       case 'COMPLETED':
         return Icons.check_circle;
       case 'AWAITING_REVISION':
@@ -192,7 +189,7 @@ class OrderModel {
         return Icons.check_circle_outline;
       case 'CANCELLED':
         return Icons.check_circle_outline;
-      case 'IN_CART':
+      case 'PENDING_ORDER':
         return Icons.shopping_cart;
       default:
         return Icons.help_outline;
@@ -208,7 +205,7 @@ class OrderModel {
       case 'PENDING_VENDOR_CONFIRM':
         return 'Pending Vendor Confirm';
       case 'PENDING_ORDER':
-        return 'In Progress';
+        return 'In Cart';
       case 'COMPLETED':
         return 'Completed';
       case 'AWAITING_REVISION':
@@ -217,8 +214,7 @@ class OrderModel {
         return 'Disputed';
       case 'RESOLVED':
         return 'Resolved';
-      case 'IN_CART':
-        return 'In Cart';
+
       case 'CANCELLED':
         return 'Resolved';
       default:
@@ -279,6 +275,46 @@ class OrderTransactionModel {
       'priceTax': priceTax,
       'priceTotal': priceTotal,
       'status': status,
+    };
+  }
+}
+
+class OrderAddOn {
+  final int id;
+  final int orderId;
+  final String skillAddonsName;
+  final String skillAddonsDescription;
+  final String attachment;
+  final bool tick;
+
+  OrderAddOn({
+    required this.id,
+    required this.orderId,
+    required this.skillAddonsName,
+    required this.skillAddonsDescription,
+    required this.attachment,
+    required this.tick,
+  });
+
+  factory OrderAddOn.fromJson(Map<String, dynamic> json) {
+    return OrderAddOn(
+      id: json['id'] ?? 0,
+      orderId: json['orderId'] ?? 0,
+      skillAddonsName: json['skillAddonsName'] ?? '',
+      skillAddonsDescription: json['skillAddonsDescription'] ?? '',
+      attachment: json['attachment'] ?? '',
+      tick: json['tick'] ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'orderId': orderId,
+      'skillAddonsName': skillAddonsName,
+      'skillAddonsDescription': skillAddonsDescription,
+      'attachment': attachment,
+      'tick': tick,
     };
   }
 }

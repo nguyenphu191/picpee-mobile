@@ -33,10 +33,18 @@ class Url {
   static const String getVendorsOfProject = "$baseUrl/project/vendor-info";
   static const String getDetailOrder = "$baseUrl/order/customer/get-order-info";
   static const String completedOrder = "$baseUrl/order/customer/complete";
+  static const String payOrder = "$baseUrl/order/customer/purchase";
   static const String disputeOrder = "$baseUrl/order/customer/dispute";
   static const String revisionOrder = "$baseUrl/order/customer/revision";
   static const String createOrder = "$baseUrl/order/customer";
+  static const String deleteOrder = "$baseUrl/order/customer/delete";
   static const String getActivity = "$baseUrl/order-activity/get-by-order-id";
   static const String getComment = "$baseUrl/order/comment/filter";
   static const String addComment = "$baseUrl/order/comment";
+  static const String getCheckList = "$baseUrl/order";
+  static const String getAddOn = "$baseUrl/user-skill/vendor";
+  static const String getAllDiscounts =
+      "$baseUrl/promotion/filter-for-customer";
+  static const String getDiscount = "$baseUrl/promotion/get-by-code";
+  static const String applyDiscount = "$baseUrl/discount/apply-discount";
 }

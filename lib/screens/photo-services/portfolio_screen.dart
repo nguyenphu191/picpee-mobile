@@ -1102,7 +1102,8 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (context) => AddOrderCard(),
+                        builder: (context) =>
+                            AddOrderCard(designer: designer, skill: skill),
                       );
                     },
                     style: ElevatedButton.styleFrom(

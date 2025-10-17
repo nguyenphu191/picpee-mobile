@@ -141,4 +141,28 @@ class SkillService {
       );
     }
   }
+
+  //lấy list addon
+  Future<List<AddOnModel>> getAddOns(int skillId, int vendorId) async {
+    final token = await AuthService().getToken();
+    if (token == null) {
+      throw Exception("No token found");
+    }
+    print("Fetching add-ons with token: $token");
+
+    final response = await http.get(
+      Uri.parse("${Url.getAddOn}?skillId=$skillId&userId=$vendorId"),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data']['skillAddOnsRes'] as List<dynamic>;
+      return data.map((e) => AddOnModel.fromJson(e)).toList();
+    } else {
+      throw Exception("Failed to load add-ons: ${response.body}");
+    }
+  }
 }

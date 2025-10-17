@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/models/user_model.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/payment/payment_history.dart';
 import 'package:picpee_mobile/screens/photo-services/all_top_service_screen.dart';
@@ -117,12 +118,23 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
     }
   }
 
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        final user = authProvider.user;
+        User? user = authProvider.user;
         return Drawer(
           width: size.width * 0.8,
           child: Container(
@@ -267,8 +279,8 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                         ),
                       ),
                       SizedBox(height: 8.h),
-                      const Text(
-                        "\$ 0",
+                      Text(
+                        "\$${_formatPrice(user?.balance ?? 0)}",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,

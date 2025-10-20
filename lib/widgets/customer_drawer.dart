@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/user_model.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/payment/payment_history.dart';
 import 'package:picpee_mobile/screens/photo-services/all_top_service_screen.dart';
@@ -132,9 +133,9 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        User? user = authProvider.user;
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        User? user = userProvider.user;
         return Drawer(
           width: size.width * 0.8,
           child: Container(
@@ -148,7 +149,11 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                     Container(
                       width: 56.r,
                       height: 56.r,
-                      decoration: BoxDecoration(shape: BoxShape.circle),
+
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.buttonGreen,
+                      ),
                       child: ClipOval(
                         child:
                             (user?.avatar != null && user!.avatar!.isNotEmpty)
@@ -160,7 +165,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                                       if (loadingProgress == null) return child;
                                       return Center(
                                         child: CircularProgressIndicator(
-                                          color: AppColors.buttonGreen,
+                                          color: Colors.black,
                                           value:
                                               loadingProgress
                                                       .expectedTotalBytes !=
@@ -180,9 +185,20 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                                   );
                                 },
                               )
-                            : Image.asset(
-                                AppImages.background1,
-                                fit: BoxFit.cover,
+                            : Center(
+                                child: Text(
+                                  (user?.businessName != null &&
+                                          user!.businessName!.isNotEmpty)
+                                      ? user.businessName!
+                                            .substring(0, 1)
+                                            .toUpperCase()
+                                      : "U", // fallback nếu rỗng
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16.h,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                       ),
                     ),
@@ -200,7 +216,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                         ),
                         Text(
                           user?.email ?? "",
-                          style: TextStyle(color: Colors.grey, fontSize: 14.h),
+                          style: TextStyle(color: Colors.black, fontSize: 14.h),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ],
@@ -220,6 +236,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                     style: TextStyle(color: Colors.black, fontSize: 16.h),
                   ),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => ProfileScreen()),
@@ -237,6 +254,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                     style: TextStyle(color: Colors.black, fontSize: 16.h),
                   ),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => ProjectsScreen()),
@@ -254,6 +272,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                     style: TextStyle(color: Colors.black, fontSize: 16.h),
                   ),
                   onTap: () {
+                    Navigator.pop(context);
                     _launchURL('https://picpee.com/contact');
                   },
                 ),
@@ -303,6 +322,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                             ),
                           ),
                           onPressed: () {
+                            Navigator.pop(context);
                             showDialog(
                               context: context,
                               builder: (context) => TopUpDialog(),
@@ -322,6 +342,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                       Center(
                         child: TextButton(
                           onPressed: () {
+                            Navigator.pop(context);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -354,6 +375,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                 ListTile(
                   title: Text("Services", style: TextStyle(fontSize: 16.h)),
                   onTap: () {
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -366,18 +388,21 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                 ListTile(
                   title: Text("Blogs", style: TextStyle(fontSize: 16.h)),
                   onTap: () {
+                    Navigator.pop(context);
                     _launchURL('https://picpee.com/blogs');
                   },
                 ),
                 ListTile(
                   title: Text("How it work", style: TextStyle(fontSize: 16.h)),
                   onTap: () {
+                    Navigator.pop(context);
                     _launchURL('https://picpee.com/how-it-works');
                   },
                 ),
                 ListTile(
                   title: Text("Contact", style: TextStyle(fontSize: 16.h)),
                   onTap: () {
+                    Navigator.pop(context);
                     _launchURL('https://picpee.com/contact');
                   },
                 ),

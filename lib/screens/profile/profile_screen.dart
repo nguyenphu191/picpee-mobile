@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/user_model.dart';
-import 'package:picpee_mobile/providers/auth_provider.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
 import 'package:provider/provider.dart';
@@ -62,8 +62,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void setData() {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    User user = authProvider.user!;
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    User user = userProvider.user!;
 
     setState(() {
       _firstNameController.text = user.firstname ?? '';
@@ -75,9 +75,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       _phoneController.text = user.phone ?? '';
 
       // Set phone country from countryCode
-      if (user.countryCode != null && user.countryCode!.isNotEmpty) {
+      if (user.phoneCode != null && user.phoneCode!.isNotEmpty) {
         try {
-          selectedPhoneCountry = Country.tryParse(user.countryCode!);
+          selectedPhoneCountry = Country.tryParse(user.phoneCode!);
         } catch (e) {
           selectedPhoneCountry = null;
         }
@@ -174,23 +174,65 @@ class _ProfileScreenState extends State<ProfileScreen>
     setState(() {
       _avatarImage = null;
     });
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Profile picture removed'),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-    );
+  Future<void> updateProfile() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userdata = userProvider.user?.updateJson();
+    if (userdata == null) return;
+    userdata['firstname'] = _firstNameController.text;
+    userdata['lastname'] = _lastNameController.text;
+    userdata['businessName'] = _businessNameController.text;
+    userdata['descriptionCompany'] = _companyDescriptionController.text;
+    userdata['teamSize'] = int.tryParse(_teamSizeController.text) ?? 0;
+    userdata['username'] = _emailController.text;
+    userdata['phone'] = _phoneController.text;
+    if (selectedPhoneCountry != null) {
+      userdata['phoneCode'] = selectedPhoneCountry!.countryCode;
+    }
+    if (selectedCountry != null) {
+      userdata['countryName'] = selectedCountry!.name;
+      userdata['countryCode'] = selectedCountry!.countryCode;
+    }
+    if (selectedTimezoneCountry != null) {
+      userdata['timezone'] = selectedTimezoneCountry!.countryCode;
+    }
+    try {
+      bool success = await userProvider.updateUserProfile(
+        userProvider.user!.id!,
+        userdata,
+      );
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to update profile. Please try again.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        final user = authProvider.user;
+    final size = MediaQuery.of(context).size;
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final user = userProvider.user;
         return Scaffold(
           backgroundColor: Color(0xffFE8ECEF),
           drawer: const SideBar(selectedIndex: 1),
@@ -292,7 +334,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
 
                       SizedBox(height: 10.h),
-
                       // Delete account button
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16),
@@ -355,6 +396,43 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
 
               Positioned(top: 0, left: 0, right: 0, child: ProfileHeader()),
+              if (userProvider.isLoading)
+                Container(
+                  height: size.height,
+                  width: size.width,
+                  color: Colors.black.withOpacity(0.3),
+                ),
+              if (userProvider.isLoading)
+                Center(
+                  child: Container(
+                    padding: EdgeInsets.all(20.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10.r,
+                          offset: Offset(0, 5.h),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.buttonGreen),
+                        SizedBox(height: 8.h),
+                        Text(
+                          "Loading...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         );
@@ -529,7 +607,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 12.w,
-                    vertical: 14.h,
+                    vertical: 8.h,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -597,7 +675,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 12.w,
-                    vertical: 14.h,
+                    vertical: 8.h,
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -641,16 +719,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               Expanded(
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Implement save logic
-                    // Save countryCode from selectedTimezoneCountry
-                    String? timezoneCode = selectedTimezoneCountry?.countryCode;
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Profile saved successfully!'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
+                    updateProfile();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonGreen,

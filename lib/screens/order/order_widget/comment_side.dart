@@ -4,8 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/comment_model.dart';
-import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class CommentSide extends StatefulWidget {
@@ -295,7 +295,7 @@ class _CommentSideState extends State<CommentSide> {
     return Consumer<OrderProvider>(
       builder: (context, orderProvider, child) {
         final comments = orderProvider.comments;
-        final youId = Provider.of<AuthProvider>(
+        final youId = Provider.of<UserProvider>(
           context,
           listen: false,
         ).user?.id;

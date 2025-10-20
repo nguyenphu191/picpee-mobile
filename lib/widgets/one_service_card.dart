@@ -255,6 +255,7 @@ class OneServiceCard extends StatelessWidget {
                                         Image.network(
                                           designer.imageFlag.trim(),
                                           height: 16.h,
+                                          width: 25.h,
                                           fit: BoxFit.cover,
                                           errorBuilder:
                                               (context, error, stackTrace) {

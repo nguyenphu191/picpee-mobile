@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/providers/notification_provider.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/screens/cart/cart_screen.dart';
 import 'package:picpee_mobile/screens/favorite/favorite_screen.dart';
 import 'package:picpee_mobile/screens/notification/notification_screen.dart';
@@ -42,8 +43,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<NotificationProvider, AuthProvider>(
-      builder: (context, notificationProvider, authProvider, child) {
+    return Consumer2<NotificationProvider, UserProvider>(
+      builder: (context, notificationProvider, userProvider, child) {
         final unreadCount = notificationProvider.unReadCount;
         return Container(
           height: 85.h,
@@ -179,7 +180,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     ),
                     child: ClipOval(
                       child: Image.network(
-                        authProvider.user!.avatar?.trim() ??
+                        userProvider.user!.avatar?.trim() ??
                             'https://picsum.photos/200',
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {

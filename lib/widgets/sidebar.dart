@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/user_model.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/screens/auth/login_screen.dart';
 import 'package:picpee_mobile/screens/chat/chat_screen.dart';
 import 'package:picpee_mobile/screens/discount/discount_screen.dart';
@@ -134,9 +135,9 @@ class _SideBarState extends State<SideBar> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        User? user = authProvider.user;
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        User? user = userProvider.user;
         return Drawer(
           width: size.width * 0.75,
           child: Container(
@@ -153,6 +154,7 @@ class _SideBarState extends State<SideBar> {
                         alignment: Alignment.centerLeft,
                         child: InkWell(
                           onTap: () {
+                            Navigator.pop(context);
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -173,6 +175,7 @@ class _SideBarState extends State<SideBar> {
 
                       InkWell(
                         onTap: () {
+                          Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -222,6 +225,7 @@ class _SideBarState extends State<SideBar> {
                       ),
                       InkWell(
                         onTap: () {
+                          Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -272,6 +276,7 @@ class _SideBarState extends State<SideBar> {
 
                       InkWell(
                         onTap: () {
+                          Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -321,6 +326,7 @@ class _SideBarState extends State<SideBar> {
                       ),
                       InkWell(
                         onTap: () {
+                          Navigator.pop(context);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -370,6 +376,7 @@ class _SideBarState extends State<SideBar> {
                       ),
                       InkWell(
                         onTap: () {
+                          Navigator.pop(context);
                           _launchURL('https://picpee.com/contact');
                         },
                         child: Container(
@@ -495,6 +502,7 @@ class _SideBarState extends State<SideBar> {
                               ),
                             ),
                             onPressed: () {
+                              Navigator.pop(context);
                               showDialog(
                                 context: context,
                                 builder: (context) => TopUpDialog(),
@@ -514,6 +522,7 @@ class _SideBarState extends State<SideBar> {
                         Center(
                           child: TextButton(
                             onPressed: () {
+                              Navigator.pop(context);
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

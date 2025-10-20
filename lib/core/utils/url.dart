@@ -12,6 +12,7 @@ class Url {
   static const String getAllVendorForSkill =
       "$baseUrl/user/filter-designer-in-market";
   static const String getAllSkillOfVendor = "$baseUrl/user/portfolio";
+  static const String updateAcc = "$baseUrl/user/update";
   static const String getTopBusiness = "$baseUrl/user/get-verified-designer";
   static const String getReviewOfVendor = "$baseUrl/user-review/filter";
   static const String addFavoriteDesigner =
@@ -47,4 +48,5 @@ class Url {
       "$baseUrl/promotion/filter-for-customer";
   static const String getDiscount = "$baseUrl/promotion/get-by-code";
   static const String applyDiscount = "$baseUrl/discount/apply-discount";
+  static const String getAllSkills = "$baseUrl/skill-manager/filter";
 }

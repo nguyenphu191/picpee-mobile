@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/providers/auth_provider.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/screens/auth/forgot_screen.dart';
 import 'package:picpee_mobile/screens/auth/register_screen.dart';
 import 'package:picpee_mobile/screens/home/home_screen.dart';
@@ -32,15 +33,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     try {
       // Call login function from AuthProvider
-      await authProvider.login(email, password);
+      final res = await authProvider.login(email, password);
 
       // Show success message
-      if (mounted) {
+      if (mounted && res == 200) {
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        await userProvider.initUser();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

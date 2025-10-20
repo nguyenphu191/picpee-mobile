@@ -222,6 +222,17 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
     );
   }
 
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
+  }
+
   List<Map<String, String>> titleDescriptionPairs = getTitleDescriptionPairs();
 
   @override
@@ -448,7 +459,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  '${designer.ratingPoint.toStringAsFixed(1)} ',
+                                                  '${_formatPrice(designer.ratingPoint)} ',
                                                   style: TextStyle(
                                                     color: Colors.orange,
                                                     fontSize: 14.h,
@@ -943,7 +954,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      "\$${skill.cost.toStringAsFixed(2)}",
+                      "\$${_formatPrice(skill.cost)}",
                       style: TextStyle(
                         fontSize: 18.h,
                         fontWeight: FontWeight.bold,

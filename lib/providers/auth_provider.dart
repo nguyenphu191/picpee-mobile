@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:picpee_mobile/models/user_model.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/services/auth_service.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
+  final UserProvider _userProvider = UserProvider();
   final firebase_auth.FirebaseAuth _firebaseAuth =
       firebase_auth.FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  User? _user;
   String? _token;
   bool _isLoading = false;
 
@@ -20,10 +20,9 @@ class AuthProvider with ChangeNotifier {
   String? _googlePhotoUrl;
   String? _googleIdToken;
 
-  User? get user => _user;
   String? get token => _token;
   bool get isLoading => _isLoading;
-  bool get isLoggedIn => _token != null && _user != null;
+  bool get isLoggedIn => _token != null;
 
   // Google user getters
   String? get googleEmail => _googleEmail;
@@ -33,26 +32,23 @@ class AuthProvider with ChangeNotifier {
   /// Initialize auth
   Future<void> initAuth() async {
     _token = await _authService.getToken();
-    _user = await _authService.getUser();
     notifyListeners();
   }
 
   /// Regular login
-  Future<void> login(String email, String password) async {
+  Future<int> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
       final res = await _authService.login(email, password);
       final status = res["status"];
       if (status != "200") {
-        if (status == "401") {
-          throw Exception("Unauthorized: Incorrect email or password.");
-        } else {
-          throw Exception("Login failed with status code: $status");
-        }
+        return int.parse(status);
       }
-      _user = res["user"];
       _token = await _authService.getToken();
+      // User user = res["user"];
+      // _userProvider.setUser(user);
+      return int.parse(status);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -128,7 +124,6 @@ class AuthProvider with ChangeNotifier {
         timezone: timezone,
       );
 
-      _user = user;
       _token = await _authService.getToken();
 
       // Clear Google temporary data
@@ -173,7 +168,6 @@ class AuthProvider with ChangeNotifier {
         countryCode: countryCode,
       );
       final status = res["status"];
-      _user = res["user"];
       _token = await _authService.getToken();
       return status;
     } finally {
@@ -211,7 +205,7 @@ class AuthProvider with ChangeNotifier {
     await _authService.logout();
     await _googleSignIn.signOut();
     await _firebaseAuth.signOut();
-    _user = null;
+    _userProvider.clearUser();
     _token = null;
     _clearGoogleData();
     notifyListeners();

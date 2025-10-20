@@ -93,7 +93,6 @@ class DesignerProvider with ChangeNotifier {
     try {
       final result = await _designerService.getAllVendorsOfSkill(skillId);
       _allVendorsForSkill = result;
-      print("Fetched All Vendors for Skill: ${_allVendorsForSkill.length}");
       notifyListeners();
       return true;
     } catch (e) {

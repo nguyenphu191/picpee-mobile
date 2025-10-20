@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
-import 'package:picpee_mobile/core/utils/service_hard_data.dart';
 import 'package:picpee_mobile/models/designer_model.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/models/skill_of_vendor_model.dart';
 import 'package:picpee_mobile/models/top_notch_clipper.dart';
 import 'package:picpee_mobile/models/user_model.dart';
-import 'package:picpee_mobile/providers/auth_provider.dart';
+import 'package:picpee_mobile/models/video_setting.dart';
+import 'package:picpee_mobile/providers/designer_provider.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/providers/project_provider.dart';
 import 'package:picpee_mobile/providers/skill_provider.dart';
-import 'package:picpee_mobile/screens/order/order_widget/find_designer_dia.dart';
+import 'package:picpee_mobile/providers/user_provider.dart';
+import 'package:picpee_mobile/screens/order/order_widget/orientation_widget.dart';
 import 'package:picpee_mobile/screens/order/order_widget/purchase_order_card.dart';
+import 'package:picpee_mobile/screens/order/order_widget/video_setting_widget.dart';
 import 'package:picpee_mobile/screens/project/project_widget/create_new_project.dart';
 import 'package:provider/provider.dart';
 
@@ -28,24 +30,24 @@ class AddOrderCard extends StatefulWidget {
 
 class _AddOrderCardState extends State<AddOrderCard> {
   String? selectedService;
+  int? selectedSkillId;
   String? selectedDesigner;
+  int? selectedVendorId;
+  SkillOfVendorModel? selectedSkillOfVendor;
   ProjectModel? selectedProject;
   DateTime? selectedDateTime;
   List<AddOnModel> selectedAddOns = [];
   late TextEditingController _guidelinesController;
   late TextEditingController _sourceFilesController;
   late TextEditingController _finishLinksController;
-  final List<ServiceItem> services = servicesData;
-  final List<Map<String, String>> designerInProject = [
-    {"id": "1", "name": "Designer 1", "image": AppImages.BackgroundReplaceIcon},
-    {"id": "2", "name": "Designer 2", "image": AppImages.LawnReplacementIcon},
-    {"id": "3", "name": "Designer 3", "image": AppImages.DiscountIcon},
-  ];
 
   int _quantity = 1;
 
+  // Video Settings (for PROPERTY VIDEOS SERVICES)
+  VideoSettings _videoSettings = VideoSettings();
   double get totalPrice {
-    final double baseCost = widget.skill?.cost ?? 0.0;
+    final double baseCost =
+        selectedSkillOfVendor?.cost ?? widget.skill?.cost ?? 0.0;
     final double addOnsCost = selectedAddOns.fold(
       0.0,
       (sum, addOn) => sum + addOn.cost,
@@ -69,9 +71,12 @@ class _AddOrderCardState extends State<AddOrderCard> {
     super.initState();
     if (widget.designer != null) {
       selectedDesigner = widget.designer!.businessName;
+      selectedVendorId = widget.designer!.userId;
     }
     if (widget.skill != null) {
       selectedService = widget.skill!.skillName;
+      selectedSkillId = widget.skill!.skillId;
+      selectedSkillOfVendor = widget.skill;
     }
     selectedDateTime = null;
     _guidelinesController = TextEditingController();
@@ -79,7 +84,9 @@ class _AddOrderCardState extends State<AddOrderCard> {
     _finishLinksController = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchProjects();
-      _fetchAddOn();
+      if (widget.skill != null) {
+        _fetchAddOn();
+      }
     });
   }
 
@@ -88,6 +95,10 @@ class _AddOrderCardState extends State<AddOrderCard> {
     _guidelinesController.dispose();
     _sourceFilesController.dispose();
     _finishLinksController.dispose();
+    selectedAddOns.clear();
+    selectedSkillOfVendor = null;
+    selectedProject = null;
+
     super.dispose();
   }
 
@@ -106,10 +117,12 @@ class _AddOrderCardState extends State<AddOrderCard> {
   }
 
   Future<void> _fetchAddOn() async {
+    if (selectedSkillOfVendor == null) return;
+
     final skillProject = Provider.of<SkillProvider>(context, listen: false);
     final success = await skillProject.fetchAddOns(
-      widget.skill!.skillId,
-      widget.skill!.userId,
+      selectedSkillOfVendor!.skillId,
+      selectedSkillOfVendor!.userId,
     );
     if (!success && mounted) {
       _showOverlaySnackBar(
@@ -179,6 +192,10 @@ class _AddOrderCardState extends State<AddOrderCard> {
       _showOverlaySnackBar('Please select a designer');
       return false;
     }
+    if (selectedSkillOfVendor == null) {
+      _showOverlaySnackBar('Please wait for skill data to load');
+      return false;
+    }
     if (selectedProject == null) {
       _showOverlaySnackBar('Please select a project');
       return false;
@@ -197,27 +214,32 @@ class _AddOrderCardState extends State<AddOrderCard> {
   }
 
   Future<void> _addToCart(bool purchase) async {
-    User? user = Provider.of<AuthProvider>(context, listen: false).user;
+    User? user = Provider.of<UserProvider>(context, listen: false).user;
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     if (user == null) {
       _showOverlaySnackBar('User not logged in');
       return;
     }
+    if (selectedSkillOfVendor == null) {
+      _showOverlaySnackBar('Skill data not available');
+      return;
+    }
     List<Map<String, int>> addons = selectedAddOns
         .map((addOn) => {"id": addOn.userAddonsId})
         .toList();
+
     Map<String, dynamic> orderData = {
       "cost": totalPrice,
       "customerId": user.id,
       "deliverableFilesLink": _finishLinksController.text.trim(),
       "projectId": selectedProject!.id,
       "quantity": _quantity,
-      "skillId": widget.skill!.skillId,
+      "skillId": selectedSkillOfVendor!.skillId,
       "sourceFilesLink": _sourceFilesController.text.trim(),
       "userAddons": addons,
-      "vendorId": widget.skill!.userId,
+      "vendorId": selectedSkillOfVendor!.userId,
     };
-    print("Order Data: $orderData");
+    print("Creating order with data: $orderData");
     final success = await orderProvider.createOrder(orderData);
     if (success) {
       _showOverlaySnackBar(
@@ -242,13 +264,62 @@ class _AddOrderCardState extends State<AddOrderCard> {
     await _fetchProjects();
   }
 
+  Future<void> fetchAllService() async {
+    try {
+      final skillProvider = Provider.of<SkillProvider>(context, listen: false);
+      final success = await skillProvider.fetchAllSkills();
+      if (!success && mounted) {
+        _showOverlaySnackBar(
+          'Failed to load skills',
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      print("Error fetching all skills: $e");
+    }
+  }
+
+  Future<void> _fetchVendor(int skillId) async {
+    final designerProvider = Provider.of<DesignerProvider>(
+      context,
+      listen: false,
+    );
+    final res = await designerProvider.fetchAllVendorForSkill(skillId);
+    if (!res && mounted) {
+      _showOverlaySnackBar(
+        'Failed to load vendors',
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
+  Future<void> _fetchSkillOfVendor(int skillId, int vendorId) async {
+    final skillProvider = Provider.of<SkillProvider>(context, listen: false);
+    final succes = await skillProvider.fetchSkillsOfVendor(vendorId);
+    if (succes) {
+      setState(() {
+        selectedSkillOfVendor = skillProvider.skillsOfVendor.firstWhere(
+          (skill) => skill.skillId == skillId,
+        );
+      });
+    } else if (mounted) {
+      _showOverlaySnackBar(
+        'Failed to load skill details',
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Consumer2<ProjectProvider, SkillProvider>(
-      builder: (context, projectProvider, skillProvider, child) {
+    return Consumer3<ProjectProvider, SkillProvider, DesignerProvider>(
+      builder: (context, projectProvider, skillProvider, designerProvider, child) {
         final projects = projectProvider.projects;
         final addOns = skillProvider.getAddOns;
+        final allSkills = skillProvider.allSkills;
+        final vendors = designerProvider.allVendorsForSkill;
+
         return Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
@@ -335,6 +406,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             SizedBox(height: 16.h),
+
                             Container(
                               width: double.infinity,
                               child: Text(
@@ -348,6 +420,8 @@ class _AddOrderCardState extends State<AddOrderCard> {
                               ),
                             ),
                             Divider(),
+
+                            // Service Selection
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -397,7 +471,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                             6,
                                           ),
                                         ),
-                                        child: DropdownButton<String>(
+                                        child: DropdownButton<int>(
                                           isExpanded: true,
                                           underline: SizedBox(),
                                           hint: Text(
@@ -417,48 +491,97 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                             fontWeight: FontWeight.w500,
                                           ),
                                           menuMaxHeight: 200.h,
-                                          items: services
-                                              .map(
-                                                (
-                                                  ServiceItem service,
-                                                ) => DropdownMenuItem<String>(
-                                                  value: service.title,
-                                                  child: Row(
-                                                    children: [
-                                                      Container(
-                                                        width: 30.w,
-                                                        height: 30.h,
-                                                        margin: EdgeInsets.only(
-                                                          right: 8.w,
-                                                        ),
-                                                        decoration: BoxDecoration(
-                                                          image: DecorationImage(
-                                                            image: AssetImage(
-                                                              service.image,
-                                                            ),
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                4,
+                                          items: allSkills.map((skill) {
+                                            return DropdownMenuItem<int>(
+                                              value: skill.id,
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 30.h,
+                                                    height: 30.h,
+                                                    margin: EdgeInsets.only(
+                                                      right: 8.w,
+                                                    ),
+                                                    child: Image.network(
+                                                      skill.urlImage.trim(),
+                                                      fit: BoxFit.cover,
+                                                      loadingBuilder:
+                                                          (
+                                                            context,
+                                                            child,
+                                                            loadingProgress,
+                                                          ) {
+                                                            if (loadingProgress ==
+                                                                null)
+                                                              return child;
+                                                            return Center(
+                                                              child: CircularProgressIndicator(
+                                                                color: AppColors
+                                                                    .buttonGreen,
+                                                                value:
+                                                                    loadingProgress
+                                                                            .expectedTotalBytes !=
+                                                                        null
+                                                                    ? loadingProgress
+                                                                              .cumulativeBytesLoaded /
+                                                                          loadingProgress
+                                                                              .expectedTotalBytes!
+                                                                    : null,
                                                               ),
-                                                        ),
-                                                      ),
-                                                      Text(service.title),
-                                                    ],
+                                                            );
+                                                          },
+                                                      errorBuilder:
+                                                          (
+                                                            context,
+                                                            error,
+                                                            stackTrace,
+                                                          ) {
+                                                            return Container(
+                                                              color: Colors
+                                                                  .grey[300],
+                                                              child: const Icon(
+                                                                Icons.person,
+                                                                size: 20,
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            );
+                                                          },
+                                                    ),
                                                   ),
-                                                ),
-                                              )
-                                              .toList(),
-                                          onChanged: (String? value) {
-                                            setState(() {
-                                              selectedService = value;
-                                            });
+                                                  Text(skill.name),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (int? skillId) async {
+                                            if (skillId != null) {
+                                              setState(() {
+                                                selectedSkillId = skillId;
+                                                selectedService = allSkills
+                                                    .firstWhere(
+                                                      (s) => s.id == skillId,
+                                                    )
+                                                    .name;
+                                                selectedDesigner = null;
+                                                selectedVendorId = null;
+                                                selectedSkillOfVendor = null;
+                                                selectedAddOns.clear();
+                                              });
+                                              await _fetchVendor(skillId);
+                                            }
+                                          },
+                                          onTap: () {
+                                            if (allSkills.isEmpty) {
+                                              fetchAllService();
+                                            }
                                           },
                                         ),
                                       ),
                               ],
                             ),
+
+                            // Designer Selection
                             SizedBox(height: 10.h),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,7 +631,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                             6,
                                           ),
                                         ),
-                                        child: DropdownButton<String>(
+                                        child: DropdownButton<int>(
                                           isExpanded: true,
                                           underline: SizedBox(),
                                           hint: Text(
@@ -528,107 +651,115 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                             fontWeight: FontWeight.w500,
                                           ),
                                           menuMaxHeight: 200.h,
-                                          items: [
-                                            ...designerInProject
-                                                .map(
-                                                  (
-                                                    designer,
-                                                  ) => DropdownMenuItem<String>(
-                                                    value: designer['name'],
-                                                    child: Row(
-                                                      children: [
-                                                        Container(
-                                                          width: 30.w,
-                                                          height: 30.h,
-                                                          margin:
-                                                              EdgeInsets.only(
-                                                                right: 8.w,
-                                                              ),
-                                                          decoration: BoxDecoration(
-                                                            image: DecorationImage(
-                                                              image: AssetImage(
-                                                                designer['image']!,
-                                                              ),
-                                                              fit: BoxFit.cover,
-                                                            ),
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  4,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        Text(designer['name']!),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )
-                                                .toList(),
-                                            DropdownMenuItem<String>(
-                                              value: "see_all",
+                                          items: vendors.map((vendor) {
+                                            return DropdownMenuItem<int>(
+                                              value: vendor.userId,
                                               child: Row(
                                                 children: [
                                                   Container(
-                                                    width: 30.w,
+                                                    width: 30.h,
                                                     height: 30.h,
                                                     margin: EdgeInsets.only(
                                                       right: 8.w,
                                                     ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black
-                                                          .withOpacity(0.1),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            50,
-                                                          ),
-                                                    ),
-                                                    child: Icon(
-                                                      Icons.more_horiz,
-                                                      color: Colors.black,
-                                                      size: 20.h,
+                                                    child: ClipOval(
+                                                      child: Image.network(
+                                                        vendor.avatar.trim(),
+                                                        height: 30.h,
+                                                        width: 30.h,
+                                                        fit: BoxFit.cover,
+                                                        loadingBuilder:
+                                                            (
+                                                              context,
+                                                              child,
+                                                              loadingProgress,
+                                                            ) {
+                                                              if (loadingProgress ==
+                                                                  null)
+                                                                return child;
+                                                              return Center(
+                                                                child: CircularProgressIndicator(
+                                                                  color: AppColors
+                                                                      .buttonGreen,
+                                                                  value:
+                                                                      loadingProgress
+                                                                              .expectedTotalBytes !=
+                                                                          null
+                                                                      ? loadingProgress.cumulativeBytesLoaded /
+                                                                            loadingProgress.expectedTotalBytes!
+                                                                      : null,
+                                                                ),
+                                                              );
+                                                            },
+                                                        errorBuilder:
+                                                            (
+                                                              context,
+                                                              error,
+                                                              stackTrace,
+                                                            ) {
+                                                              return Container(
+                                                                color: Colors
+                                                                    .grey[300],
+                                                                child: const Icon(
+                                                                  Icons.person,
+                                                                  size: 20,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              );
+                                                            },
+                                                      ),
                                                     ),
                                                   ),
-                                                  Text(
-                                                    "See All Designers",
-                                                    style: TextStyle(
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
+                                                  Text(vendor.businessName),
                                                 ],
                                               ),
-                                            ),
-                                          ],
-                                          onChanged: (value) async {
-                                            if (value == "see_all") {
-                                              final selectedDesignerData =
-                                                  await showDialog<
-                                                    Map<String, String>
-                                                  >(
-                                                    context: context,
-                                                    builder:
-                                                        (
-                                                          BuildContext context,
-                                                        ) => FindDesigner(),
-                                                  );
+                                            );
+                                          }).toList(),
+                                          onChanged: selectedSkillId == null
+                                              ? null
+                                              : (int? vendorId) async {
+                                                  if (vendorId != null &&
+                                                      selectedSkillId != null) {
+                                                    final vendor = vendors
+                                                        .firstWhere(
+                                                          (v) =>
+                                                              v.userId ==
+                                                              vendorId,
+                                                        );
+                                                    setState(() {
+                                                      selectedVendorId =
+                                                          vendorId;
+                                                      selectedDesigner =
+                                                          vendor.businessName;
+                                                    });
+                                                    await _fetchSkillOfVendor(
+                                                      selectedSkillId!,
+                                                      vendorId,
+                                                    );
 
-                                              if (selectedDesignerData !=
-                                                  null) {
-                                                setState(() {
-                                                  selectedDesigner =
-                                                      selectedDesignerData['name'];
-                                                });
-                                              }
-                                            } else {
-                                              setState(() {
-                                                selectedDesigner = value;
-                                              });
-                                            }
-                                          },
+                                                    await _fetchAddOn();
+                                                  }
+                                                },
                                         ),
                                       ),
+                                if (selectedSkillId == null &&
+                                    widget.designer == null)
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 4.h),
+                                    child: Text(
+                                      'Please select a service first',
+                                      style: TextStyle(
+                                        fontSize: 12.h,
+                                        color: Colors.red,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
+
+                            // Due Date
                             SizedBox(height: 10.h),
                             Text(
                               'Due date',
@@ -908,6 +1039,8 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                 ),
                               ),
                             ),
+
+                            // Further Guidelines
                             SizedBox(height: 10.h),
                             Text(
                               'Further guidelines',
@@ -942,6 +1075,8 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                 ),
                               ),
                             ),
+
+                            // Project Selection
                             SizedBox(height: 10.h),
                             Text(
                               'Belongs to the project',
@@ -1275,6 +1410,31 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                 ],
                               ),
                             ),
+
+                            // VIDEO SETTINGS - Only show for PROPERTY VIDEOS SERVICES
+                            if (selectedSkillOfVendor?.skillCategory ==
+                                'PROPERTY_VIDEOS_SERVICES') ...[
+                              SizedBox(height: 16.h),
+                              VideoSettingsWidget(
+                                settings: _videoSettings,
+                                onChanged: (settings) {
+                                  setState(() {
+                                    _videoSettings = settings;
+                                  });
+                                },
+                              ),
+                              SizedBox(height: 16.h),
+                              OrientationWidget(
+                                selectedOrientation: _videoSettings.orientation,
+                                onChanged: (orientation) {
+                                  setState(() {
+                                    _videoSettings.orientation = orientation;
+                                  });
+                                },
+                              ),
+                            ],
+
+                            // Total Section
                             SizedBox(height: 16.h),
                             Container(
                               padding: EdgeInsets.symmetric(

@@ -31,8 +31,6 @@ class AuthService {
       final user = User.fromJson(data);
       await _saveToken(token);
       await _saveUser(user);
-      print("Token: ${token}");
-
       return {"status": response.statusCode.toString(), "user": user};
     } else {
       throw Exception("Login failed: ${response.body}");

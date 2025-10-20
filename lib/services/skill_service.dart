@@ -165,4 +165,27 @@ class SkillService {
       throw Exception("Failed to load add-ons: ${response.body}");
     }
   }
+
+  //Lấy tất cả skill
+  Future<List<Skill>> getAllSkills() async {
+    final token = await AuthService().getToken();
+    if (token == null) {
+      throw Exception("No token found");
+    }
+    final response = await http.post(
+      Uri.parse(Url.getAllSkills),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode({}),
+    );
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data']['list'];
+      return data.map<Skill>((e) => Skill.fromJson(e)).toList();
+    } else {
+      throw Exception("Failed to load skills: ${response.body}");
+    }
+  }
 }

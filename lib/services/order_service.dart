@@ -80,6 +80,7 @@ class OrderService {
       final data = res['data'];
       return OrderModel.fromJson(data);
     } else {
+      print('Failed to create order: ${response.body}');
       throw Exception('Failed to create order');
     }
   }

@@ -317,24 +317,16 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                                 ),
 
                               // Loading/Empty state khi chưa có dữ liệu
-                              if (availableStatuses.isEmpty)
+                              if (availableStatuses.isEmpty || orders.isEmpty)
                                 Expanded(
                                   child: Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        CircularProgressIndicator(),
-                                        SizedBox(height: 16.h),
-                                        Text(
-                                          'Loading orders...',
-                                          style: TextStyle(
-                                            fontSize: 16.h,
-                                            color: Colors.grey[600],
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
+                                    child: Text(
+                                      'Project has no orders yet.',
+                                      style: TextStyle(
+                                        fontSize: 16.h,
+                                        color: Colors.grey[600],
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ),

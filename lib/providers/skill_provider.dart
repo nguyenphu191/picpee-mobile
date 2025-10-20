@@ -39,6 +39,7 @@ class SkillProvider with ChangeNotifier {
   SkillOfVendorModel? skillOfVendor;
   List<SkillOfVendorModel> skillsOfVendor = [];
   List<AddOnModel> addOns = [];
+  List<Skill> allSkills = [];
 
   bool get isLoading => _isLoading;
   SkillModel? get hdrTopDesigner => HDRTopDesigner;
@@ -72,6 +73,7 @@ class SkillProvider with ChangeNotifier {
   SkillModel? get changeColorTopDesigner => ChangeColorTopDesigner;
   List<SkillModel> get getHaveTopDesigners => haveTopDesigners;
   List<SkillModel> get getAllTopDesigners => allTopDesigners;
+  List<Skill> get getAllSkills => allSkills;
 
   List<SkillOfVendorModel> get getSkillsOfVendor => skillsOfVendor;
   SkillOfVendorModel? get getSkillOfVendor => skillOfVendor;
@@ -162,7 +164,6 @@ class SkillProvider with ChangeNotifier {
 
   //Lấy danh sách top designer theo skill
   Future<bool> fetchTopDesignersBySkill() async {
-    print("Fetching top designers by skill...");
     setLoading(true);
 
     try {
@@ -198,7 +199,6 @@ class SkillProvider with ChangeNotifier {
 
       setAllTopDesigners();
       setHaveTopDesigners();
-      print("Have Top Designers Count: ${haveTopDesigners.length}");
       return true;
     } catch (e) {
       print("Error fetching top designers: $e");
@@ -210,13 +210,11 @@ class SkillProvider with ChangeNotifier {
 
   //Lấy danh sách skill của vendor
   Future<bool> fetchSkillsOfVendor(int vendorId) async {
-    print("Fetching skills of vendor with ID: $vendorId");
     setLoading(true);
     skillsOfVendor = [];
     try {
       final result = await _skillService.getSkillsOfVendor(vendorId);
       skillsOfVendor = result;
-      print("Skills of Vendor Count: ${skillsOfVendor.length}");
       notifyListeners();
       return true;
     } catch (e) {
@@ -229,7 +227,6 @@ class SkillProvider with ChangeNotifier {
 
   //Lấy skill cụ thể của vendor
   Future<bool> fetchSkillOfVendor(int vendorId, int skillId) async {
-    print("Fetching skill of vendor with ID: $vendorId and Skill ID: $skillId");
     skillOfVendor = null;
     notifyListeners();
 
@@ -240,7 +237,6 @@ class SkillProvider with ChangeNotifier {
         skillId,
       );
       skillOfVendor = result;
-      print("Fetched Skill of Vendor: ${skillOfVendor?.skillName}");
       notifyListeners();
       return true;
     } catch (e) {
@@ -253,17 +249,31 @@ class SkillProvider with ChangeNotifier {
 
   //Lấy danh sách add-on
   Future<bool> fetchAddOns(int skillId, int vendorId) async {
-    print("Fetching add-ons...");
     setLoading(true);
     addOns = [];
     try {
       final result = await _skillService.getAddOns(skillId, vendorId);
       addOns = result;
-      print("Add-Ons Count: ${addOns.length}");
       notifyListeners();
       return true;
     } catch (e) {
       print("Error fetching add-ons: $e");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //Lấy danh sách skill
+  Future<bool> fetchAllSkills() async {
+    setLoading(true);
+    try {
+      final result = await _skillService.getAllSkills();
+      allSkills = result;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print("Error fetching all skills: $e");
       return false;
     } finally {
       setLoading(false);

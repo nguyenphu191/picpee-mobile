@@ -66,7 +66,7 @@ class User {
       banner: json['banner'] ?? "",
       biography: json['biography'] ?? "",
       businessName: json['businessName'] ?? "",
-      code: json['code'] ?? "",
+      code: "",
       countryCode: json['countryCode'] ?? "",
       countryName: json['countryName'] ?? "",
       describesBusiness: json['describesBusiness'] ?? "",
@@ -127,6 +127,26 @@ class User {
       'timezone': timezone,
       'type': type,
       'userWorkings': userWorkings?.map((e) => e.toJson()).toList(),
+      'username': email,
+    };
+  }
+
+  Map<String, dynamic> updateJson() {
+    return {
+      'avatar': avatar,
+      'biography': biography,
+      'businessName': businessName,
+      'countryCode': countryCode,
+      'countryName': countryName,
+      'descriptionCompany': descriptionCompany,
+      'firstname': firstname,
+      'lastname': lastname,
+      'phone': phone,
+      'phoneCode': phoneCode,
+      'role': role,
+      'teamSize': teamSize,
+      'timezone': timezone,
+      'username': email,
     };
   }
 

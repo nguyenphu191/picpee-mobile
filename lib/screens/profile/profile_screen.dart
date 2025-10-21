@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/user_model.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
+import 'package:picpee_mobile/providers/upload_provider.dart';
 import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
@@ -34,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   // Avatar image
   File? _avatarImage;
-
+  String? _uploadedAvatarUrl;
   // Form controllers
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -129,7 +131,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Pick image from camera or gallery
+  // Pick image from camera or gallery and upload
   Future<void> _pickImage(ImageSource source) async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -144,17 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           _avatarImage = File(image.path);
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Profile picture updated successfully!'),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        );
+        // Upload avatar immediately after selection
+        await _uploadAvatar();
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -169,10 +162,68 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  Future<void> _uploadAvatar() async {
+    if (_avatarImage == null) return;
+
+    final uploadProvider = Provider.of<UploadProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    try {
+      // Upload file and get URL
+      final avatarUrl = await uploadProvider.uploadAvatar(
+        file: _avatarImage!,
+        token: authProvider.token,
+      );
+
+      if (avatarUrl != null) {
+        setState(() {
+          _uploadedAvatarUrl = avatarUrl;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile picture uploaded successfully!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      } else {
+        // Show error from provider if available
+        final error = uploadProvider.errorMessage ?? 'Failed to upload avatar';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Upload error: $e'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      );
+    }
+  }
+
   // Remove avatar
   void _removeAvatar() {
     setState(() {
       _avatarImage = null;
+      _uploadedAvatarUrl = null;
     });
   }
 
@@ -187,6 +238,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     userdata['teamSize'] = int.tryParse(_teamSizeController.text) ?? 0;
     userdata['username'] = _emailController.text;
     userdata['phone'] = _phoneController.text;
+    if (_uploadedAvatarUrl != null) {
+      userdata['avatar'] = _uploadedAvatarUrl;
+    }
     if (selectedPhoneCountry != null) {
       userdata['phoneCode'] = selectedPhoneCountry!.countryCode;
     }
@@ -447,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         children: [
           // Avatar Section
           AvatarSectionWidget(
-            avatar: user.avatar ?? '',
+            avatar: _uploadedAvatarUrl ?? user.avatar ?? '',
             avatarImage: _avatarImage,
             onImagePickerTap: _showImagePickerOptions,
             name: user.businessName ?? "",

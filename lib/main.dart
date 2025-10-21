@@ -9,6 +9,7 @@ import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/providers/project_provider.dart';
 import 'package:picpee_mobile/providers/review_provider.dart';
 import 'package:picpee_mobile/providers/skill_provider.dart';
+import 'package:picpee_mobile/providers/upload_provider.dart';
 import 'package:picpee_mobile/providers/user_provider.dart';
 import 'package:picpee_mobile/splash.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => OrderProvider()),
         ChangeNotifierProvider(create: (_) => DiscountProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => UploadProvider()),
       ],
       child: const MyApp(),
     ),

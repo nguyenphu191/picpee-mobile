@@ -40,6 +40,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
   late TextEditingController _guidelinesController;
   late TextEditingController _sourceFilesController;
   late TextEditingController _finishLinksController;
+  late TextEditingController _textMinitesController;
 
   int _quantity = 1;
 
@@ -82,8 +83,11 @@ class _AddOrderCardState extends State<AddOrderCard> {
     _guidelinesController = TextEditingController();
     _sourceFilesController = TextEditingController();
     _finishLinksController = TextEditingController();
+    _textMinitesController = TextEditingController();
+    _textMinitesController.text = '1';
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchProjects();
+      _fetchAllService();
       if (widget.skill != null) {
         _fetchAddOn();
       }
@@ -229,7 +233,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
         .toList();
 
     Map<String, dynamic> orderData = {
-      "cost": totalPrice,
+      "cost": double.parse(_formatPrice(totalPrice)),
       "customerId": user.id,
       "deliverableFilesLink": _finishLinksController.text.trim(),
       "projectId": selectedProject!.id,
@@ -239,6 +243,20 @@ class _AddOrderCardState extends State<AddOrderCard> {
       "userAddons": addons,
       "vendorId": selectedSkillOfVendor!.userId,
     };
+    if (selectedSkillOfVendor?.skillCategory == 'PROPERTY_VIDEOS_SERVICES' &&
+        (int.tryParse(_textMinitesController.text.trim()) == null)) {
+      _showOverlaySnackBar(
+        'Please enter a valid number of minutes',
+        backgroundColor: Colors.red,
+      );
+      return;
+    }
+    if (selectedSkillOfVendor?.skillCategory == 'PROPERTY_VIDEOS_SERVICES' &&
+        int.tryParse(_textMinitesController.text.trim()) != null) {
+      int minites = int.tryParse(_textMinitesController.text.trim()) ?? 0;
+      orderData["quantity"] = minites;
+      orderData.addAll(_videoSettings.toJson());
+    }
     print("Creating order with data: $orderData");
     final success = await orderProvider.createOrder(orderData);
     if (success) {
@@ -264,7 +282,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
     await _fetchProjects();
   }
 
-  Future<void> fetchAllService() async {
+  Future<void> _fetchAllService() async {
     try {
       final skillProvider = Provider.of<SkillProvider>(context, listen: false);
       final success = await skillProvider.fetchAllSkills();
@@ -573,7 +591,7 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                           },
                                           onTap: () {
                                             if (allSkills.isEmpty) {
-                                              fetchAllService();
+                                              _fetchAllService();
                                             }
                                           },
                                         ),
@@ -758,9 +776,57 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                   ),
                               ],
                             ),
-
-                            // Due Date
                             SizedBox(height: 10.h),
+                            if (selectedSkillOfVendor?.skillCategory ==
+                                'PROPERTY_VIDEOS_SERVICES') ...[
+                              SizedBox(height: 10.h),
+                              Text(
+                                'Duration (in minutes)',
+                                style: TextStyle(
+                                  fontSize: 14.h,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              TextField(
+                                maxLines: 1,
+                                controller: _textMinitesController,
+                                decoration: InputDecoration(
+                                  hintText:
+                                      'Enter the video duration in minutes',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14.h,
+                                    height: 1.4,
+                                  ),
+
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                    borderSide: BorderSide(color: Colors.grey),
+                                  ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                    vertical: 8.h,
+                                  ),
+                                ),
+                                keyboardType: TextInputType.number,
+                              ),
+
+                              SizedBox(height: 10.h),
+
+                              OrientationWidget(
+                                selectedOrientation: _videoSettings.orientation,
+                                onChanged: (orientation) {
+                                  setState(() {
+                                    _videoSettings.orientation = orientation;
+                                  });
+                                },
+                              ),
+                            ],
                             Text(
                               'Due date',
                               style: TextStyle(
@@ -1411,7 +1477,6 @@ class _AddOrderCardState extends State<AddOrderCard> {
                               ),
                             ),
 
-                            // VIDEO SETTINGS - Only show for PROPERTY VIDEOS SERVICES
                             if (selectedSkillOfVendor?.skillCategory ==
                                 'PROPERTY_VIDEOS_SERVICES') ...[
                               SizedBox(height: 16.h),
@@ -1420,15 +1485,6 @@ class _AddOrderCardState extends State<AddOrderCard> {
                                 onChanged: (settings) {
                                   setState(() {
                                     _videoSettings = settings;
-                                  });
-                                },
-                              ),
-                              SizedBox(height: 16.h),
-                              OrientationWidget(
-                                selectedOrientation: _videoSettings.orientation,
-                                onChanged: (orientation) {
-                                  setState(() {
-                                    _videoSettings.orientation = orientation;
                                   });
                                 },
                               ),
@@ -1587,7 +1643,9 @@ class _AddOrderCardState extends State<AddOrderCard> {
                     ),
                   ),
                 ),
-                if (projectProvider.loading || skillProvider.isLoading)
+                if (projectProvider.loading ||
+                    skillProvider.isLoading ||
+                    designerProvider.isLoading)
                   Container(
                     width: double.infinity,
                     height: double.infinity,

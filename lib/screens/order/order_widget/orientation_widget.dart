@@ -28,7 +28,7 @@ class _OrientationWidgetState extends State<OrientationWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
@@ -52,7 +52,7 @@ class _OrientationWidgetState extends State<OrientationWidget> {
               Expanded(
                 child: _buildOrientationOption(
                   title: 'Horizontal',
-                  value: 'Horizontal',
+                  value: 'HORIZONTAL',
                   icon: Icons.crop_landscape,
                 ),
               ),
@@ -62,19 +62,8 @@ class _OrientationWidgetState extends State<OrientationWidget> {
               Expanded(
                 child: _buildOrientationOption(
                   title: 'Vertical',
-                  value: 'Vertical',
+                  value: 'VERTICAL',
                   icon: Icons.crop_portrait,
-                ),
-              ),
-              SizedBox(width: 12.w),
-
-              // Both Option
-              Expanded(
-                child: _buildOrientationOption(
-                  title: 'Horizontal + Vertical',
-                  value: 'Both',
-                  icon: Icons.crop_free,
-                  showBothIcons: true,
                 ),
               ),
             ],
@@ -88,7 +77,6 @@ class _OrientationWidgetState extends State<OrientationWidget> {
     required String title,
     required String value,
     required IconData icon,
-    bool showBothIcons = false,
   }) {
     final isSelected = _selectedOrientation == value;
 
@@ -100,7 +88,7 @@ class _OrientationWidgetState extends State<OrientationWidget> {
         widget.onChanged(value);
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 8.w),
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 5.w),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(8),
@@ -111,53 +99,18 @@ class _OrientationWidgetState extends State<OrientationWidget> {
         ),
         child: Column(
           children: [
-            // Icon(s)
-            if (showBothIcons)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(
-                      Icons.crop_landscape,
-                      size: 24.h,
-                      color: isSelected ? Colors.green : Colors.grey[700],
-                    ),
-                  ),
-                  SizedBox(width: 4.w),
-                  Icon(Icons.add, size: 16.h, color: Colors.grey[600]),
-                  SizedBox(width: 4.w),
-                  Container(
-                    padding: EdgeInsets.all(8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(
-                      Icons.crop_portrait,
-                      size: 24.h,
-                      color: isSelected ? Colors.green : Colors.grey[700],
-                    ),
-                  ),
-                ],
-              )
-            else
-              Container(
-                padding: EdgeInsets.all(8.w),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Icon(
-                  icon,
-                  size: 32.h,
-                  color: isSelected ? Colors.green : Colors.grey[700],
-                ),
+            Container(
+              padding: EdgeInsets.all(8.w),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(6),
               ),
+              child: Icon(
+                icon,
+                size: 32.h,
+                color: isSelected ? Colors.green : Colors.grey[700],
+              ),
+            ),
             SizedBox(height: 12.h),
 
             // Radio + Title
@@ -165,8 +118,8 @@ class _OrientationWidgetState extends State<OrientationWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 20.w,
-                  height: 20.w,
+                  width: 12.h,
+                  height: 12.h,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -177,8 +130,8 @@ class _OrientationWidgetState extends State<OrientationWidget> {
                   child: isSelected
                       ? Center(
                           child: Container(
-                            width: 10.w,
-                            height: 10.w,
+                            width: 4.h,
+                            height: 4.h,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.green,
@@ -199,7 +152,7 @@ class _OrientationWidgetState extends State<OrientationWidget> {
                       color: isSelected ? Colors.green : Colors.black87,
                     ),
                     textAlign: TextAlign.center,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),

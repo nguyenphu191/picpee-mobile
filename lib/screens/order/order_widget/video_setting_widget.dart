@@ -19,19 +19,13 @@ class VideoSettingsWidget extends StatefulWidget {
 class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
   late VideoSettings _settings;
 
-  final List<String> aspectRatios = [
-    '16:9 (Phone/Widescreen)',
-    '9:16 (Vertical/Stories)',
-    '1:1 (Square)',
-    '4:3 (Standard)',
-    '21:9 (Ultrawide)',
-  ];
+  final List<String> aspectRatios = ['16:9 (Phone/Widescreen)', '4:3'];
 
-  final List<String> resolutions = ['480p', '720p', '1080p', '2K', '4K', '8K'];
+  final List<String> resolutions = ['1080p', '720p'];
 
-  final List<String> framerates = ['24 FPS', '30 FPS', '60 FPS', '120 FPS'];
+  final List<String> framerates = ['30 FPS', '60 FPS'];
 
-  final List<String> fileTypes = ['MP4', 'MOV', 'AVI', 'MKV', 'WEBM'];
+  final List<String> fileTypes = ['MP4', 'MP3'];
 
   @override
   void initState() {
@@ -47,7 +41,7 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
@@ -64,9 +58,8 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
               color: Colors.black87,
             ),
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 12.h),
 
-          // Row 1: Aspect Ratio and Resolution
           Row(
             children: [
               Expanded(
@@ -76,12 +69,11 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
                     Text(
                       'Aspect Ratio',
                       style: TextStyle(
-                        fontSize: 13.h,
+                        fontSize: 14.h,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 6.h),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       decoration: BoxDecoration(
@@ -116,7 +108,7 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
                   ],
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,12 +116,11 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
                     Text(
                       'Resolution',
                       style: TextStyle(
-                        fontSize: 13.h,
+                        fontSize: 14.h,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 6.h),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       decoration: BoxDecoration(
@@ -162,9 +153,8 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 10.h),
 
-          // Row 2: Framerate and File Type
           Row(
             children: [
               Expanded(
@@ -174,12 +164,11 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
                     Text(
                       'Framerate',
                       style: TextStyle(
-                        fontSize: 13.h,
+                        fontSize: 14.h,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 6.h),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       decoration: BoxDecoration(
@@ -210,7 +199,7 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
                   ],
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 8.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,12 +207,11 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
                     Text(
                       'File Type',
                       style: TextStyle(
-                        fontSize: 13.h,
+                        fontSize: 14.h,
                         fontWeight: FontWeight.w500,
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 6.h),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 12.w),
                       decoration: BoxDecoration(
@@ -256,7 +244,7 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 5.h),
 
           // Checkboxes
           CheckboxListTile(
@@ -264,7 +252,11 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
             dense: true,
             title: Text(
               'I have source with multiple frame rates',
-              style: TextStyle(fontSize: 13.h, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 12.h,
+                color: Colors.black87,
+                height: 1.3,
+              ),
             ),
             value: _settings.hasMultipleFrameRates,
             onChanged: (value) {
@@ -280,7 +272,11 @@ class _VideoSettingsWidgetState extends State<VideoSettingsWidget> {
             dense: true,
             title: Text(
               'I have high framerate footage that needs to be slowed down',
-              style: TextStyle(fontSize: 13.h, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 12.h,
+                color: Colors.black87,
+                height: 1.3,
+              ),
             ),
             value: _settings.needsSlowDown,
             onChanged: (value) {

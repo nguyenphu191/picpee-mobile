@@ -144,15 +144,9 @@ class _OrderScreenState extends State<OrderScreen>
               controller: _drawerTabController,
               children: [
                 // Comments Tab
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: CommentSide(orderId: widget.order.id),
-                ),
+                CommentSide(orderId: widget.order.id),
                 // Checklist Tab
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: ChecklistSide(orderId: widget.order.id),
-                ),
+                ChecklistSide(orderId: widget.order.id),
               ],
             ),
           ),

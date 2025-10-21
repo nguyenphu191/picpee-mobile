@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/services/payment_service.dart';
+import 'package:provider/provider.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 
 class PaymentScreen extends StatefulWidget {
   final double amount;
@@ -16,8 +18,18 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   bool _isProcessing = false;
   final PaymentService _paymentService = PaymentService();
+
   void _processPayPalPayment() async {
     if (_isProcessing) return;
+
+    // Lấy JWT token từ AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final jwtToken = authProvider.token;
+
+    if (jwtToken == null || jwtToken.isEmpty) {
+      _showErrorDialog('Authentication Error', 'Please login again');
+      return;
+    }
 
     setState(() {
       _isProcessing = true;
@@ -27,12 +39,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
       final result = await _paymentService.initiatePayPalPayment(
         context,
         widget.amount,
+        jwtToken, // Truyền JWT token
       );
 
-      if (result.success) {
-        // PayPal UI sẽ tự động xử lý thành công/thất bại
-        print('PayPal payment initiated successfully');
-      } else {
+      if (!result.success) {
         _showErrorDialog(
           'Payment Error',
           result.errorMessage ?? 'Failed to initiate payment',

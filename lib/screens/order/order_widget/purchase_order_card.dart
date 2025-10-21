@@ -38,7 +38,7 @@ class _PurchaseOrderCardState extends State<PurchaseOrderCard> {
   }
 
   void _calculateTax() {
-    _taxAmount = widget.order.cost * 0.1;
+    _taxAmount = 0;
   }
 
   double get _subtotal => widget.order.cost;

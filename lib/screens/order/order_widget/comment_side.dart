@@ -1,11 +1,13 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/comment_model.dart';
+import 'package:picpee_mobile/providers/auth_provider.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/providers/user_provider.dart';
+import 'package:picpee_mobile/services/upload_service.dart';
 import 'package:provider/provider.dart';
 
 class CommentSide extends StatefulWidget {
@@ -19,17 +21,22 @@ class CommentSide extends StatefulWidget {
 class _CommentSideState extends State<CommentSide> {
   final TextEditingController _commentController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  List<XFile> _selectedImages = [];
+  final UploadService _uploadService = UploadService();
+
+  XFile? _selectedImage;
   final TextEditingController _replyController = TextEditingController();
-  List<XFile> _replyImages = [];
 
   final TextEditingController _editController = TextEditingController();
-  List<XFile> _editImages = [];
+  XFile? _editImage;
+  String? _existingEditImage;
 
-  // State tracking variables
-  String? _editingCommentId; // Changed to String to support nested comments
-  String? _replyingToId; // Changed to String to support nested comments
-  int? _replyLevel; // Track the level for replies
+  String? _editingCommentId;
+  String? _replyingToId;
+  int? _replyLevel;
+
+  bool _isUploading = false;
+  double _uploadProgress = 0.0;
+  String _uploadStatus = '';
 
   @override
   void dispose() {
@@ -47,120 +54,208 @@ class _CommentSideState extends State<CommentSide> {
     });
   }
 
-  Future<void> _pickImages() async {
-    final List<XFile>? images = await _picker.pickMultiImage();
-    if (images != null) {
-      setState(() {
-        _selectedImages.addAll(images);
-      });
-    }
-  }
+  // Overlay SnackBar method (same as AddOrderCard)
+  void _showOverlaySnackBar(
+    String message, {
+    Color backgroundColor = Colors.red,
+  }) {
+    final overlay = Overlay.of(context);
+    final entry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 16.h,
+        left: 16.w,
+        right: 16.w,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: backgroundColor,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Text(
+              message,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.h,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
 
-  void _removeImage(int index) {
-    setState(() {
-      _selectedImages.removeAt(index);
+    overlay.insert(entry);
+    Future.delayed(Duration(seconds: 2), () {
+      entry.remove();
     });
   }
 
-  Future<void> _pickReplyImages() async {
-    final List<XFile>? images = await _picker.pickMultiImage();
-    if (images != null) {
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85,
+    );
+    if (image != null) {
       setState(() {
-        _replyImages.addAll(images);
+        _selectedImage = image;
       });
     }
   }
 
-  void _removeReplyImage(int index) {
+  void _removeImage() {
     setState(() {
-      _replyImages.removeAt(index);
-    });
-  }
-
-  Future<void> _pickEditImages() async {
-    final List<XFile>? images = await _picker.pickMultiImage();
-    if (images != null) {
-      setState(() {
-        _editImages.addAll(images);
-      });
-    }
-  }
-
-  void _removeEditImage(int index) {
-    setState(() {
-      _editImages.removeAt(index);
+      _selectedImage = null;
     });
   }
 
   Future<void> fetchComment() async {
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final success = await orderProvider.fetchOrderComments(widget.orderId);
-    if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to load comments'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
+    if (!success && mounted) {
+      _showOverlaySnackBar(
+        'Failed to load comments',
+        backgroundColor: Colors.red,
       );
+    }
+  }
+
+  Future<String?> _uploadImage(XFile image) async {
+    try {
+      setState(() {
+        _isUploading = true;
+        _uploadProgress = 0.0;
+        _uploadStatus = 'Uploading image...';
+      });
+
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final token = authProvider.token;
+
+      final file = File(image.path);
+
+      final url = await _uploadService.uploadOrderCommentImage(
+        file: file,
+        token: token,
+        onUploadProgress: (sent, total) {
+          setState(() {
+            _uploadProgress = sent / total;
+          });
+        },
+      );
+
+      setState(() {
+        _isUploading = false;
+        _uploadProgress = 1.0;
+        _uploadStatus = 'Upload complete!';
+      });
+
+      return url;
+    } catch (e) {
+      print('Error uploading image: $e');
+      setState(() {
+        _isUploading = false;
+        _uploadProgress = 0.0;
+        _uploadStatus = '';
+      });
+
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Failed to upload image: ${e.toString()}',
+          backgroundColor: Colors.red,
+        );
+      }
+
+      return null;
     }
   }
 
   Future<void> _sendComment({
     required String content,
-    required List<XFile> images,
+    XFile? image,
     int level = 1,
     int? parentCommentId,
   }) async {
-    if (content.isEmpty && images.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please enter a message or select images'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
+    if (content.isEmpty && image == null) {
+      _showOverlaySnackBar(
+        'Please enter a message or select an image',
+        backgroundColor: Colors.red,
       );
       return;
+    }
+
+    // Upload image first if exists
+    String? imageUrl;
+    if (image != null) {
+      imageUrl = await _uploadImage(image);
+      if (imageUrl == null) {
+        // Upload failed
+        if (mounted) {
+          _showOverlaySnackBar(
+            'Failed to upload image. Please try again.',
+            backgroundColor: Colors.red,
+          );
+        }
+        return;
+      }
     }
 
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final Map<String, dynamic> commentData = {
       'orderId': widget.orderId,
       'content': content,
-      'attachments': images,
       'level': level,
     };
+
+    if (imageUrl != null) {
+      commentData['attachments'] = [imageUrl];
+    }
+
     if (parentCommentId != null) {
       commentData['parentCommentId'] = parentCommentId;
     }
+
     final success = await orderProvider.addComment(commentData);
+
     if (success) {
       setState(() {
         _commentController.clear();
-        _selectedImages.clear();
+        _selectedImage = null;
       });
+
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Comment sent successfully',
+          backgroundColor: Colors.green,
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to send comment'),
-          duration: Duration(seconds: 2),
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Failed to send comment',
           backgroundColor: Colors.red,
-        ),
-      );
+        );
+      }
     }
   }
 
   Future<void> _sendReply(CommentModel comment) async {
     await _sendComment(
       content: _replyController.text.trim(),
-      images: _replyImages,
+      image: null, // No images in replies
       level: (_replyLevel ?? 1) + 1,
       parentCommentId: comment.id,
     );
 
     setState(() {
       _replyController.clear();
-      _replyImages.clear();
       _replyingToId = null;
       _replyLevel = null;
     });
@@ -172,7 +267,6 @@ class _CommentSideState extends State<CommentSide> {
       _replyLevel = currentLevel;
       _editingCommentId = null;
       _replyController.clear();
-      _replyImages.clear();
     });
   }
 
@@ -181,7 +275,6 @@ class _CommentSideState extends State<CommentSide> {
       _replyingToId = null;
       _replyLevel = null;
       _replyController.clear();
-      _replyImages.clear();
     });
   }
 
@@ -190,7 +283,10 @@ class _CommentSideState extends State<CommentSide> {
       _editingCommentId = '${comment.id}';
       _replyingToId = null;
       _editController.text = comment.content;
-      _editImages.clear();
+      _editImage = null;
+      _existingEditImage = comment.images.isNotEmpty
+          ? comment.images.first
+          : null;
     });
   }
 
@@ -198,7 +294,8 @@ class _CommentSideState extends State<CommentSide> {
     setState(() {
       _editingCommentId = null;
       _editController.clear();
-      _editImages.clear();
+      _editImage = null;
+      _existingEditImage = null;
     });
   }
 
@@ -206,53 +303,86 @@ class _CommentSideState extends State<CommentSide> {
     await editComment(
       comment.id,
       content: _editController.text.trim(),
-      images: _editImages.isNotEmpty ? _editImages : null,
+      newImage: _editImage,
+      existingImage: _existingEditImage,
       orderId: widget.orderId,
     );
 
     setState(() {
       _editingCommentId = null;
       _editController.clear();
-      _editImages.clear();
+      _editImage = null;
+      _existingEditImage = null;
     });
   }
 
   Future<void> editComment(
     int commentId, {
     String? content,
-    List<XFile>? images,
+    XFile? newImage,
+    String? existingImage,
     int orderId = 0,
   }) async {
     if ((content == null || content.isEmpty) &&
-        (images == null || images.isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please enter a message or select images'),
-          duration: Duration(seconds: 2),
-          backgroundColor: Colors.red,
-        ),
+        newImage == null &&
+        existingImage == null) {
+      _showOverlaySnackBar(
+        'Please enter a message or select an image',
+        backgroundColor: Colors.red,
       );
       return;
     }
 
+    // Upload new image if exists
+    String? newImageUrl;
+    if (newImage != null) {
+      newImageUrl = await _uploadImage(newImage);
+      if (newImageUrl == null) {
+        if (mounted) {
+          _showOverlaySnackBar(
+            'Failed to upload image. Please try again.',
+            backgroundColor: Colors.red,
+          );
+        }
+        return;
+      }
+    }
+
+    // Determine final image: new image takes priority over existing
+    String? finalImageUrl;
+    if (newImageUrl != null) {
+      finalImageUrl = newImageUrl;
+    } else if (existingImage != null) {
+      finalImageUrl = existingImage;
+    }
+
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final Map<String, dynamic> commentData = {};
+    final Map<String, dynamic> commentData = {'orderId': orderId};
+
     if (content != null && content.isNotEmpty) {
       commentData['content'] = content;
     }
-    if (images != null && images.isNotEmpty) {
-      commentData['attachments'] = images;
+
+    if (finalImageUrl != null) {
+      commentData['attachments'] = [finalImageUrl];
     }
-    commentData['orderId'] = orderId;
+
     final success = await orderProvider.editComment(commentId, commentData);
-    if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to edit comment'),
-          duration: Duration(seconds: 2),
+
+    if (success) {
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Comment updated successfully',
+          backgroundColor: Colors.green,
+        );
+      }
+    } else {
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Failed to edit comment',
           backgroundColor: Colors.red,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -279,15 +409,86 @@ class _CommentSideState extends State<CommentSide> {
 
     final orderProvider = Provider.of<OrderProvider>(context, listen: false);
     final success = await orderProvider.deleteComment(commentId);
-    if (!success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to delete comment'),
-          duration: Duration(seconds: 2),
+
+    if (success) {
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Comment deleted successfully',
+          backgroundColor: Colors.green,
+        );
+      }
+    } else {
+      if (mounted) {
+        _showOverlaySnackBar(
+          'Failed to delete comment',
           backgroundColor: Colors.red,
-        ),
-      );
+        );
+      }
     }
+  }
+
+  void _showFullScreenImage(
+    BuildContext context,
+    String imageUrl,
+    List<String> allImages,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          children: [
+            Center(
+              child: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 4.0,
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error, color: Colors.white, size: 48.h),
+                          SizedBox(height: 8.h),
+                          Text(
+                            'Failed to load image',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+            // Close button
+            Positioned(
+              top: 40.h,
+              right: 16.w,
+              child: IconButton(
+                icon: Icon(Icons.close, color: Colors.white, size: 32.h),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -303,168 +504,250 @@ class _CommentSideState extends State<CommentSide> {
         return Stack(
           children: [
             SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Comment input box
-                  Container(
-                    padding: EdgeInsets.all(12.w),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Column(
-                      children: [
-                        TextField(
-                          controller: _commentController,
-                          maxLines: 3,
-                          decoration: InputDecoration(
-                            hintText: 'Leave a comment...',
-                            hintStyle: TextStyle(color: Colors.grey[500]),
-                            border: InputBorder.none,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                child: Column(
+                  children: [
+                    // Comment input box
+                    Container(
+                      padding: EdgeInsets.all(12.w),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[200]!),
+                      ),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _commentController,
+                            maxLines: 3,
+                            enabled: !_isUploading,
+                            decoration: InputDecoration(
+                              hintText: 'Leave a comment...',
+                              hintStyle: TextStyle(color: Colors.grey[500]),
+                              border: InputBorder.none,
+                            ),
                           ),
-                        ),
 
-                        if (_selectedImages.isNotEmpty) ...[
-                          SizedBox(height: 8.h),
-                          Container(
-                            height: 80.h,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _selectedImages.length,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  margin: EdgeInsets.only(right: 8.w),
-                                  child: Stack(
-                                    children: [
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.file(
-                                          File(_selectedImages[index].path),
-                                          width: 80.w,
-                                          height: 80.h,
-                                          fit: BoxFit.cover,
+                          if (_selectedImage != null) ...[
+                            SizedBox(height: 8.h),
+                            Container(
+                              height: 80.h,
+                              width: 80.w,
+                              child: Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      File(_selectedImage!.path),
+                                      width: 80.w,
+                                      height: 80.h,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  if (!_isUploading)
+                                    Positioned(
+                                      top: 4.h,
+                                      right: 4.w,
+                                      child: GestureDetector(
+                                        onTap: _removeImage,
+                                        child: Container(
+                                          padding: EdgeInsets.all(2.w),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.close,
+                                            color: Colors.white,
+                                            size: 16.h,
+                                          ),
                                         ),
                                       ),
-                                      Positioned(
-                                        top: 4.h,
-                                        right: 4.w,
-                                        child: GestureDetector(
-                                          onTap: () => _removeImage(index),
-                                          child: Container(
-                                            padding: EdgeInsets.all(2.w),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Icon(
-                                              Icons.close,
-                                              color: Colors.white,
-                                              size: 16.h,
-                                            ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+
+                          // Upload progress
+                          if (_isUploading) ...[
+                            SizedBox(height: 8.h),
+                            Column(
+                              children: [
+                                LinearProgressIndicator(
+                                  value: _uploadProgress,
+                                  backgroundColor: Colors.grey[300],
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.buttonGreen,
+                                  ),
+                                ),
+                                SizedBox(height: 4.h),
+                                Text(
+                                  _uploadStatus,
+                                  style: TextStyle(
+                                    fontSize: 12.h,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+
+                          SizedBox(height: 8.h),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: _isUploading || _selectedImage != null
+                                    ? null
+                                    : _pickImage,
+                                child: Icon(
+                                  Icons.image,
+                                  color:
+                                      (_isUploading || _selectedImage != null)
+                                      ? Colors.grey[400]
+                                      : Colors.red,
+                                  size: 24.h,
+                                ),
+                              ),
+
+                              Spacer(),
+                              GestureDetector(
+                                onTap: _isUploading
+                                    ? null
+                                    : () => _sendComment(
+                                        content: _commentController.text.trim(),
+                                        image: _selectedImage,
+                                      ),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16.w,
+                                    vertical: 8.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _isUploading
+                                        ? Colors.grey[400]
+                                        : Colors.blue,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (_isUploading)
+                                        SizedBox(
+                                          width: 16.w,
+                                          height: 16.h,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                  Colors.white,
+                                                ),
                                           ),
+                                        )
+                                      else
+                                        Icon(
+                                          Icons.send,
+                                          color: Colors.white,
+                                          size: 16.h,
+                                        ),
+                                      SizedBox(width: 4.w),
+                                      Text(
+                                        _isUploading ? 'Uploading...' : 'Send',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14.h,
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ],
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-
-                        SizedBox(height: 8.h),
-                        Row(
-                          children: [
-                            GestureDetector(
-                              onTap: _pickImages,
-                              child: Icon(
-                                Icons.image,
-                                color: Colors.grey[600],
-                                size: 24.h,
-                              ),
-                            ),
-
-                            Spacer(),
-                            GestureDetector(
-                              onTap: () => _sendComment(
-                                content: _commentController.text.trim(),
-                                images: _selectedImages,
-                              ),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 16.w,
-                                  vertical: 8.h,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.send,
-                                      color: Colors.white,
-                                      size: 16.h,
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      'Send',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14.h,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 16.h),
+                    SizedBox(height: 16.h),
 
-                  // List of comments
-                  ...comments.asMap().entries.map((entry) {
-                    final comment = entry.value;
-                    return _buildCommentItem(comment, youId, 1);
-                  }).toList(),
-                ],
+                    // Empty state
+                    if (comments.isEmpty)
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 32.h),
+                          child: Column(
+                            children: [
+                              Icon(
+                                Icons.comment_outlined,
+                                size: 64.h,
+                                color: Colors.grey[400],
+                              ),
+                              SizedBox(height: 12.h),
+                              Text(
+                                'No comments yet',
+                                style: TextStyle(
+                                  fontSize: 16.h,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 4.h),
+                              Text(
+                                'Be the first to comment',
+                                style: TextStyle(
+                                  fontSize: 14.h,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      // List of comments
+                      ...comments.asMap().entries.map((entry) {
+                        final comment = entry.value;
+                        return _buildCommentItem(comment, youId, 1);
+                      }).toList(),
+                  ],
+                ),
               ),
             ),
 
             // Loading overlay
             if (orderProvider.loading)
-              Container(color: Colors.black.withOpacity(0.3)),
-            if (orderProvider.loading)
-              Center(
-                child: Container(
-                  padding: EdgeInsets.all(20.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10.r),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 10.r,
-                        offset: Offset(0, 5.h),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: AppColors.buttonGreen),
-                      SizedBox(height: 8.h),
-                      Text(
-                        "Loading...",
-                        style: TextStyle(color: Colors.black, fontSize: 16.sp),
-                      ),
-                    ],
+              Container(
+                color: Colors.black.withOpacity(0.3),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(20.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10.r,
+                          offset: Offset(0, 5.h),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.buttonGreen),
+                        SizedBox(height: 12.h),
+                        Text(
+                          "Loading comments...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -616,6 +899,7 @@ class _CommentSideState extends State<CommentSide> {
               TextField(
                 controller: _editController,
                 maxLines: 2,
+                enabled: !_isUploading,
                 decoration: InputDecoration(
                   hintText: 'Edit your comment...',
                   hintStyle: TextStyle(color: Colors.grey[500]),
@@ -623,51 +907,24 @@ class _CommentSideState extends State<CommentSide> {
                 ),
               ),
 
-              // Edit images preview
-              if (_editImages.isNotEmpty) ...[
+              if (_existingEditImage != null && _editImage == null) ...[
                 SizedBox(height: 8.h),
+
                 Container(
-                  height: 60.h,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _editImages.length,
-                    itemBuilder: (context, imgIndex) {
-                      return Container(
-                        margin: EdgeInsets.only(right: 8.w),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                File(_editImages[imgIndex].path),
-                                width: 60.w,
-                                height: 60.h,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: 2.h,
-                              right: 2.w,
-                              child: GestureDetector(
-                                onTap: () => _removeEditImage(imgIndex),
-                                child: Container(
-                                  padding: EdgeInsets.all(2.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 12.h,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                  width: 80.w,
+                  height: 80.h,
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          _existingEditImage!,
+                          width: 80.w,
+                          height: 80.h,
+                          fit: BoxFit.cover,
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -676,13 +933,9 @@ class _CommentSideState extends State<CommentSide> {
               SizedBox(height: 8.h),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: _pickEditImages,
-                    child: Icon(Icons.image, color: Colors.orange, size: 20.h),
-                  ),
                   Spacer(),
                   TextButton(
-                    onPressed: _cancelEdit,
+                    onPressed: _isUploading ? null : _cancelEdit,
                     child: Text(
                       'Cancel',
                       style: TextStyle(color: Colors.grey[600], fontSize: 12.h),
@@ -690,7 +943,9 @@ class _CommentSideState extends State<CommentSide> {
                   ),
                   SizedBox(width: 8.w),
                   ElevatedButton(
-                    onPressed: () => _saveEditComment(comment),
+                    onPressed: _isUploading
+                        ? null
+                        : () => _saveEditComment(comment),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: EdgeInsets.symmetric(
@@ -725,49 +980,65 @@ class _CommentSideState extends State<CommentSide> {
           ),
         ],
 
-        // Display images in comment
         if (comment.images.isNotEmpty) ...[
           SizedBox(height: 4.h),
-          Container(
-            height: 100.h,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: comment.images.length,
-              itemBuilder: (context, imgIndex) {
-                final imageUrl = comment.images[imgIndex];
-                return Container(
-                  margin: EdgeInsets.only(right: 8.w),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      imageUrl,
-                      width: 100.w,
-                      height: 100.h,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.buttonGreen,
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                      loadingProgress.expectedTotalBytes!
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          width: 100.w,
-                          height: 100.h,
-                          color: Colors.grey[300],
-                          child: Icon(Icons.broken_image, color: Colors.grey),
-                        );
-                      },
+          GestureDetector(
+            onTap: () => _showFullScreenImage(
+              context,
+              comment.images.first,
+              comment.images,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                comment.images.first,
+                width: 120.w,
+                height: 120.h,
+                fit: BoxFit.cover,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Container(
+                    width: 120.w,
+                    height: 120.h,
+                    color: Colors.grey[200],
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.buttonGreen,
+                        strokeWidth: 2,
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                  loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 120.w,
+                    height: 120.h,
+                    color: Colors.grey[300],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                          size: 32.h,
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'Failed to load',
+                          style: TextStyle(
+                            fontSize: 10.h,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -789,17 +1060,19 @@ class _CommentSideState extends State<CommentSide> {
                 ),
               ),
             if (isYou) ...[
-              TextButton(
-                onPressed: () => _startEditComment(comment),
-                child: Text(
-                  'Edit',
-                  style: TextStyle(
-                    fontSize: 14.h,
-                    color: Colors.orange,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+              comment.images.isEmpty
+                  ? TextButton(
+                      onPressed: () => _startEditComment(comment),
+                      child: Text(
+                        'Edit',
+                        style: TextStyle(
+                          fontSize: 14.h,
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink(),
               TextButton(
                 onPressed: () => _deleteComment(comment.id),
                 child: Text(
@@ -822,9 +1095,10 @@ class _CommentSideState extends State<CommentSide> {
   Widget _buildReplyForm(CommentModel comment) {
     return Column(
       children: [
+        SizedBox(height: 8.h),
         Container(
           margin: EdgeInsets.only(left: 44.w),
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: Colors.blue[50],
             borderRadius: BorderRadius.circular(8),
@@ -836,6 +1110,7 @@ class _CommentSideState extends State<CommentSide> {
               TextField(
                 controller: _replyController,
                 maxLines: 2,
+                enabled: !_isUploading,
                 decoration: InputDecoration(
                   hintText: 'Write a reply...',
                   hintStyle: TextStyle(color: Colors.grey[500]),
@@ -843,66 +1118,13 @@ class _CommentSideState extends State<CommentSide> {
                 ),
               ),
 
-              // Reply images preview
-              if (_replyImages.isNotEmpty) ...[
-                SizedBox(height: 8.h),
-                Container(
-                  height: 60.h,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _replyImages.length,
-                    itemBuilder: (context, imgIndex) {
-                      return Container(
-                        margin: EdgeInsets.only(right: 8.w),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.file(
-                                File(_replyImages[imgIndex].path),
-                                width: 60.w,
-                                height: 60.h,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              top: 2.h,
-                              right: 2.w,
-                              child: GestureDetector(
-                                onTap: () => _removeReplyImage(imgIndex),
-                                child: Container(
-                                  padding: EdgeInsets.all(2.w),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.close,
-                                    color: Colors.white,
-                                    size: 12.h,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-
               // Reply action buttons
               SizedBox(height: 8.h),
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: _pickReplyImages,
-                    child: Icon(Icons.image, color: Colors.blue, size: 20.h),
-                  ),
                   Spacer(),
                   TextButton(
-                    onPressed: _cancelReply,
+                    onPressed: _isUploading ? null : _cancelReply,
                     child: Text(
                       'Cancel',
                       style: TextStyle(color: Colors.grey[600], fontSize: 12.h),
@@ -910,7 +1132,7 @@ class _CommentSideState extends State<CommentSide> {
                   ),
                   SizedBox(width: 8.w),
                   ElevatedButton(
-                    onPressed: () => _sendReply(comment),
+                    onPressed: _isUploading ? null : () => _sendReply(comment),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       padding: EdgeInsets.symmetric(

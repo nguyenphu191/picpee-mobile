@@ -37,11 +37,7 @@ class _ProjectListCardState extends State<ProjectListCard> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 8.h),
-            Text(
-              'Create your first project to get started',
-              style: TextStyle(color: Colors.grey[600], fontSize: 14.h),
-            ),
+           
           ],
         ),
       );

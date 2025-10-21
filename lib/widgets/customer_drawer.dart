@@ -214,10 +214,16 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                             color: Colors.black,
                           ),
                         ),
-                        Text(
-                          user?.email ?? "",
-                          style: TextStyle(color: Colors.black, fontSize: 14.h),
-                          overflow: TextOverflow.ellipsis,
+                        Container(
+                          width: 180.w,
+                          child: Text(
+                            user?.email ?? "",
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 14.h,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),

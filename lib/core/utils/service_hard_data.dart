@@ -11,13 +11,15 @@ class OptionItem {
 }
 
 class ServiceItem {
-  final String title;
-  final String category;
-  final String image;
-  final String description;
-  final List<OptionItem> options;
+  int id;
+  String title;
+  String category;
+  String image;
+  String description;
+  List<OptionItem> options;
 
   ServiceItem({
+    required this.id,
     required this.title,
     required this.category,
     this.image = '',
@@ -29,6 +31,7 @@ class ServiceItem {
 List<ServiceItem> servicesData = [
   // IMAGE ENHANCEMENT
   ServiceItem(
+    id: 2,
     title: 'Single Exposure',
     category: 'IMAGE ENHANCEMENT',
     image: AppImages.SingleExportIcon,
@@ -46,6 +49,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 3,
     title: 'Blended Brackets (HDR)',
     category: 'IMAGE ENHANCEMENT',
     image: AppImages.HDRIcon,
@@ -63,6 +67,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 4,
     title: 'Flambient',
     category: 'IMAGE ENHANCEMENT',
     image: AppImages.FlambientIcon,
@@ -80,6 +85,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 6,
     title: '360° Image Enhancement',
     category: 'IMAGE ENHANCEMENT',
     image: AppImages.Image360EnhanceIcon,
@@ -99,6 +105,7 @@ List<ServiceItem> servicesData = [
 
   // VIRTUAL STAGING
   ServiceItem(
+    id: 7,
     title: 'Virtual Staging',
     category: 'VIRTUAL STAGING',
     image: AppImages.VirtualStaggingIcon,
@@ -108,6 +115,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 8,
     title: 'Remodel',
     category: 'VIRTUAL STAGING',
     image: AppImages.RemodelIcon,
@@ -116,6 +124,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 9,
     title: '360° Image',
     category: 'VIRTUAL STAGING',
     image: AppImages.Image360Icon,
@@ -126,6 +135,7 @@ List<ServiceItem> servicesData = [
 
   // DAY TO DUSK
   ServiceItem(
+    id: 10,
     title: 'Day to Dusk',
     category: 'DAY TO DUSK',
     image: AppImages.DayToDuckIcon,
@@ -136,6 +146,7 @@ List<ServiceItem> servicesData = [
 
   // DAY TO TWILIGHT
   ServiceItem(
+    id: 11,
     title: 'Day to Twilight',
     category: 'DAY TO TWILIGHT',
     image: AppImages.DayToTwilightIcon,
@@ -149,6 +160,7 @@ List<ServiceItem> servicesData = [
 
   // OBJECT REMOVAL
   ServiceItem(
+    id: 12,
     title: '1-4 Items',
     category: 'OBJECT REMOVAL',
     image: AppImages.CleanIcon,
@@ -157,6 +169,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 13,
     title: 'Room Cleaning',
     category: 'OBJECT REMOVAL',
     image: AppImages.CleanIcon,
@@ -167,6 +180,7 @@ List<ServiceItem> servicesData = [
 
   // CHANGING SEASONS
   ServiceItem(
+    id: 14,
     title: 'Changing Seasons',
     category: 'CHANGING SEASONS',
     image: AppImages.ChangeSessionIcon,
@@ -177,6 +191,7 @@ List<ServiceItem> servicesData = [
 
   // WATER IN POOL
   ServiceItem(
+    id: 15,
     title: 'Water In Pool',
     category: 'WATER IN POOL',
     image: AppImages.WaterInPoolIcon,
@@ -187,6 +202,7 @@ List<ServiceItem> servicesData = [
 
   // LAWN REPLACEMENT
   ServiceItem(
+    id: 16,
     title: 'Lawn Replacement',
     category: 'LAWN REPLACEMENT',
     image: AppImages.LawnReplacementIcon,
@@ -197,6 +213,7 @@ List<ServiceItem> servicesData = [
 
   // RAIN TO SHINE
   ServiceItem(
+    id: 17,
     title: 'Rain to Shine',
     category: 'RAIN TO SHINE',
     image: AppImages.RainToShineIcon,
@@ -207,6 +224,7 @@ List<ServiceItem> servicesData = [
 
   // FLOOR PLANS
   ServiceItem(
+    id: 18,
     title: 'Custom 2D',
     category: 'FLOOR PLANS',
     image: AppImages.Custom2dIcon,
@@ -226,6 +244,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 31,
     title: 'Custom 3D',
     category: 'FLOOR PLANS',
     image: AppImages.Custom3dIcon,
@@ -246,6 +265,7 @@ List<ServiceItem> servicesData = [
 
   // PROPERTY VIDEOS SERVICES
   ServiceItem(
+    id: 20,
     title: 'Property Videos',
     category: 'PROPERTY VIDEOS SERVICES',
     image: AppImages.PropertyIcon,
@@ -274,6 +294,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 21,
     title: 'Walkthrough Video',
     category: 'PROPERTY VIDEOS SERVICES',
     image: AppImages.WalkthroughIcon,
@@ -302,6 +323,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 22,
     title: 'Reels',
     category: 'PROPERTY VIDEOS SERVICES',
     image: AppImages.ReelsIcon,
@@ -330,6 +352,7 @@ List<ServiceItem> servicesData = [
     ],
   ),
   ServiceItem(
+    id: 23,
     title: 'Slideshows',
     category: 'PROPERTY VIDEOS SERVICES',
     image: AppImages.SlideShowIcon,
@@ -360,6 +383,7 @@ List<ServiceItem> servicesData = [
 
   // HEADSHOTS SERVICES
   ServiceItem(
+    id: 24,
     title: 'Individual',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.IndividualIcon,
@@ -368,6 +392,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 25,
     title: 'Team',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.TeamIcon,
@@ -376,6 +401,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 26,
     title: 'Add Person',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.AddPersonIcon,
@@ -384,6 +410,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 27,
     title: 'Remove Person',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.RemovePersonIcon,
@@ -392,6 +419,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 28,
     title: 'Background Replacement',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.BackgroundReplaceIcon,
@@ -400,6 +428,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 29,
     title: 'Cut Outs',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.CutsOutIcon,
@@ -408,6 +437,7 @@ List<ServiceItem> servicesData = [
     options: [],
   ),
   ServiceItem(
+    id: 30,
     title: 'Change Color',
     category: 'HEADSHOTS SERVICES',
     image: AppImages.ChangeColorIcon,

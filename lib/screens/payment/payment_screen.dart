@@ -136,7 +136,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue[200]!),
+                        border: Border.all(color: Colors.lightGreen[200]!),
                       ),
                       child: Row(
                         children: [
@@ -156,7 +156,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   style: TextStyle(
                                     fontSize: 16.h,
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.blue[700],
+                                    color: Colors.black,
                                   ),
                                 ),
                                 Text(
@@ -171,7 +171,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                           Icon(
                             Icons.radio_button_checked,
-                            color: Colors.blue[700],
+                            color: AppColors.buttonGreen,
                           ),
                         ],
                       ),
@@ -188,7 +188,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     child: ElevatedButton(
                       onPressed: _isProcessing ? null : _processPayPalPayment,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[600],
+                        backgroundColor: AppColors.buttonGreen,
                         padding: EdgeInsets.symmetric(vertical: 16.h),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -209,7 +209,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               children: [
                                 Icon(
                                   Icons.payment,
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   size: 20.h,
                                 ),
                                 SizedBox(width: 8.w),
@@ -217,8 +217,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                   'Pay with PayPal',
                                   style: TextStyle(
                                     fontSize: 16.h,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
                                   ),
                                 ),
                               ],

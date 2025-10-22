@@ -13,11 +13,7 @@ class AuthService {
       "password": password,
     };
     // Mã hóa
-    final jsonString = jsonEncode(
-      Map.fromEntries(
-        loginData.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-      ),
-    );
+    final jsonString = jsonEncode(loginData);
     final encryptedPayload = EncryptionUtil.encryptString(jsonString);
     final response = await http.post(
       Uri.parse(Url.login),

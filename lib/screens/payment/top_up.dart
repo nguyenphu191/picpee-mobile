@@ -147,7 +147,7 @@ class _TopUpDialogState extends State<TopUpDialog> {
                                     color:
                                         _amountController.text ==
                                             amount.toString()
-                                        ? Colors.blue
+                                        ? AppColors.buttonGreen
                                         : Colors.grey,
                                     width: 1.5,
                                   ),
@@ -156,7 +156,7 @@ class _TopUpDialogState extends State<TopUpDialog> {
                                   '\$ $amount',
                                   style: TextStyle(
                                     fontSize: 14.h,
-                                    fontWeight: FontWeight.w500,
+                                    fontWeight: FontWeight.normal,
                                     color: Colors.black,
                                   ),
                                 ),

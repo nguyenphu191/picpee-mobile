@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/designer_model.dart';
 import 'package:picpee_mobile/providers/designer_provider.dart';
+import 'package:picpee_mobile/screens/photo-services/portfolio_screen.dart';
 import 'package:provider/provider.dart';
 
 class DesignerTopCardCard extends StatefulWidget {
@@ -305,284 +306,70 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
   }
 
   Widget _buildDesignerCard(DesignerModel designer) {
-    return Container(
-      height: 300.h,
-      width: double.infinity,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
-      child: Stack(
-        children: [
-          // Bottom card with designer info
-          Positioned(
-            top: 110.h,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  SizedBox(height: 45.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          designer.businessName.isNotEmpty
-                              ? designer.businessName
-                              : '${designer.firstname} ${designer.lastname}',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18.h,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (designer.imageFlag.isNotEmpty == true) ...[
-                        SizedBox(width: 8),
-                        Image.network(
-                          designer.imageFlag.trim(),
-                          width: 20.w,
-                          height: 15.h,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else {
-                              return Center(
-                                child: SizedBox(
-                                  width: 15.w,
-                                  height: 15.h,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.buttonGreen,
-                                    strokeWidth: 2,
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                        : null,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return SizedBox.shrink();
-                          },
-                        ),
-                      ],
-                    ],
-                  ),
-                  SizedBox(height: 10.h),
-
-                  // Skill
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 6.h,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: Colors.white70, width: 1.5),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.network(
-                          designer.imageSkill.trim(),
-                          height: 20.h,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            } else {
-                              return Center(
-                                child: SizedBox(
-                                  width: 20.w,
-                                  height: 20.h,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.buttonGreen,
-                                    strokeWidth: 2,
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                            null
-                                        ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                        : null,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return Icon(Icons.broken_image, size: 16.h);
-                          },
-                        ),
-                        SizedBox(width: 8.w),
-                        Text(
-                          designer.skillName,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14.h,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  SizedBox(height: 15.h),
-
-                  // Rating and price section
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.star, color: Colors.orange, size: 18.h),
-                            SizedBox(width: 4.h),
-                            Row(
-                              children: [
-                                Text(
-                                  "${designer.ratingPoint.toStringAsFixed(1)}",
-                                  style: TextStyle(
-                                    color: Colors.orange,
-                                    fontSize: 14.h,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  " (${designer.totalReview})",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14.h,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Text(
-                              "Starting at  ",
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14.h,
-                              ),
-                            ),
-                            Text(
-                              "\$${_formatPrice(designer.cost)}",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18.h,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PortfolioScreen(vendorId: designer.userId),
           ),
-
-          // Cover image
-          Container(
-            height: 140.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-              child: designer.imageCover.isNotEmpty
-                  ? Image.network(
-                      designer.imageCover.trim(),
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                          color: Colors.grey.shade300,
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: AppColors.buttonGreen,
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey.shade300,
-                          child: Icon(
-                            Icons.image,
-                            size: 48.h,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: Colors.grey.shade300,
-                      child: Icon(Icons.image, size: 48.h, color: Colors.grey),
-                    ),
-            ),
-          ),
-
-          // Avatar
-          Positioned(
-            top: 100.h,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: Alignment.topCenter,
+        );
+      },
+      child: Container(
+        height: 300.h,
+        width: double.infinity,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+        child: Stack(
+          children: [
+            // Bottom card with designer info
+            Positioned(
+              top: 110.h,
+              left: 0,
+              right: 0,
               child: Container(
-                height: 70.h,
-                width: 70.h,
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: const Color.fromARGB(255, 0, 0, 0),
-                    width: 5,
+                  color: Colors.black,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(20),
                   ),
                 ),
-                child: Container(
-                  width: 68,
-                  height: 68,
-                  decoration: BoxDecoration(shape: BoxShape.circle),
-                  child: ClipOval(
-                    child: designer.avatar.isNotEmpty
-                        ? Image.network(
-                            designer.avatar.trim(),
-                            fit: BoxFit.cover,
+                child: Column(
+                  children: [
+                    SizedBox(height: 45.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            designer.businessName.isNotEmpty
+                                ? designer.businessName
+                                : '${designer.firstname} ${designer.lastname}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18.h,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (designer.imageFlag.isNotEmpty == true) ...[
+                          SizedBox(width: 8),
+                          Image.network(
+                            designer.imageFlag.trim(),
+                            width: 20.w,
+                            height: 15.h,
                             loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Container(
-                                color: Colors.grey.shade300,
-                                child: Center(
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
                                   child: SizedBox(
-                                    width: 20.w,
-                                    height: 20.h,
+                                    width: 15.w,
+                                    height: 15.h,
                                     child: CircularProgressIndicator(
-                                      strokeWidth: 2,
                                       color: AppColors.buttonGreen,
+                                      strokeWidth: 2,
                                       value:
                                           loadingProgress.expectedTotalBytes !=
                                               null
@@ -593,34 +380,268 @@ class _DesignerTopCardCardState extends State<DesignerTopCardCard> {
                                           : null,
                                     ),
                                   ),
-                                ),
-                              );
+                                );
+                              }
                             },
                             errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey.shade300,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 32.h,
-                                  color: Colors.grey,
-                                ),
-                              );
+                              return SizedBox.shrink();
                             },
-                          )
-                        : Container(
-                            color: Colors.grey.shade300,
-                            child: Icon(
-                              Icons.person,
-                              size: 32.h,
-                              color: Colors.grey,
+                          ),
+                        ],
+                      ],
+                    ),
+                    SizedBox(height: 10.h),
+
+                    // Skill
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 6.h,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.white70, width: 1.5),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.network(
+                            designer.imageSkill.trim(),
+                            height: 20.h,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child;
+                              } else {
+                                return Center(
+                                  child: SizedBox(
+                                    width: 20.w,
+                                    height: 20.h,
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.buttonGreen,
+                                      strokeWidth: 2,
+                                      value:
+                                          loadingProgress.expectedTotalBytes !=
+                                              null
+                                          ? loadingProgress
+                                                    .cumulativeBytesLoaded /
+                                                loadingProgress
+                                                    .expectedTotalBytes!
+                                          : null,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.broken_image, size: 16.h);
+                            },
+                          ),
+                          SizedBox(width: 8.w),
+                          Text(
+                            designer.skillName,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14.h,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 15.h),
+
+                    // Rating and price section
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 12.w),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star,
+                                color: Colors.orange,
+                                size: 18.h,
+                              ),
+                              SizedBox(width: 4.h),
+                              Row(
+                                children: [
+                                  Text(
+                                    "${designer.ratingPoint.toStringAsFixed(1)}",
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                      fontSize: 14.h,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    " (${designer.totalReview})",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14.h,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                "Starting at  ",
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14.h,
+                                ),
+                              ),
+                              Text(
+                                "\$${_formatPrice(designer.cost)}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18.h,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Cover image
+            Container(
+              height: 140.h,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                child: designer.imageCover.isNotEmpty
+                    ? Image.network(
+                        designer.imageCover.trim(),
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                            color: Colors.grey.shade300,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.buttonGreen,
+                                value:
+                                    loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          );
+                        },
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey.shade300,
+                            child: Icon(
+                              Icons.image,
+                              size: 48.h,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      )
+                    : Container(
+                        color: Colors.grey.shade300,
+                        child: Icon(
+                          Icons.image,
+                          size: 48.h,
+                          color: Colors.grey,
+                        ),
+                      ),
+              ),
+            ),
+
+            // Avatar
+            Positioned(
+              top: 100.h,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Container(
+                  height: 70.h,
+                  width: 70.h,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      width: 5,
+                    ),
+                  ),
+                  child: Container(
+                    width: 68,
+                    height: 68,
+                    decoration: BoxDecoration(shape: BoxShape.circle),
+                    child: ClipOval(
+                      child: designer.avatar.isNotEmpty
+                          ? Image.network(
+                              designer.avatar.trim(),
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, loadingProgress) {
+                                if (loadingProgress == null) return child;
+                                return Container(
+                                  color: Colors.grey.shade300,
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 20.w,
+                                      height: 20.h,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.buttonGreen,
+                                        value:
+                                            loadingProgress
+                                                    .expectedTotalBytes !=
+                                                null
+                                            ? loadingProgress
+                                                      .cumulativeBytesLoaded /
+                                                  loadingProgress
+                                                      .expectedTotalBytes!
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey.shade300,
+                                  child: Icon(
+                                    Icons.person,
+                                    size: 32.h,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                            )
+                          : Container(
+                              color: Colors.grey.shade300,
+                              child: Icon(
+                                Icons.person,
+                                size: 32.h,
+                                color: Colors.grey,
+                              ),
+                            ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

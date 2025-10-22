@@ -645,7 +645,7 @@ class _AllServicesBodyState extends State<AllServicesBody> {
                       style: TextStyle(fontSize: 12.h, color: Colors.grey[600]),
                     ),
                     Text(
-                      '\$${service.cost.toStringAsFixed(2)}',
+                      '\$${_formatPrice(service.cost)}',
                       style: TextStyle(
                         fontSize: 14.h,
                         fontWeight: FontWeight.bold,
@@ -662,5 +662,16 @@ class _AllServicesBodyState extends State<AllServicesBody> {
         ),
       ),
     );
+  }
+
+  String _formatPrice(double price) {
+    if (price == price.toInt()) {
+      return price.toInt().toString();
+    }
+    String fixed = price.toStringAsFixed(2);
+    if (fixed.endsWith('0')) {
+      return price.toStringAsFixed(1);
+    }
+    return fixed;
   }
 }

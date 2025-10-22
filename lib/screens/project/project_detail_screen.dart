@@ -4,6 +4,7 @@ import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
+import 'package:picpee_mobile/screens/project/project_widget/doer_card.dart';
 import 'package:picpee_mobile/screens/project/project_widget/order_card.dart';
 import 'package:picpee_mobile/widgets/profile_header.dart';
 import 'package:picpee_mobile/widgets/sidebar.dart';
@@ -25,10 +26,65 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
   TabController? _statusTabController;
   final TextEditingController _searchController = TextEditingController();
 
+  // 🔥 Hardcode Doer Data
+  final List<DoerModel> _doers = [
+    DoerModel(
+      id: 1,
+      name: 'John Smith',
+      avatar: 'https://i.pravatar.cc/150?img=12',
+      rated: false,
+    ),
+    DoerModel(
+      id: 2,
+      name: 'Emma Wilson',
+      avatar: 'https://i.pravatar.cc/150?img=45',
+      rated: true,
+    ),
+    DoerModel(
+      id: 3,
+      name: 'Michael Brown',
+      avatar: 'https://i.pravatar.cc/150?img=33',
+      rated: false,
+    ),
+    DoerModel(
+      id: 4,
+      name: 'Sarah Davis',
+      avatar: 'https://i.pravatar.cc/150?img=47',
+      rated: true,
+    ),
+    DoerModel(
+      id: 5,
+      name: 'David Lee',
+      avatar: 'https://i.pravatar.cc/150?img=15',
+      rated: false,
+    ),
+    DoerModel(
+      id: 6,
+      name: 'Lisa Anderson',
+      avatar: 'https://i.pravatar.cc/150?img=48',
+      rated: true,
+    ),
+    DoerModel(
+      id: 7,
+      name: 'James Taylor',
+      avatar: 'https://i.pravatar.cc/150?img=51',
+      rated: false,
+    ),
+    DoerModel(
+      id: 8,
+      name: 'Maria Garcia',
+      avatar: 'https://i.pravatar.cc/150?img=44',
+      rated: false,
+    ),
+  ];
+
   @override
   void initState() {
     super.initState();
-    _mainTabController = TabController(length: 2, vsync: this);
+    _mainTabController = TabController(
+      length: 3,
+      vsync: this,
+    ); // 🔥 Thay đổi length thành 3
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchOrders();
     });
@@ -55,6 +111,65 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
     }
   }
 
+  // 🔥 Handle Rate Button
+  void _handleRate(DoerModel doer) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: Row(
+          children: [
+            Icon(Icons.star, color: Colors.amber, size: 28),
+            SizedBox(width: 8),
+            Text('Rate ${doer.name}'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('Would you like to rate this doer?'),
+            SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(5, (index) {
+                return Icon(Icons.star, color: Colors.amber, size: 32);
+              }),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Update rated status
+              setState(() {
+                final index = _doers.indexWhere((d) => d.id == doer.id);
+                if (index != -1) {
+                  _doers[index] = doer.copyWith(rated: true);
+                }
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Thank you for rating ${doer.name}!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.buttonGreen,
+              foregroundColor: Colors.black,
+            ),
+            child: Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<OrderProvider>(
@@ -65,7 +180,6 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
             .toSet()
             .toList();
 
-        // Khởi tạo hoặc cập nhật TabController khi có dữ liệu
         if (availableStatuses.isNotEmpty) {
           if (_statusTabController == null ||
               _statusTabController!.length != availableStatuses.length) {
@@ -316,7 +430,6 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                                   ),
                                 ),
 
-                              // Loading/Empty state khi chưa có dữ liệu
                               if (availableStatuses.isEmpty || orders.isEmpty)
                                 Expanded(
                                   child: Center(
@@ -333,16 +446,31 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                             ],
                           ),
 
-                          // Design
-                          const Center(
-                            child: Text(
-                              'Design Information Content',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
+                          // Design Information Tab
+                          _doers.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    'No Designer found',
+                                    style: TextStyle(
+                                      fontSize: 16.h,
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  padding: EdgeInsets.all(16.w),
+                                  itemCount: _doers.length,
+                                  itemBuilder: (context, index) {
+                                    final doer = _doers[index];
+                                    return DoerCard(
+                                      doer: doer,
+                                      onRate: doer.rated
+                                          ? null
+                                          : () => _handleRate(doer),
+                                    );
+                                  },
+                                ),
                         ],
                       ),
                     ),

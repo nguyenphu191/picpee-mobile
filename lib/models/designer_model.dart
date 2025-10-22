@@ -3,32 +3,32 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class DesignerModel {
-  final int userId;
-  final String code;
-  final String lastname;
-  final String firstname;
-  final String email;
-  final String businessName;
-  final String avatar;
-  final String countryCode;
-  final String countryName;
-  final String statusUser;
-  final String statusReceiveOrder;
-  final String imageFlag;
-  final String imageCover;
-  final int skillId;
-  final String skillName;
-  final String category;
-  final int turnaroundTime;
-  final double cost;
-  final String imageSkill;
-  final double ratingPoint;
-  final int totalReview;
-  final int userSkillId;
-  final int totalFavorite;
-  final bool statusFavorite;
-  final bool verified;
-  final String timezone;
+  int userId;
+  String code;
+  String lastname;
+  String firstname;
+  String email;
+  String businessName;
+  String avatar;
+  String countryCode;
+  String countryName;
+  String statusUser;
+  String statusReceiveOrder;
+  String imageFlag;
+  String imageCover;
+  int skillId;
+  String skillName;
+  String category;
+  int turnaroundTime;
+  double cost;
+  String imageSkill;
+  double ratingPoint;
+  int totalReview;
+  int userSkillId;
+  int totalFavorite;
+  bool statusFavorite;
+  bool verified;
+  String timezone;
 
   DesignerModel({
     required this.userId,
@@ -73,7 +73,7 @@ class DesignerModel {
       statusReceiveOrder: json['statusReceiveOrder'] ?? '',
       imageFlag: json['imageFlag'] ?? '',
       imageCover: json['imageCover'] ?? '',
-      skillId: json['skillId'] ?? 0,
+      skillId: json['skillId'] ?? 2,
       skillName: json['skillName'] ?? '',
       category: json['category'] ?? '',
       turnaroundTime: json['turnaroundTime'] ?? 0,
@@ -202,6 +202,19 @@ class DesignerModel {
         return Colors.orange;
       case 'NOT_ACCEPTING':
         return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color getTextColor() {
+    switch (statusReceiveOrder) {
+      case 'AUTO_ACCEPTING':
+        return const Color.fromARGB(255, 9, 99, 11);
+      case 'ON_HOLD':
+        return const Color.fromARGB(255, 121, 76, 9);
+      case 'NOT_ACCEPTING':
+        return const Color.fromARGB(255, 116, 16, 9);
       default:
         return Colors.grey;
     }

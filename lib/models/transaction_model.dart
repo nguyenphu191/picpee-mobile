@@ -25,22 +25,33 @@ class TransactionRequest {
 }
 
 class TransactionResponse {
-  final bool success;
+  final bool result;
+  final int code;
   final String message;
   final TransactionData? data;
+  final PagingInfo? paging;
 
   TransactionResponse({
-    required this.success,
+    required this.result,
+    required this.code,
     required this.message,
     this.data,
+    this.paging,
   });
+
+  // Getter để tương thích với code cũ
+  bool get success => result;
 
   factory TransactionResponse.fromJson(Map<String, dynamic> json) {
     return TransactionResponse(
-      success: json['success'] ?? false,
+      result: json['result'] ?? false,
+      code: json['code'] ?? -1,
       message: json['message'] ?? '',
       data: json['data'] != null
           ? TransactionData.fromJson(json['data'])
+          : null,
+      paging: json['paging'] != null
+          ? PagingInfo.fromJson(json['paging'])
           : null,
     );
   }
@@ -99,5 +110,53 @@ class TransactionData {
       transactionPaypalId: json['transactionPaypalId'] ?? '',
       statusPartner: json['statusPartner'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userSourceId': userSourceId,
+      'userSourceEmail': userSourceEmail,
+      'userDestId': userDestId,
+      'userDestEmail': userDestEmail,
+      'code': code,
+      'paymentMethod': paymentMethod,
+      'transactionTime': transactionTime,
+      'amount': amount,
+      'currency': currency,
+      'status': status,
+      'type': type,
+      if (description != null) 'description': description,
+      'transactionPaypalId': transactionPaypalId,
+      'statusPartner': statusPartner,
+    };
+  }
+}
+
+class PagingInfo {
+  final int page;
+  final int limit;
+  final int total;
+
+  PagingInfo({
+    required this.page,
+    required this.limit,
+    required this.total,
+  });
+
+  factory PagingInfo.fromJson(Map<String, dynamic> json) {
+    return PagingInfo(
+      page: json['page'] ?? 0,
+      limit: json['limit'] ?? 0,
+      total: json['total'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'page': page,
+      'limit': limit,
+      'total': total,
+    };
   }
 }

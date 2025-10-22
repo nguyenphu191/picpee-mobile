@@ -216,7 +216,7 @@ class _SideBarState extends State<SideBar> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -266,7 +266,7 @@ class _SideBarState extends State<SideBar> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -317,7 +317,7 @@ class _SideBarState extends State<SideBar> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -367,7 +367,7 @@ class _SideBarState extends State<SideBar> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -412,7 +412,7 @@ class _SideBarState extends State<SideBar> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -437,7 +437,7 @@ class _SideBarState extends State<SideBar> {
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -474,7 +474,7 @@ class _SideBarState extends State<SideBar> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.h,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 8.h),
@@ -483,7 +483,7 @@ class _SideBarState extends State<SideBar> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                         SizedBox(height: 8.h),

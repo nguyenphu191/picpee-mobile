@@ -49,4 +49,6 @@ class Url {
   static const String getDiscount = "$baseUrl/promotion/get-by-code";
   static const String applyDiscount = "$baseUrl/discount/apply-discount";
   static const String getAllSkills = "$baseUrl/skill-manager/filter";
+  static const String getFavoriteDesigners =
+      "$baseUrl/user-favorite/filter-designer";
 }

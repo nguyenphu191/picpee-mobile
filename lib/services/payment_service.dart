@@ -81,13 +81,12 @@ class PaymentService {
               print('✅ PayPal onSuccess called');
               print('📦 Params: $params');
 
-              // FIXED: Check if context is still mounted
               if (!context.mounted) {
                 print('⚠️ Context is not mounted, skipping navigation');
                 return;
               }
 
-              Navigator.pop(context);
+              Navigator.pop(context); // Close PayPal WebView
 
               if (params.isEmpty) {
                 if (context.mounted) {
@@ -103,10 +102,13 @@ class PaymentService {
                 if (params.containsKey('data') && params['data'] is Map) {
                   final data = params['data'] as Map;
 
+                  // ✅ Lấy Payment ID (PAYID-xxx)
                   if (data.containsKey('id')) {
                     paymentId = data['id'] as String?;
+                    print('✅ Found Payment ID: $paymentId');
                   }
 
+                  // Lấy Payer ID
                   if (data.containsKey('payer') && data['payer'] is Map) {
                     final payer = data['payer'] as Map;
                     if (payer.containsKey('payer_info') &&
@@ -117,18 +119,13 @@ class PaymentService {
                       }
                     }
                   }
-                }
 
-                if (paymentId == null) {
-                  if (params.containsKey('paymentId')) {
-                    paymentId = params['paymentId'] as String?;
-                  } else if (params.containsKey('id')) {
-                    paymentId = params['id'] as String?;
+                  // Log transaction info để debug
+                  if (data.containsKey('transactions') &&
+                      data['transactions'] is List) {
+                    final transactions = data['transactions'] as List;
+                    print('📋 Transactions: $transactions');
                   }
-                }
-
-                if (payerId == null && params.containsKey('payerID')) {
-                  payerId = params['payerID'] as String?;
                 }
               } catch (e) {
                 print('❌ Error parsing PayPal response: $e');
@@ -138,11 +135,10 @@ class PaymentService {
               print('👤 Payer ID: $payerId');
 
               if (paymentId != null && paymentId.isNotEmpty) {
-                // FIXED: Check context before processing
                 if (context.mounted) {
                   await _processBackendTransaction(
                     context,
-                    paymentId,
+                    paymentId, // ✅ Gửi Payment ID trực tiếp
                     amount,
                     jwtToken,
                     payerId: payerId,
@@ -153,7 +149,7 @@ class PaymentService {
                 if (context.mounted) {
                   _showErrorDialog(
                     context,
-                    'Payment completed but ID not found.',
+                    'Payment completed but Payment ID not found.',
                   );
                 }
               }
@@ -161,7 +157,6 @@ class PaymentService {
             onError: (error) {
               print('❌ PayPal onError: $error');
               if (context.mounted) {
-                Navigator.pop(context);
                 _showErrorDialog(context, "Payment Error: ${error.toString()}");
               }
             },
@@ -198,42 +193,16 @@ class PaymentService {
     String jwtToken, {
     String? payerId,
   }) async {
-    // FIXED: Check context before showing dialog
     if (!context.mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Processing payment...', style: TextStyle(fontSize: 16)),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
 
     try {
       print('🔄 Processing backend transaction...');
-      print('💳 Payment ID: $paymentId');
+      print('💳 Payment ID (transactionPaypalId): $paymentId');
       print('💰 Amount: \$${amount.toStringAsFixed(2)}');
 
-      // Gọi API backend
+      // Gọi API backend với Payment ID
       final result = await _transactionService.createPayPalTransaction(
-        transactionPaypalId: paymentId,
+        transactionPaypalId: paymentId, // ✅ Gửi Payment ID
         amount: amount,
         type: 'DEPOSIT',
         jwtToken: jwtToken,
@@ -241,34 +210,52 @@ class PaymentService {
       );
 
       print('📡 Backend response: ${result.success}');
+      print('📡 Code: ${result.code}');
       print('📝 Message: ${result.message}');
 
-      // FIXED: Check context before closing dialog
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        print('✅ Loading dialog closed');
+      }
+
+      // Wait để đảm bảo dialog đã đóng
+      await Future.delayed(Duration(milliseconds: 300));
+
+      // Show result
       if (!context.mounted) return;
-      Navigator.pop(context);
 
       if (result.success && result.data != null) {
-        // Thành công
         print('✅ Transaction successful!');
-        if (context.mounted) {
-          await _showSuccessDialog(context, amount, result.data!);
-        }
+        await _showSuccessDialog(context, amount, result.data!);
       } else {
-        // Thất bại
         print('❌ Transaction failed: ${result.message}');
-        if (context.mounted) {
-          _showErrorDialog(
-            context,
-            result.message.isNotEmpty
-                ? result.message
-                : 'Transaction failed. Please contact support.',
-          );
+        _showErrorDialog(
+          context,
+          result.message.isNotEmpty
+              ? result.message
+              : 'Transaction failed. Please contact support.',
+        );
+      }
+    } catch (e, stackTrace) {
+      print('❌ Exception in _processBackendTransaction: $e');
+      print('📍 StackTrace: $stackTrace');
+
+      // Close loading dialog on error
+      if (context.mounted) {
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+          print('✅ Loading dialog closed (error path)');
+        } catch (closeError) {
+          print('⚠️ Error closing dialog: $closeError');
         }
       }
-    } catch (e) {
-      print('❌ Exception in _processBackendTransaction: $e');
+
+      // Wait để đảm bảo dialog đã đóng
+      await Future.delayed(Duration(milliseconds: 300));
+
+      // Show error dialog
       if (context.mounted) {
-        Navigator.pop(context);
         _showErrorDialog(
           context,
           'Error processing transaction: ${e.toString()}',

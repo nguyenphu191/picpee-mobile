@@ -12,6 +12,7 @@ class OrderProvider with ChangeNotifier {
   List<OrderActivityModel> _activities = [];
   List<CommentModel> _comments = [];
   List<OrderAddOn> _checklist = [];
+  int _cartCount = 0;
 
   bool get loading => _isloading;
   List<OrderModel> get orders => _orders;
@@ -19,6 +20,7 @@ class OrderProvider with ChangeNotifier {
   List<OrderActivityModel> get activities => _activities;
   List<CommentModel> get comments => _comments;
   List<OrderAddOn> get checklist => _checklist;
+  int get cartCount => _cartCount;
 
   void setLoading(bool value) {
     _isloading = value;
@@ -57,6 +59,9 @@ class OrderProvider with ChangeNotifier {
     try {
       final orders = await _orderService.fetchOrders();
       _orders = orders.where((order) => order.status == status).toList();
+      if (status == "PENDING_ORDER") {
+        _cartCount = _orders.length;
+      }
       notifyListeners();
       return true;
     } catch (e) {

@@ -11,6 +11,7 @@ class DesignerProvider with ChangeNotifier {
   List<DesignerModel> _individualDesigners = [];
   List<SkillOfVendorModel> _portfolioSkills = [];
   List<DesignerModel> _allVendorsForSkill = [];
+  List<DesignerModel> _favoriteVendors = [];
 
   DesignerModel? get selectedDesigner => _selectedDesigner;
   List<DesignerModel> get businessDesigners => _businessDesigners;
@@ -18,6 +19,7 @@ class DesignerProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   List<SkillOfVendorModel> get portfolioSkills => _portfolioSkills;
   List<DesignerModel> get allVendorsForSkill => _allVendorsForSkill;
+  List<DesignerModel> get favoriteVendors => _favoriteVendors;
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -86,17 +88,29 @@ class DesignerProvider with ChangeNotifier {
   }
 
   //Lấy tất cả vendor theo skill
-  Future<bool> fetchAllVendorForSkill(int skillId) async {
-    notifyListeners();
+  Future<bool> fetchAllVendorForSkill(
+    int skillId, {
+    bool keepData = false,
+  }) async {
+    print('📋 Fetching all vendors for skill ID: $skillId');
     setLoading(true);
-    _allVendorsForSkill = [];
+    if (!keepData) {
+      _allVendorsForSkill = [];
+      _favoriteVendors = [];
+    }
+    notifyListeners();
+
     try {
-      final result = await _designerService.getAllVendorsOfSkill(skillId);
+      List<DesignerModel> result = await _designerService.getAllVendorsOfSkill(
+        skillId,
+      );
+
+      print('✅ Fetched ${result.length} vendors for skill ID: $skillId');
       _allVendorsForSkill = result;
       notifyListeners();
       return true;
     } catch (e) {
-      print("Error fetching all vendors for skill: $e");
+      print("❌ Error fetching all vendors for skill: $e");
       return false;
     } finally {
       setLoading(false);
@@ -104,7 +118,11 @@ class DesignerProvider with ChangeNotifier {
   }
 
   //Add favorite designer
-  Future<bool> addFavoriteDesigner(int vendorId, int skillId) async {
+  Future<bool> addFavoriteDesigner(
+    int vendorId,
+    int skillId, {
+    bool remove = false,
+  }) async {
     notifyListeners();
     setLoading(true);
     try {
@@ -112,22 +130,46 @@ class DesignerProvider with ChangeNotifier {
         vendorId,
         skillId,
       );
-      print("Added favorite designer: $result");
       if (result) {
         _allVendorsForSkill = _allVendorsForSkill.map((designer) {
           if (designer.userId == vendorId) {
             final copy = designer.copyWith(
-              statusFavorite: !(designer.statusFavorite ?? false),
+              statusFavorite: !(designer.statusFavorite),
             );
             return copy;
           }
           return designer;
         }).toList();
+        if (remove) {
+          _favoriteVendors.removeWhere(
+            (designer) => designer.userId == vendorId,
+          );
+        }
       }
       notifyListeners();
       return result;
     } catch (e) {
       print("Error adding favorite designer: $e");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //Lấy tất cả designer yêu thích
+  Future<bool> fetchFavoriteDesigners({bool keepData = false}) async {
+    notifyListeners();
+    setLoading(true);
+    if (!keepData) {
+      _favoriteVendors = [];
+    }
+    try {
+      final result = await _designerService.fetchFavoriteDesigners();
+      _favoriteVendors = result;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print("Error fetching favorite designers: $e");
       return false;
     } finally {
       setLoading(false);

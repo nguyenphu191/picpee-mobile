@@ -1,121 +1,111 @@
-// import 'package:flutter/material.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
-// import 'dart:convert';
+class PayPalParser {
+  /// Parse PayPal response và trích xuất các thông tin quan trọng
+  static Map<String, String?> parsePaymentResponse(Map params) {
+    String? paymentId;
+    String? transactionId;
+    String? saleId;
+    String? authorizationId;
+    String? payerId;
+    String? payerEmail;
+    String? state;
+    String? amount;
 
-// class PaymentHelper {
-//   static const String _keyPaymentHistory = 'payment_history';
+    try {
+      if (params.containsKey('data') && params['data'] is Map) {
+        final data = params['data'] as Map;
 
-//   // Lưu lịch sử thanh toán
-//   static Future<void> savePaymentHistory(
-//     Map<String, dynamic> paymentData,
-//   ) async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       List<String> history = prefs.getStringList(_keyPaymentHistory) ?? [];
+        // Payment ID
+        paymentId = data['id'] as String?;
 
-//       history.insert(0, json.encode(paymentData));
+        // Payment State
+        state = data['state'] as String?;
 
-//       // Giới hạn chỉ lưu 50 giao dịch gần nhất
-//       if (history.length > 50) {
-//         history = history.take(50).toList();
-//       }
+        // Payer Information
+        if (data.containsKey('payer') && data['payer'] is Map) {
+          final payer = data['payer'] as Map;
+          if (payer.containsKey('payer_info') && payer['payer_info'] is Map) {
+            final payerInfo = payer['payer_info'] as Map;
+            payerId = payerInfo['payer_id'] as String?;
+            payerEmail = payerInfo['email'] as String?;
+          }
+        }
 
-//       await prefs.setStringList(_keyPaymentHistory, history);
-//     } catch (e) {
-//       print('Error saving payment history: $e');
-//     }
-//   }
+        // Transactions
+        if (data.containsKey('transactions') && data['transactions'] is List) {
+          final transactions = data['transactions'] as List;
+          if (transactions.isNotEmpty && transactions[0] is Map) {
+            final transaction = transactions[0] as Map;
 
-//   // Lấy lịch sử thanh toán
-//   static Future<List<Map<String, dynamic>>> getPaymentHistory() async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       List<String> history = prefs.getStringList(_keyPaymentHistory) ?? [];
+            // Amount
+            if (transaction.containsKey('amount') &&
+                transaction['amount'] is Map) {
+              final amountData = transaction['amount'] as Map;
+              amount = amountData['total'] as String?;
+            }
 
-//       return history
-//           .map((item) => json.decode(item) as Map<String, dynamic>)
-//           .toList();
-//     } catch (e) {
-//       print('Error getting payment history: $e');
-//       return [];
-//     }
-//   }
+            // Related Resources (Transaction IDs)
+            if (transaction.containsKey('related_resources') &&
+                transaction['related_resources'] is List) {
+              final resources = transaction['related_resources'] as List;
+              if (resources.isNotEmpty && resources[0] is Map) {
+                final resource = resources[0] as Map;
 
-//   // Cập nhật số dư (tùy chọn - có thể lưu local hoặc sync với server)
-//   static Future<void> updateBalance(double amount) async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       double currentBalance = prefs.getDouble('current_balance') ?? 0.0;
-//       double newBalance = currentBalance + amount;
+                // Sale ID (for completed payments)
+                if (resource.containsKey('sale') && resource['sale'] is Map) {
+                  final sale = resource['sale'] as Map;
+                  saleId = sale['id'] as String?;
+                  transactionId = saleId; // Use Sale ID as Transaction ID
+                }
+                // Authorization ID (for authorized but not captured)
+                else if (resource.containsKey('authorization') &&
+                    resource['authorization'] is Map) {
+                  final authorization = resource['authorization'] as Map;
+                  authorizationId = authorization['id'] as String?;
+                  transactionId = authorizationId;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('❌ Error parsing PayPal response: $e');
+    }
 
-//       await prefs.setDouble('current_balance', newBalance);
-//       print('Balance updated: \$${newBalance.toStringAsFixed(2)}');
-//     } catch (e) {
-//       print('Error updating balance: $e');
-//     }
-//   }
+    return {
+      'paymentId': paymentId,
+      'transactionId': transactionId,
+      'saleId': saleId,
+      'authorizationId': authorizationId,
+      'payerId': payerId,
+      'payerEmail': payerEmail,
+      'state': state,
+      'amount': amount,
+    };
+  }
 
-//   // Lấy số dư hiện tại
-//   static Future<double> getCurrentBalance() async {
-//     try {
-//       final prefs = await SharedPreferences.getInstance();
-//       return prefs.getDouble('current_balance') ?? 0.0;
-//     } catch (e) {
-//       print('Error getting current balance: $e');
-//       return 0.0;
-//     }
-//   }
+  /// Log chi tiết PayPal response
+  static void logPayPalResponse(Map params) {
+    print('=' * 70);
+    print('📦 PAYPAL RESPONSE DETAILS');
+    print('=' * 70);
 
-//   // Tạo ID giao dịch duy nhất
-//   static String generateTransactionId() {
-//     return 'TXN-${DateTime.now().millisecondsSinceEpoch}';
-//   }
+    final parsed = parsePaymentResponse(params);
 
-//   // Định dạng tiền tệ
-//   static String formatCurrency(double amount, {String symbol = '\$'}) {
-//     return '$symbol${amount.toStringAsFixed(2)}';
-//   }
+    print('\n🔑 Payment Information:');
+    print('  Payment ID: ${parsed['paymentId'] ?? "NOT FOUND"}');
+    print('  State: ${parsed['state'] ?? "NOT FOUND"}');
+    print('  Amount: ${parsed['amount'] ?? "NOT FOUND"}');
 
-//   // Xác thực số tiền hợp lệ
-//   static bool isValidAmount(double amount) {
-//     return amount > 0 && amount <= 10000; // Giới hạn tối đa 10,000
-//   }
+    print('\n💳 Transaction Information:');
+    print('  Transaction ID: ${parsed['transactionId'] ?? "NOT FOUND"}');
+    print('  Sale ID: ${parsed['saleId'] ?? "NOT FOUND"}');
+    print('  Authorization ID: ${parsed['authorizationId'] ?? "NOT FOUND"}');
 
-//   // Hiển thị loading dialog
-//   static void showLoadingDialog(BuildContext context, {String? message}) {
-//     showDialog(
-//       context: context,
-//       barrierDismissible: false,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           shape: RoundedRectangleBorder(
-//             borderRadius: BorderRadius.circular(10),
-//           ),
-//           content: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               CircularProgressIndicator(),
-//               SizedBox(height: 16),
-//               Text(message ?? 'Processing payment...'),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
+    print('\n👤 Payer Information:');
+    print('  Payer ID: ${parsed['payerId'] ?? "NOT FOUND"}');
+    print('  Email: ${parsed['payerEmail'] ?? "NOT FOUND"}');
 
-//   // Đóng loading dialog
-//   static void hideLoadingDialog(BuildContext context) {
-//     Navigator.of(context).pop();
-//   }
-
-//   // Log giao dịch cho debug
-//   static void logTransaction(Map<String, dynamic> transactionData) {
-//     print('=== PAYMENT TRANSACTION ===');
-//     print('Amount: ${transactionData['amount']}');
-//     print('Status: ${transactionData['status']}');
-//     print('Transaction ID: ${transactionData['transactionId']}');
-//     print('Timestamp: ${transactionData['timestamp']}');
-//     print('========================');
-//   }
-// }
+    print('\n' + '=' * 70);
+  }
+}

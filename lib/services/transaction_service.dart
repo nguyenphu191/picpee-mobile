@@ -10,7 +10,7 @@ class TransactionService {
   Future<TransactionResponse> createPayPalTransaction({
     required String transactionPaypalId,
     required double amount,
-    required String type, // "DEPOSIT" or "WITHDRAW"
+    required String type,
     required String jwtToken,
     String? description,
   }) async {
@@ -33,6 +33,7 @@ class TransactionService {
       print('🔒 Encrypted data: $encryptedData');
 
       // 4. Gọi API
+      print('📡 Calling API: $baseUrl/transaction/paypal');
       final response = await http.post(
         Uri.parse('$baseUrl/transaction/paypal'),
         headers: {
@@ -48,19 +49,62 @@ class TransactionService {
       // 5. Parse response
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
-        return TransactionResponse.fromJson(responseData);
-      } else {
-        final errorData = jsonDecode(response.body);
+
+        // Kiểm tra result field
+        if (responseData['result'] == true) {
+          return TransactionResponse.fromJson(responseData);
+        } else {
+          // Backend trả về result: false
+          return TransactionResponse(
+            result: false,
+            code: responseData['code'] ?? -1,
+            message: responseData['message'] ?? 'Transaction failed',
+          );
+        }
+      } else if (response.statusCode == 400) {
+        // Bad Request - Parse error message
+        try {
+          final errorData = jsonDecode(response.body);
+          return TransactionResponse(
+            result: false,
+            code: errorData['code'] ?? 1002,
+            message:
+                errorData['message'] ??
+                errorData['description'] ??
+                'Transaction failed',
+          );
+        } catch (e) {
+          return TransactionResponse(
+            result: false,
+            code: 400,
+            message: 'Bad request: ${response.body}',
+          );
+        }
+      } else if (response.statusCode == 401) {
         return TransactionResponse(
-          success: false,
-          message: errorData['message'] ?? 'Transaction failed',
+          result: false,
+          code: 401,
+          message: 'Unauthorized. Please login again.',
+        );
+      } else if (response.statusCode == 500) {
+        return TransactionResponse(
+          result: false,
+          code: 500,
+          message: 'Server error. Please try again later.',
+        );
+      } else {
+        return TransactionResponse(
+          result: false,
+          code: response.statusCode,
+          message: 'Unexpected error: ${response.statusCode}',
         );
       }
     } catch (e) {
       print('❌ Error creating transaction: $e');
       return TransactionResponse(
-        success: false,
-        message: 'Error: ${e.toString()}',
+        result: false,
+        code: -1,
+        message: 'Network error: ${e.toString()}',
       );
     }
   }
@@ -78,12 +122,15 @@ class TransactionService {
         },
       );
 
+      print('📡 Get PayPal Info - Status: ${response.statusCode}');
+      print('📡 Get PayPal Info - Body: ${response.body}');
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
       return null;
     } catch (e) {
-      print('Error getting PayPal payment info: $e');
+      print('❌ Error getting PayPal payment info: $e');
       return null;
     }
   }
@@ -101,12 +148,15 @@ class TransactionService {
         },
       );
 
+      print('📡 Check Status - Status: ${response.statusCode}');
+      print('📡 Check Status - Body: ${response.body}');
+
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
       }
       return null;
     } catch (e) {
-      print('Error checking transaction status: $e');
+      print('❌ Error checking transaction status: $e');
       return null;
     }
   }

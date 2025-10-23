@@ -10,6 +10,9 @@ class ReviewProvider with ChangeNotifier {
   int _currentPage = 1;
   int _totalPages = 1;
   int _limit = 10;
+  List<Reviewer> _vendorOfProject = [];
+  ReviewModel? _reviewOfUser;
+  String? _errorMessage;
 
   List<ReviewModel> get vendorReview => _vendorReview;
   bool get isLoading => _isLoading;
@@ -17,6 +20,9 @@ class ReviewProvider with ChangeNotifier {
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
   bool get hasMoreReviews => _currentPage < _totalPages;
+  List<Reviewer> get vendorOfProject => _vendorOfProject;
+  ReviewModel? get reviewOfUser => _reviewOfUser;
+  String? get errorMessage => _errorMessage;
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -80,16 +86,11 @@ class ReviewProvider with ChangeNotifier {
     try {
       final nextPage = _currentPage + 1;
       print('loadMoreReviews: Loading page $nextPage');
-
       final (reviews, totalPages) = await _reviewService.getReviewVendor(
         vendorId: vendorId,
         page: nextPage,
         limit: _limit,
       );
-
-      print('loadMoreReviews: Received ${reviews.length} reviews');
-      print('Current list size before append: ${_vendorReview.length}');
-
       // Append new reviews to existing list - tránh duplicate
       // Chỉ thêm reviews chưa có trong list
       for (var review in reviews) {
@@ -97,18 +98,116 @@ class ReviewProvider with ChangeNotifier {
           _vendorReview.add(review);
         }
       }
-
-      print('Current list size after append: ${_vendorReview.length}');
-
       _currentPage = nextPage;
       _totalPages = totalPages;
-
       setLoadingMore(false);
       return true;
     } catch (e) {
-      print('Error loading more reviews: $e');
       setLoadingMore(false);
       return false;
+    }
+  }
+
+  //get vendor of project
+  Future<bool> fetchVendorOfProject(int projectId) async {
+    print('Fetching vendors PROVIDER: $projectId');
+    _vendorOfProject = [];
+    setLoading(true);
+    try {
+      final vendors = await _reviewService.getVendorOfProject(projectId);
+      _vendorOfProject = vendors;
+      setLoading(false);
+      return true;
+    } catch (e) {
+      print('Error fetching vendors of project: $e');
+      _vendorOfProject = [];
+      setLoading(false);
+      return false;
+    }
+  }
+
+  //Get review of user for vendor
+  Future<bool> fetchReview(int vendorId) async {
+    _reviewOfUser = null;
+    setLoading(true);
+    try {
+      final review = await _reviewService.getOneReviewVendor(vendorId);
+      _reviewOfUser = review;
+      setLoading(false);
+      return true;
+    } catch (e) {
+      print('Error fetching review of user: $e');
+      _reviewOfUser = null;
+      setLoading(false);
+      return false;
+    }
+  }
+
+  //Create review
+  Future<bool> createReviewVendor({
+    required int vendorId,
+    required int rating,
+    required String comment,
+  }) async {
+    _errorMessage = null;
+    setLoading(true);
+    try {
+      final mes = await _reviewService.createReviewVendor(
+        vendorId: vendorId,
+        rating: rating,
+        comment: comment,
+      );
+      _errorMessage = mes;
+      if (mes == "SUCCESSFUL") {
+        _vendorOfProject.map((vendor) {
+          if (vendor.id == vendorId) {
+            vendor.rated = true;
+          }
+          return vendor;
+        }).toList();
+        setLoading(false);
+        return true;
+      } else {
+        setLoading(false);
+        return false;
+      }
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //Update review
+  Future<bool> updateReviewVendor({
+    required int reviewId,
+    required int vendorId,
+    required int rating,
+    required String comment,
+  }) async {
+    _errorMessage = null;
+    setLoading(true);
+    try {
+      final mess = await _reviewService.updateReviewVendor(
+        reviewId: reviewId,
+        vendorId: vendorId,
+        rating: rating,
+        comment: comment,
+      );
+      _errorMessage = mess;
+      if (mess == "SUCCESSFUL") {
+        setLoading(false);
+        return true;
+      } else {
+        setLoading(false);
+        return false;
+      }
+    } catch (e) {
+      print('Error updating review: $e');
+      setLoading(false);
+      return false;
+    } finally {
+      setLoading(false);
     }
   }
 

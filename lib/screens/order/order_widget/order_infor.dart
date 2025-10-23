@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/order_model.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
+import 'package:picpee_mobile/screens/order/order_widget/dispute_card.dart';
+import 'package:picpee_mobile/screens/order/order_widget/revision_card.dart';
 import 'package:picpee_mobile/services/ggdrive_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -185,20 +187,28 @@ class _OrderInfoState extends State<OrderInfo>
       case 'checklist':
         widget.onChecklistPressed();
         break;
-      case 'edit':
-        // Xử lý edit
-        break;
-      case 'delete':
-        // Xử lý delete
-        break;
       case 'completed':
-        // Xử lý completed
+        completedOrder();
         break;
       case 'revisions':
-        // Xử lý revisions
+        showDialog(
+          context: context,
+          barrierColor: Colors.black54,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return RevisionCard(order: widget.order);
+          },
+        );
         break;
       case 'dispute':
-        // Xử lý dispute
+        showDialog(
+          context: context,
+          barrierColor: Colors.black54,
+          barrierDismissible: true,
+          builder: (BuildContext context) {
+            return DisputeCard(order: widget.order);
+          },
+        );
         break;
     }
   }
@@ -212,6 +222,26 @@ class _OrderInfoState extends State<OrderInfo>
       return price.toStringAsFixed(1);
     }
     return fixed;
+  }
+
+  Future<void> completedOrder() async {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final success = await orderProvider.completeOrder(widget.order.id);
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Order marked as completed'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to complete order'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -349,62 +379,67 @@ class _OrderInfoState extends State<OrderInfo>
                           ],
                         ),
                       ),
-                      PopupMenuItem<String>(
-                        value: 'completed',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.check_circle,
-                              size: 20.h,
-                              color: Colors.green,
-                            ),
-                            SizedBox(width: 12.w),
-                            Text(
-                              'Mark Completed',
-                              style: TextStyle(
-                                fontSize: 14.h,
-                                color: Colors.black,
+                      if (widget.order.status == 'DELIVERED') ...[
+                        PopupMenuItem<String>(
+                          value: 'completed',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                size: 20.h,
+                                color: Colors.green,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'revisions',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.restore,
-                              size: 20.h,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(width: 12.w),
-                            Text(
-                              'Request for Revisions',
-                              style: TextStyle(
-                                fontSize: 14.h,
-                                color: Colors.black,
+                              SizedBox(width: 12.w),
+                              Text(
+                                'Mark Completed',
+                                style: TextStyle(
+                                  fontSize: 14.h,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'dispute',
-                        child: Row(
-                          children: [
-                            Icon(Icons.gavel, size: 20.h, color: Colors.red),
-                            SizedBox(width: 12.w),
-                            Text(
-                              'Dispute Order',
-                              style: TextStyle(
-                                fontSize: 14.h,
-                                color: Colors.red,
+                        PopupMenuItem<String>(
+                          value: 'revisions',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.restore,
+                                size: 20.h,
+                                color: Colors.orange,
                               ),
-                            ),
-                          ],
+                              SizedBox(width: 12.w),
+                              Text(
+                                'Request for Revisions',
+                                style: TextStyle(
+                                  fontSize: 14.h,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                      ],
+                      if (widget.order.status == 'In_PROGRESS' ||
+                          widget.order.status == 'DELIVERED' ||
+                          widget.order.status == 'PENDING_VENDOR_CONFIRM')
+                        PopupMenuItem<String>(
+                          value: 'dispute',
+                          child: Row(
+                            children: [
+                              Icon(Icons.gavel, size: 20.h, color: Colors.red),
+                              SizedBox(width: 12.w),
+                              Text(
+                                'Dispute Order',
+                                style: TextStyle(
+                                  fontSize: 14.h,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                     child: Icon(
                       Icons.more_vert,

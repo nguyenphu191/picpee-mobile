@@ -194,7 +194,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                                             .toUpperCase()
                                       : "U", // fallback nếu rỗng
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 16.h,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -373,7 +373,7 @@ class _CustomEndDrawerState extends State<CustomEndDrawer> {
                 ListTile(
                   leading: Icon(Icons.logout, color: Colors.red, size: 24.h),
                   title: Text(
-                    "Sign Out",
+                    "Logout",
                     style: TextStyle(color: Colors.red, fontSize: 16.h),
                   ),
                   onTap: _handleLogout, // Use the new logout function

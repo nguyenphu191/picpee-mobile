@@ -42,6 +42,26 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted && res == 200) {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         await userProvider.initUser();
+        final user = userProvider.user;
+        if (user?.role != 'CUSTOMER') {
+          await authProvider.logout();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.error, color: Colors.white),
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text('Login failed: You are not a customer.'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 2),
+            ),
+          );
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

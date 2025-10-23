@@ -1,16 +1,18 @@
 class ReviewModel {
-  final int id;
-  final Reviewer reviewer;
-  final int rating;
-  final String comment;
-  final int numberEdit;
-  final int numberOrder;
-  final int createdTime;
-  final int modifiedTime;
+  int id;
+  Reviewer reviewer;
+  Reviewer? doer;
+  int rating;
+  String comment;
+  int numberEdit;
+  int numberOrder;
+  int createdTime;
+  int modifiedTime;
 
   ReviewModel({
     required this.id,
     required this.reviewer,
+    this.doer,
     required this.rating,
     required this.comment,
     required this.numberEdit,
@@ -23,6 +25,7 @@ class ReviewModel {
     return ReviewModel(
       id: json['id'] ?? 0,
       reviewer: Reviewer.fromJson(json['reviewer'] ?? {}),
+      doer: json['doer'] != null ? Reviewer.fromJson(json['doer']) : null,
       rating: json['rating'] ?? 0,
       comment: json['comment'] ?? '',
       numberEdit: json['numberEdit'] ?? 0,
@@ -47,14 +50,16 @@ class ReviewModel {
 }
 
 class Reviewer {
-  final int id;
-  final String businessName;
-  final String avatar;
+  int id;
+  String businessName;
+  String avatar;
+  bool rated = false;
 
   Reviewer({
     required this.id,
     required this.businessName,
     required this.avatar,
+    required this.rated,
   });
 
   factory Reviewer.fromJson(Map<String, dynamic> json) {
@@ -62,6 +67,7 @@ class Reviewer {
       id: json['id'] ?? 0,
       businessName: json['businessName'] ?? '',
       avatar: json['avatar'] ?? '',
+      rated: json['rated'] ?? false,
     );
   }
 

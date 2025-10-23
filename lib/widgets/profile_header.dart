@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picpee_mobile/providers/auth_provider.dart';
+import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/providers/notification_provider.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/providers/user_provider.dart';
@@ -20,42 +20,10 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchNotificationUnread();
-      _fetchOrderCount();
-    });
+    
   }
 
-  Future<void> _fetchNotificationUnread() async {
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
-    final res = await notificationProvider.fetchUnreadCount();
-    if (!res) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Error fetching unread notifications"),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  Future<void> _fetchOrderCount() async {
-    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final res = await orderProvider.fetchOrdersByStaus('PENDING_ORDER');
-    if (!res) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Error fetching order count"),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +32,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           (context, notificationProvider, userProvider, orderProvider, child) {
             final unreadCount = notificationProvider.unReadCount;
             final cartCount = orderProvider.cartCount;
+            final user = userProvider.user;
             return Container(
               height: 85.h,
               width: MediaQuery.of(context).size.width,
@@ -200,12 +169,11 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         width: 45.h,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
-                          color: Colors.lightGreen,
+                          color: AppColors.buttonGreen,
                         ),
                         child: ClipOval(
                           child: Image.network(
-                            userProvider.user!.avatar?.trim() ??
-                                'https://picsum.photos/200',
+                            user!.avatar?.trim() ?? 'https://picsum.photos/200',
                             fit: BoxFit.cover,
                             loadingBuilder: (context, child, loadingProgress) {
                               if (loadingProgress == null) {
@@ -226,7 +194,18 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                               }
                             },
                             errorBuilder: (context, error, stackTrace) {
-                              return Center(child: Text("N/A"));
+                              return Center(
+                                child: Text(
+                                  user.businessName!
+                                      .substring(0, 1)
+                                      .toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 16.h,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              );
                             },
                           ),
                         ),

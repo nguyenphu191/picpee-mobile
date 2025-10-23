@@ -22,41 +22,7 @@ class _HeaderState extends State<Header> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchNotificationUnread();
-      _fetchOrderCount();
-    });
-  }
-
-  Future<void> _fetchNotificationUnread() async {
-    final notificationProvider = Provider.of<NotificationProvider>(
-      context,
-      listen: false,
-    );
-    final res = await notificationProvider.fetchUnreadCount();
-    if (!res) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Error fetching unread notifications"),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  Future<void> _fetchOrderCount() async {
-    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-    final res = await orderProvider.fetchOrdersByStaus('PENDING_ORDER');
-    if (!res) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Error fetching order count"),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
   }
 
   @override

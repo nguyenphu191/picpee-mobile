@@ -162,7 +162,7 @@ class OrderModel {
       case "DISPUTED":
         return Colors.redAccent;
       case "RESOLVED":
-        return Colors.red;
+        return Colors.teal;
       case 'CANCELLED':
         return Colors.red;
 

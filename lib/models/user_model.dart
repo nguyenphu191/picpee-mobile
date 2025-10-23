@@ -1,31 +1,31 @@
 class User {
-  final String? avatar;
-  final double? balance;
-  final String? banner;
-  final String? biography;
-  final String? businessName;
-  final String? code;
-  final String? countryCode;
-  final String? countryName;
-  final String? describesBusiness;
-  final String? describesSpecialty;
-  final String? descriptionCompany;
-  final String? firstname;
-  final int id;
-  final String? lastname;
-  final String? paypalAccount;
-  final String? phone;
-  final String? phoneCode;
-  final String? registrationId;
-  final List<String>? registrationImages;
-  final String role;
-  final String? status;
-  final String? statusVerify;
-  final int? teamSize;
-  final String? timezone;
-  final String? type;
-  final List<UserWorking>? userWorkings;
-  final String? email;
+  String? avatar;
+  double? balance;
+  String? banner;
+  String? biography;
+  String? businessName;
+  String? code;
+  String? countryCode;
+  String? countryName;
+  String? describesBusiness;
+  String? describesSpecialty;
+  String? descriptionCompany;
+  String? firstname;
+  int id;
+  String? lastname;
+  String? paypalAccount;
+  String? phone;
+  String? phoneCode;
+  String? registrationId;
+  List<String>? registrationImages;
+  String role;
+  String? status;
+  String? statusVerify;
+  int? teamSize;
+  String? timezone;
+  String? type;
+  List<UserWorking>? userWorkings;
+  String? email;
 
   User({
     this.avatar,
@@ -157,10 +157,10 @@ class User {
 }
 
 class UserWorking {
-  final String? dayOfWeek;
-  final String? endTime;
-  final int? id;
-  final String? startTime;
+  String? dayOfWeek;
+  String? endTime;
+  int? id;
+  String? startTime;
 
   UserWorking({this.dayOfWeek, this.endTime, this.id, this.startTime});
 

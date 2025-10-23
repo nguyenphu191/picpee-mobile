@@ -8,15 +8,19 @@ import 'package:picpee_mobile/services/auth_service.dart';
 
 class OrderService {
   // Lấy list orders của project
-  Future<List<OrderModel>> fetchOrders({int? projectId}) async {
+  Future<List<OrderModel>> getOrders({int? projectId}) async {
+    print('ORDER SERVICE ID: $projectId');
     final token = await AuthService().getToken();
     if (token == null) {
       throw Exception('User not logged in');
     }
+
+    // Validation: Đảm bảo projectId không null khi gọi từ project detail
     Map<String, dynamic> body = {};
     if (projectId != null) {
       body['projectId'] = projectId;
     }
+
     final response = await http.post(
       Uri.parse(Url.getOrdersOfProject),
       headers: {
@@ -25,14 +29,17 @@ class OrderService {
       },
       body: jsonEncode(body),
     );
+
     if (response.statusCode == 200) {
       final res = jsonDecode(response.body);
       final data = res['data'];
       final orders = (data['list'] as List)
           .map((orderJson) => OrderModel.fromJson(orderJson))
           .toList();
+      print('Successfully fetched ${orders.length} orders');
       return orders;
     } else {
+      print('Failed to load orders: ${response.statusCode} - ${response.body}');
       throw Exception('Failed to load orders');
     }
   }
@@ -130,6 +137,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print('Failed to complete order: ${response.body}');
       return false;
     }
   }
@@ -151,6 +159,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print('Failed to dispute order: ${response.body}');
       return false;
     }
   }
@@ -172,6 +181,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print('Failed to request revision: ${response.body}');
       return false;
     }
   }
@@ -193,6 +203,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print('Failed to delete order: ${response.body}');
       return false;
     }
   }
@@ -218,6 +229,7 @@ class OrderService {
           .toList();
       return activities;
     } else {
+      print('Failed to load activities: ${response.body}');
       throw Exception('Failed to load order activities');
     }
   }
@@ -239,13 +251,13 @@ class OrderService {
     if (response.statusCode == 200) {
       final res = jsonDecode(response.body);
       final data = res['data']['list'];
-      print(data.length);
+      print('Fetched ${data.length} comments');
       List<CommentModel> comments = (data as List)
           .map((commentJson) => CommentModel.fromJson(commentJson))
           .toList();
-      print(comments.length);
       return comments;
     } else {
+      print('Failed to load comments: ${response.body}');
       throw Exception('Failed to load order comments');
     }
   }
@@ -288,6 +300,7 @@ class OrderService {
     if (response.statusCode == 200) {
       return true;
     } else {
+      print('Failed to delete comment: ${response.body}');
       return false;
     }
   }
@@ -335,7 +348,32 @@ class OrderService {
           .toList();
       return checklist;
     } else {
+      print('Failed to load checklist: ${response.body}');
       throw Exception('Failed to load checklist');
+    }
+  }
+
+  // lay cart count
+  Future<int> getCartCount() async {
+    final token = await AuthService().getToken();
+    if (token == null) {
+      throw Exception('User not logged in');
+    }
+    final response = await http.post(
+      Uri.parse(Url.getCartCount),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({}),
+    );
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data'];
+      return data['count'] as int;
+    } else {
+      print('Failed to load cart count: ${response.body}');
+      throw Exception('Failed to load cart count');
     }
   }
 }

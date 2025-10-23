@@ -14,12 +14,9 @@ class ReviewService {
   }) async {
     final String? token = await _authService.getToken();
     if (token == null) {
-      print('No auth token found.');
       throw Exception('Authentication token is missing');
     }
     final url = Uri.parse(Url.getReviewOfVendor);
-
-    print('Fetching reviews: vendorId=$vendorId, page=$page, limit=$limit');
 
     final response = await http.post(
       url,
@@ -36,8 +33,6 @@ class ReviewService {
       final review_list = data['list'] as List<dynamic>;
       final count = data['count'] as int;
 
-      print('Received ${review_list.length} reviews, total count: $count');
-
       final reviews = review_list
           .map((reviewJson) => ReviewModel.fromJson(reviewJson))
           .toList();
@@ -45,9 +40,123 @@ class ReviewService {
 
       return (reviews, totalPages);
     } else {
-      print('Failed to load review. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
       throw Exception('Failed to load review');
     }
+  }
+
+  Future<List<Reviewer>> getVendorOfProject(int projectId) async {
+    print('Fetching vendors SERVICE: $projectId');
+    final String? token = await _authService.getToken();
+    if (token == null) {
+      throw Exception('Authentication token is missing');
+    }
+    final url = Uri.parse(Url.getVendorsOfProject);
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({'projectId': projectId}),
+    );
+
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data']['list'] as List<dynamic>;
+
+      final vendors = data
+          .map((vendorJson) => Reviewer.fromJson(vendorJson))
+          .toList();
+
+      return vendors;
+    } else {
+      throw Exception('Failed to load vendors of project');
+    }
+  }
+
+  Future<ReviewModel> getOneReviewVendor(int vendorId) async {
+    final String? token = await _authService.getToken();
+    if (token == null) {
+      throw Exception('Authentication token is missing');
+    }
+    final url = Uri.parse("${Url.getOneReview}/$vendorId");
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final res = jsonDecode(response.body);
+      final data = res['data'];
+
+      final review = ReviewModel.fromJson(data);
+
+      return review;
+    } else {
+      throw Exception('Failed to load review');
+    }
+  }
+
+  Future<String> createReviewVendor({
+    required int vendorId,
+    required int rating,
+    required String comment,
+  }) async {
+    final String? token = await _authService.getToken();
+    if (token == null) {
+      throw Exception('Authentication token is missing');
+    }
+    final url = Uri.parse(Url.submitReview);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'doerId': vendorId,
+        'rating': rating,
+        'comment': comment,
+      }),
+    );
+
+    final res = jsonDecode(response.body);
+    final message = res['message'];
+    return message;
+  }
+
+  Future<String> updateReviewVendor({
+    required int reviewId,
+    required int vendorId,
+    required int rating,
+    required String comment,
+  }) async {
+    final String? token = await _authService.getToken();
+    if (token == null) {
+      throw Exception('Authentication token is missing');
+    }
+    final url = Uri.parse("${Url.submitReview}/$reviewId");
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'doerId': vendorId,
+        'rating': rating,
+        'comment': comment,
+      }),
+    );
+
+    final res = jsonDecode(response.body);
+    final message = res['message'];
+    return message;
   }
 }

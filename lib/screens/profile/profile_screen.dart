@@ -145,8 +145,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         setState(() {
           _avatarImage = File(image.path);
         });
-
-        // Upload avatar immediately after selection
         await _uploadAvatar();
       }
     } catch (e) {
@@ -179,6 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         setState(() {
           _uploadedAvatarUrl = avatarUrl;
         });
+        print('✅ Avatar uploaded: $_uploadedAvatarUrl');
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -252,6 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       userdata['timezone'] = selectedTimezoneCountry!.countryCode;
     }
     try {
+      print('🔄 Updating profile with data: $userdata');
       bool success = await userProvider.updateUserProfile(
         userProvider.user!.id!,
         userdata,

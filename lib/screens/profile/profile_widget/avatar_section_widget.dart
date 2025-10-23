@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 
+import 'package:picpee_mobile/core/theme/app_colors.dart';
+
 class AvatarSectionWidget extends StatelessWidget {
   final File? avatarImage;
   final String avatar;
@@ -39,7 +41,7 @@ class AvatarSectionWidget extends StatelessWidget {
               width: 80.h,
               decoration: BoxDecoration(
                 color: (avatarImage == null && avatar == "")
-                    ? Colors.lightGreen
+                    ? AppColors.buttonGreen
                     : null,
                 borderRadius: BorderRadius.circular(50),
                 border: Border.all(color: Colors.grey.shade300, width: 2),
@@ -83,7 +85,7 @@ class AvatarSectionWidget extends StatelessWidget {
                       child: Text(
                         name.substring(0, 1).toUpperCase(),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 28.h,
                           fontWeight: FontWeight.bold,
                         ),

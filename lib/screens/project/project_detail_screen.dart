@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/project_model.dart';
 import 'package:picpee_mobile/providers/order_provider.dart';
+import 'package:picpee_mobile/providers/review_provider.dart';
 import 'package:picpee_mobile/screens/order/order_widget/add_order_card.dart';
 import 'package:picpee_mobile/screens/project/project_widget/doer_card.dart';
 import 'package:picpee_mobile/screens/project/project_widget/order_card.dart';
@@ -26,67 +27,13 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
   TabController? _statusTabController;
   final TextEditingController _searchController = TextEditingController();
 
-  // 🔥 Hardcode Doer Data
-  final List<DoerModel> _doers = [
-    DoerModel(
-      id: 1,
-      name: 'John Smith',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      rated: false,
-    ),
-    DoerModel(
-      id: 2,
-      name: 'Emma Wilson',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-      rated: true,
-    ),
-    DoerModel(
-      id: 3,
-      name: 'Michael Brown',
-      avatar: 'https://i.pravatar.cc/150?img=33',
-      rated: false,
-    ),
-    DoerModel(
-      id: 4,
-      name: 'Sarah Davis',
-      avatar: 'https://i.pravatar.cc/150?img=47',
-      rated: true,
-    ),
-    DoerModel(
-      id: 5,
-      name: 'David Lee',
-      avatar: 'https://i.pravatar.cc/150?img=15',
-      rated: false,
-    ),
-    DoerModel(
-      id: 6,
-      name: 'Lisa Anderson',
-      avatar: 'https://i.pravatar.cc/150?img=48',
-      rated: true,
-    ),
-    DoerModel(
-      id: 7,
-      name: 'James Taylor',
-      avatar: 'https://i.pravatar.cc/150?img=51',
-      rated: false,
-    ),
-    DoerModel(
-      id: 8,
-      name: 'Maria Garcia',
-      avatar: 'https://i.pravatar.cc/150?img=44',
-      rated: false,
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
-    _mainTabController = TabController(
-      length: 3,
-      vsync: this,
-    ); // 🔥 Thay đổi length thành 3
+    _mainTabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       fetchOrders();
+      fetchVendorReview();
     });
   }
 
@@ -108,77 +55,38 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
           backgroundColor: Colors.red,
         ),
       );
+    } else {
+      print(
+        'Orders loaded successfully for project ID: ${orderProvider.orders.length}',
+      );
     }
   }
 
-  // 🔥 Handle Rate Button
-  void _handleRate(DoerModel doer) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Row(
-          children: [
-            Icon(Icons.star, color: Colors.amber, size: 28),
-            SizedBox(width: 8),
-            Text('Rate ${doer.name}'),
-          ],
+  Future<void> fetchVendorReview() async {
+    print('Fetching vendor reviews for project ID: ${widget.project.id}');
+    final reviewProvider = Provider.of<ReviewProvider>(context, listen: false);
+    final succes = await reviewProvider.fetchVendorOfProject(widget.project.id);
+    if (!succes) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to load designers'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Would you like to rate this doer?'),
-            SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                return Icon(Icons.star, color: Colors.amber, size: 32);
-              }),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Update rated status
-              setState(() {
-                final index = _doers.indexWhere((d) => d.id == doer.id);
-                if (index != -1) {
-                  _doers[index] = doer.copyWith(rated: true);
-                }
-              });
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Thank you for rating ${doer.name}!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.buttonGreen,
-              foregroundColor: Colors.black,
-            ),
-            child: Text('Submit'),
-          ),
-        ],
-      ),
-    );
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<OrderProvider>(
-      builder: (context, orderProvider, child) {
+    return Consumer2<OrderProvider, ReviewProvider>(
+      builder: (context, orderProvider, reviewProvider, child) {
         final orders = orderProvider.orders;
         final availableStatuses = orders
             .map((order) => order.getStatusText())
             .toSet()
             .toList();
+        print('Available statuses for orders: ${availableStatuses.length}');
 
         if (availableStatuses.isNotEmpty) {
           if (_statusTabController == null ||
@@ -190,7 +98,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
             );
           }
         }
-
+        final doers = reviewProvider.vendorOfProject;
         return Scaffold(
           backgroundColor: Colors.white,
           drawer: const SideBar(selectedIndex: 0),
@@ -203,30 +111,30 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 bottom: 0,
                 child: Column(
                   children: [
-                    InkWell(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const AddOrderCard(),
-                        );
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(16.h),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    widget.project.name,
-                                    style: TextStyle(
-                                      fontSize: 20.h,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
+                    Container(
+                      padding: EdgeInsets.all(16.h),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.project.name,
+                                  style: TextStyle(
+                                    fontSize: 20.h,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
                                   ),
                                 ),
-                                Container(
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => const AddOrderCard(),
+                                  );
+                                },
+                                child: Container(
                                   height: 36.h,
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 16.w,
@@ -254,33 +162,33 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                                     ],
                                   ),
                                 ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+
+                          // Order Information / Design Information
+                          Container(
+                            child: TabBar(
+                              controller: _mainTabController,
+                              indicatorColor: Colors.black,
+                              labelColor: Colors.black,
+                              unselectedLabelColor: Colors.grey,
+                              labelStyle: TextStyle(
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              unselectedLabelStyle: TextStyle(
+                                fontSize: 16.h,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              tabs: const [
+                                Tab(text: 'Order Information'),
+                                Tab(text: 'Design Information'),
                               ],
                             ),
-                            SizedBox(height: 8.h),
-
-                            // Order Information / Design Information
-                            Container(
-                              child: TabBar(
-                                controller: _mainTabController,
-                                indicatorColor: Colors.black,
-                                labelColor: Colors.black,
-                                unselectedLabelColor: Colors.grey,
-                                labelStyle: TextStyle(
-                                  fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                unselectedLabelStyle: TextStyle(
-                                  fontSize: 16.h,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                tabs: const [
-                                  Tab(text: 'Order Information'),
-                                  Tab(text: 'Design Information'),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -336,6 +244,13 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                                   ),
                                 ),
                               ),
+                              orderProvider.loading
+                                  ? Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.buttonGreen,
+                                      ),
+                                    )
+                                  : Container(),
 
                               // Status Tab Bar
                               if (availableStatuses.isNotEmpty &&
@@ -430,7 +345,9 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                                   ),
                                 ),
 
-                              if (availableStatuses.isEmpty || orders.isEmpty)
+                              if ((availableStatuses.isEmpty ||
+                                      orders.isEmpty) &&
+                                  !orderProvider.loading)
                                 Expanded(
                                   child: Center(
                                     child: Text(
@@ -447,7 +364,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                           ),
 
                           // Design Information Tab
-                          _doers.isEmpty
+                          doers.isEmpty
                               ? Center(
                                   child: Text(
                                     'No Designer found',
@@ -460,15 +377,10 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                                 )
                               : ListView.builder(
                                   padding: EdgeInsets.all(16.w),
-                                  itemCount: _doers.length,
+                                  itemCount: doers.length,
                                   itemBuilder: (context, index) {
-                                    final doer = _doers[index];
-                                    return DoerCard(
-                                      doer: doer,
-                                      onRate: doer.rated
-                                          ? null
-                                          : () => _handleRate(doer),
-                                    );
+                                    final doer = doers[index];
+                                    return DoerCard(doer: doer);
                                   },
                                 ),
                         ],
@@ -483,6 +395,39 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 right: 0,
                 child: ProfileHeader(title: "Project Details"),
               ),
+              if (orderProvider.loading)
+                Container(color: Colors.black.withOpacity(0.3)),
+              if (orderProvider.loading)
+                Center(
+                  child: Container(
+                    padding: EdgeInsets.all(20.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10.r,
+                          offset: Offset(0, 5.h),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(color: AppColors.buttonGreen),
+                        SizedBox(height: 8.h),
+                        Text(
+                          "Loading...",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             ],
           ),
         );

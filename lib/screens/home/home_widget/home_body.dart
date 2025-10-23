@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/images/app_image.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
+import 'package:picpee_mobile/providers/notification_provider.dart';
+import 'package:picpee_mobile/providers/order_provider.dart';
 import 'package:picpee_mobile/providers/skill_provider.dart';
 import 'package:picpee_mobile/screens/home/home_widget/all_service_card.dart';
 import 'package:picpee_mobile/screens/home/home_widget/designer_top_card.dart';
@@ -25,6 +27,8 @@ class _HomeBodyState extends State<HomeBody> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchTopDesigners();
+      _fetchNotificationUnread();
+      _fetchOrderCount();
     });
   }
 
@@ -45,6 +49,37 @@ class _HomeBodyState extends State<HomeBody> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _fetchNotificationUnread() async {
+    final notificationProvider = Provider.of<NotificationProvider>(
+      context,
+      listen: false,
+    );
+    final res = await notificationProvider.fetchUnreadCount();
+    if (!res) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error fetching unread notifications"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _fetchOrderCount() async {
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final res = await orderProvider.fetchCartCount();
+    if (!res) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error fetching order count"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
       );
     }
   }

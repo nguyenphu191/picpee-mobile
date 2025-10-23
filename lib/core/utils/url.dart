@@ -1,5 +1,5 @@
 class Url {
-  static const String baseUrl = "http://36.50.134.201:8080/api";
+  static const String baseUrl = "https://api.picpee.com/api";
   static const String login = "$baseUrl/login";
   static const String register = "$baseUrl/login/register";
   static const String registerGoogle = "$baseUrl/register-google";
@@ -36,7 +36,8 @@ class Url {
   static const String completedOrder = "$baseUrl/order/customer/complete";
   static const String payOrder = "$baseUrl/order/customer/purchase";
   static const String disputeOrder = "$baseUrl/order/customer/dispute";
-  static const String revisionOrder = "$baseUrl/order/customer/revision";
+  static const String revisionOrder =
+      "$baseUrl/order/customer/request-revision";
   static const String createOrder = "$baseUrl/order/customer";
   static const String deleteOrder = "$baseUrl/order/customer/delete";
   static const String getActivity = "$baseUrl/order-activity/get-by-order-id";
@@ -51,4 +52,7 @@ class Url {
   static const String getAllSkills = "$baseUrl/skill-manager/filter";
   static const String getFavoriteDesigners =
       "$baseUrl/user-favorite/filter-designer";
+  static const String getOneReview = "$baseUrl/user-review/get-review/vendor";
+  static const String submitReview = "$baseUrl/user-review";
+  static const String getCartCount = "$baseUrl/order/customer/cart-info";
 }

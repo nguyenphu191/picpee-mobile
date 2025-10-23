@@ -43,7 +43,46 @@ class UserProvider with ChangeNotifier {
     try {
       final updatedUser = await _userService.updateProfile(userId, data);
       if (updatedUser != null) {
-        _user = updatedUser;
+        for (var key in data.keys) {
+          switch (key) {
+            case 'firstname':
+              _user?.firstname = updatedUser.firstname;
+              break;
+            case 'username':
+              _user?.email = updatedUser.email;
+              break;
+            case 'avatar':
+              _user?.avatar = updatedUser.avatar;
+              break;
+            case 'lastname':
+              _user?.lastname = updatedUser.lastname;
+              break;
+            case 'phone':
+              _user?.phone = updatedUser.phone;
+              break;
+            case 'businessName':
+              _user?.businessName = updatedUser.businessName;
+              break;
+            case 'descriptionCompany':
+              _user?.descriptionCompany = updatedUser.descriptionCompany;
+              break;
+            case 'teamSize':
+              _user?.teamSize = updatedUser.teamSize;
+              break;
+            case 'phoneCode':
+              _user?.phoneCode = updatedUser.phoneCode;
+              break;
+            case 'timezone':
+              _user?.timezone = updatedUser.timezone;
+              break;
+            case "countryCode":
+              _user?.countryCode = updatedUser.countryCode;
+              break;
+            case "countryName":
+              _user?.countryName = updatedUser.countryName;
+              break;
+          }
+        }
         notifyListeners();
         return true;
       }

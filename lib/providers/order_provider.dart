@@ -33,10 +33,11 @@ class OrderProvider with ChangeNotifier {
   }
 
   Future<bool> fetchOrders(int projectId) async {
-    setLoading(true);
+    print('Provider fetch IDcc: $projectId');
     _orders = [];
+    setLoading(true);
     try {
-      final orders = await _orderService.fetchOrders(projectId: projectId);
+      final orders = await _orderService.getOrders(projectId: projectId);
       _orders = orders
           .where(
             (order) =>
@@ -44,6 +45,7 @@ class OrderProvider with ChangeNotifier {
                 order.status != 'CANCELLED'),
           )
           .toList();
+      print("Fetched orders: ${_orders.length}");
       notifyListeners();
       return true;
     } catch (e) {
@@ -57,7 +59,7 @@ class OrderProvider with ChangeNotifier {
     setLoading(true);
     _orders = [];
     try {
-      final orders = await _orderService.fetchOrders();
+      final orders = await _orderService.getOrders();
       _orders = orders.where((order) => order.status == status).toList();
       if (status == "PENDING_ORDER") {
         _cartCount = _orders.length;
@@ -145,6 +147,9 @@ class OrderProvider with ChangeNotifier {
     try {
       final success = await _orderService.completeOrder(orderId);
       if (success) {
+        if (_currentOrder != null && _currentOrder!.id == orderId) {
+          _currentOrder?.status = "COMPLETED";
+        }
         final index = _orders.indexWhere((order) => order.id == orderId);
         if (index != -1) {
           _orders[index] = OrderModel(
@@ -199,6 +204,9 @@ class OrderProvider with ChangeNotifier {
     try {
       final success = await _orderService.disputeOrder(orderId, note);
       if (success) {
+        if (_currentOrder != null && _currentOrder!.id == orderId) {
+          _currentOrder?.status = "DISPUTED";
+        }
         final index = _orders.indexWhere((order) => order.id == orderId);
         if (index != -1) {
           _orders[index] = OrderModel(
@@ -253,6 +261,9 @@ class OrderProvider with ChangeNotifier {
     try {
       final success = await _orderService.revisionOrder(orderId, note);
       if (success) {
+        if (_currentOrder != null && _currentOrder!.id == orderId) {
+          _currentOrder?.status = "AWAITING_REVISION";
+        }
         final index = _orders.indexWhere((order) => order.id == orderId);
         if (index != -1) {
           _orders[index] = OrderModel(
@@ -399,6 +410,21 @@ class OrderProvider with ChangeNotifier {
     setLoading(true);
     try {
       _checklist = await _orderService.fetchChecklist(orderId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  //fetch cart count
+  Future<bool> fetchCartCount() async {
+    setLoading(true);
+    try {
+      final num = await _orderService.getCartCount();
+      _cartCount = num;
       notifyListeners();
       return true;
     } catch (e) {

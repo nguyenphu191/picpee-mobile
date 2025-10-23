@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picpee_mobile/core/theme/app_colors.dart';
 import 'package:picpee_mobile/models/discount_model.dart';
@@ -47,6 +48,24 @@ class _DiscountScreenState extends State<DiscountScreen> {
         ),
       );
     }
+  }
+
+  // Hàm copy mã giảm giá vào clipboard
+  void _copyToClipboard(String code) {
+    Clipboard.setData(ClipboardData(text: code));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Copied "$code" to clipboard',
+          style: TextStyle(color: Colors.black),
+        ),
+        duration: const Duration(seconds: 2),
+        backgroundColor: AppColors.buttonGreen,
+        behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.all(16.h),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
   }
 
   // Hàm lọc danh sách discount theo từ khóa tìm kiếm
@@ -214,16 +233,43 @@ class _DiscountScreenState extends State<DiscountScreen> {
                                                     MainAxisAlignment
                                                         .spaceBetween,
                                                 children: [
-                                                  Text(
-                                                    discount.code,
-                                                    style: TextStyle(
-                                                      fontSize: 14.h,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.black,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        discount.code,
+                                                        style: TextStyle(
+                                                          fontSize: 14.h,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.black,
+                                                        ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                      ),
+                                                      SizedBox(width: 8.w),
+                                                      InkWell(
+                                                        onTap: () =>
+                                                            _copyToClipboard(
+                                                              discount.code,
+                                                            ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                        child: Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                4.h,
+                                                              ),
+                                                          child: Icon(
+                                                            Icons.copy,
+                                                            size: 16.h,
+                                                            color: Colors
+                                                                .grey[600],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                   SizedBox(width: 8.w),
                                                   Row(
@@ -370,29 +416,29 @@ class _DiscountScreenState extends State<DiscountScreen> {
                                                     ),
                                                   ),
                                                   SizedBox(width: 8.w),
-                                                  Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                          horizontal: 8.w,
-                                                          vertical: 4.h,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                    ),
-                                                    child: Text(
-                                                      "Use Now",
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 14.h,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
+                                                  // Container(
+                                                  //   padding:
+                                                  //       EdgeInsets.symmetric(
+                                                  //         horizontal: 8.w,
+                                                  //         vertical: 4.h,
+                                                  //       ),
+                                                  //   decoration: BoxDecoration(
+                                                  //     color: Colors.black,
+                                                  //     borderRadius:
+                                                  //         BorderRadius.circular(
+                                                  //           4,
+                                                  //         ),
+                                                  //   ),
+                                                  //   child: Text(
+                                                  //     "Use Now",
+                                                  //     style: TextStyle(
+                                                  //       color: Colors.white,
+                                                  //       fontSize: 14.h,
+                                                  //       fontWeight:
+                                                  //           FontWeight.w600,
+                                                  //     ),
+                                                  //   ),
+                                                  // ),
                                                 ],
                                               ),
                                             ],
